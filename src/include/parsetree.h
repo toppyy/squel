@@ -8,6 +8,7 @@ enum nodeType {
     STRING,
     NUMBER,
     SELECT,
+    STAR,
     FROM,
     WHERE,
     ROOT

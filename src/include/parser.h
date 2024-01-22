@@ -8,11 +8,11 @@
 
 #define MAXQUERYSIZE 1000
 #define MAXEXPRSIZE  100
-
+#define NODEBUFFSIZE 10
 
 char getNextChar();
 char expectChar(char expected);
-void keyword(char* kw);
+void keyword(char* kw, enum nodeType type);
 void skipWhite();
 void ident();
 void string();
@@ -22,16 +22,7 @@ void expr();
 void exprlist();
 void query();
 void source();
-void parse(char* input, Node *parsetree);
+size_t parse(char* input, Node **nodeOutput);
 
-struct Token {
-    int start;
-    int end;
-    char content[50];
-};
-
-
-struct Token nextToken(char *rawSql, int n, int start);
-void printToken(struct Token tkn);
 
 #endif  // PARSER_H

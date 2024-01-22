@@ -6,8 +6,20 @@ int  qsize = 0;
 char nextChar;
 int  cursor;
 
-Node *parsetree;
+Node *nodes = NULL;
+size_t nodeCount    = 0;
+size_t nodeBuffSize = NODEBUFFSIZE;
 
+void addNode(enum nodeType type, char* content) {
+    nodes[nodeCount].type = type;
+    strcpy(nodes[nodeCount].content,content);
+    nodeCount++;
+    if (nodeCount == nodeBuffSize) {
+        printf("Nodebuffer is full!");
+        exit(1);
+
+    }
+}
 
 char* KEYWORDS[2] = {
     "SELECT",
@@ -42,7 +54,7 @@ char expectChar(char expected) {
 }
 
 
-void keyword(char* kw) {
+void keyword(char* kw, enum nodeType type) {
 
     size_t i = 0;
     int start = cursor;
@@ -54,8 +66,7 @@ void keyword(char* kw) {
         printf("Expected to see %s at position %d (was %c)", kw, start, rawSql[start]);
         exit(1);
     }
-
-    printf("Parsed %s\n", kw);
+    addNode(type,kw);
 }
 
 void skipWhite() {
@@ -77,8 +88,7 @@ void ident() {
             exit(1);
         }
     }
-
-    printf("Parsed ident %s (of size %d)\n", buff, i);
+    addNode(IDENT,buff);
 }
 
 void string() {
@@ -95,7 +105,7 @@ void string() {
         }
     }
     expectChar('"');
-    printf("Parsed string constant %s (of size %d)\n", buff, i);
+    addNode(STRING,buff);
 }
 
 void expectNumber() {
@@ -121,7 +131,7 @@ void number() {
             exit(1);
         }
     }
-    printf("Parsed a number constant %s (of size %d)\n", buff, i);
+    addNode(NUMBER,buff);
 }
 
 void constant() {
@@ -139,7 +149,7 @@ void expr() {
     }
     if (nextChar == '*') {
         expectChar('*');
-        printf("Parsed a star.\n");
+        addNode(STAR,"*");
         return;
     }
     constant();    
@@ -155,12 +165,14 @@ void exprlist() {
     }
 }
 
+
+
 void query() {
     skipWhite();
-    keyword("SELECT");
+    keyword("SELECT", SELECT);
     skipWhite();
     exprlist();
-    keyword("FROM");
+    keyword("FROM", FROM);
     skipWhite();
     source();
 }
@@ -178,35 +190,15 @@ void source() {
 
 
 
-void printToken(struct Token tkn) {
-    printf("Token start %d, end %d\n", tkn.start, tkn.end);
-}
+size_t parse(char* input, Node **nodeOutput __attribute__ ((unused))) {
+
+    nodes = *nodeOutput;
 
 
-struct Token nextToken(char *rawSql, int n, int start) {
-    int i = start;
-    struct Token tkn;
-
-    while (isWhiteSpace(rawSql[i]) && i < n ) {
-        i++;
-    };
-
-    tkn.start = i;
-    i++;
-
-    while (isAlphaNumeric(rawSql[i]) && i < n ) {
-        i++;
-    };
-
-    tkn.end = i;
-    return tkn;
-}
-
-
-void parse(char* input, Node *parsetree) {
-    printf("Root type %d\n", parsetree->type);
     strcpy(rawSql,input);
     qsize = strlen(rawSql);
     getNextChar();
     query();
+    
+    return nodeCount;   
 }
