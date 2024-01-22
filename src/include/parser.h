@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "./parsetree.h"
 
 #define MAXQUERYSIZE 1000
 #define MAXEXPRSIZE  100
@@ -21,7 +22,7 @@ void expr();
 void exprlist();
 void query();
 void source();
-void parse(char* input);
+void parse(char* input, Node *parsetree);
 
 struct Token {
     int start;

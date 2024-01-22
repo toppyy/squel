@@ -1,5 +1,6 @@
 #include "./include/utils.h"
 #include "./include/parser.h"
+#include "./include/parsetree.h"
 
 
 int main(int argc, char* argv[]) {
@@ -14,5 +15,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    parse(argv[1]);
+    Node *root = createParsetree();
+    parse(argv[1], root);
+    freeTree(root);
 }

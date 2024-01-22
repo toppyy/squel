@@ -6,6 +6,8 @@ int  qsize = 0;
 char nextChar;
 int  cursor;
 
+Node *parsetree;
+
 
 char* KEYWORDS[2] = {
     "SELECT",
@@ -99,6 +101,7 @@ void string() {
 void expectNumber() {
     if (!isNumeric(nextChar)) {
         printf("Expected a number, got: %c.\n", nextChar);
+        exit(1);
     }
 }
 
@@ -126,14 +129,17 @@ void constant() {
         string();
         return;
     }
-    // If it's not a string, it must be a number
-    number();
-    
+    number();    
 }
 
 void expr() {
     if (isLetter(nextChar)) {
         ident();
+        return;
+    }
+    if (nextChar == '*') {
+        expectChar('*');
+        printf("Parsed a star.\n");
         return;
     }
     constant();    
@@ -177,8 +183,6 @@ void printToken(struct Token tkn) {
 }
 
 
-
-
 struct Token nextToken(char *rawSql, int n, int start) {
     int i = start;
     struct Token tkn;
@@ -199,7 +203,8 @@ struct Token nextToken(char *rawSql, int n, int start) {
 }
 
 
-void parse(char* input) {
+void parse(char* input, Node *parsetree) {
+    printf("Root type %d\n", parsetree->type);
     strcpy(rawSql,input);
     qsize = strlen(rawSql);
     getNextChar();
