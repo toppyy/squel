@@ -1,6 +1,12 @@
 #include "./include/parser.h"
 #include "./include/utils.h"
 
+char rawSql[MAXQUERYSIZE];
+int  qsize = 0;
+char nextChar;
+int  cursor;
+
+
 char* KEYWORDS[2] = {
     "SELECT",
     "FROM"
@@ -8,7 +14,7 @@ char* KEYWORDS[2] = {
 
 bool isKeyword(char* w) {
 
-    for (int i = 0; i < SIZEOF(KEYWORDS); i++) {
+    for (size_t i = 0; i < SIZEOF(KEYWORDS); i++) {
 
         if ( strcmp(w,KEYWORDS[i]) == 0) {
             printf("Matched: %s\n", KEYWORDS[i]);
@@ -34,9 +40,9 @@ char expectChar(char expected) {
 }
 
 
-void parseKeyword(char* kw) {
+void keyword(char* kw) {
 
-    int i = 0;
+    size_t i = 0;
     int start = cursor;
     while (kw[i++] == nextChar) {
         getNextChar();
@@ -145,10 +151,10 @@ void exprlist() {
 
 void query() {
     skipWhite();
-    parseKeyword("SELECT");
+    keyword("SELECT");
     skipWhite();
     exprlist();
-    parseKeyword("FROM");
+    keyword("FROM");
     skipWhite();
     source();
 }
@@ -190,4 +196,12 @@ struct Token nextToken(char *rawSql, int n, int start) {
 
     tkn.end = i;
     return tkn;
+}
+
+
+void parse(char* input) {
+    strcpy(rawSql,input);
+    qsize = strlen(rawSql);
+    getNextChar();
+    query();
 }

@@ -1,12 +1,23 @@
-SRC = $(wildcard src/*.c)
-OBJ = $(SRC:.c=.o)
+
+BUILDIR = build
+
+SRC=./src/
+ODIR=build
+
+__OBJ = $(wildcard -r src/*.c) $(wildcard -r src/**/*.c) $(wildcard -r src/**/**/*.c)
+_OBJ = $(patsubst %.c, %.o, $(__OBJ))
+OBJ = $(patsubst src/%, $(ODIR)/%, $(_OBJ))
+
 
 CC = gcc
-#CFLAGS = -Wall -Wextra -Werror
-##$(CC) $(CFLAGS) $(OBJ) -o $@
-CFLAGS = 
+CFLAGS = -Wall -Wextra -Werror
+
 squel: $(OBJ)
-	$(CC) $(OBJ) -o $@
+	$(CC) $(CFLAGS) $(OBJ) -o $(ODIR)/$@
+
+$(ODIR)/%.o: $(SRC)%.c
+	$(CC) -g -c $< -o $@  $(CFLAGS)
+
 
 
 clean:

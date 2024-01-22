@@ -1,6 +1,7 @@
 #include "./include/utils.h"
 #include "./include/parser.h"
 
+
 int main(int argc, char* argv[]) {
 
     if (argc == 1) {
@@ -13,8 +14,5 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    strcpy(rawSql,argv[1]);
-    qsize = strlen(rawSql);
-    getNextChar();
-    query();
+    parse(argv[1]);
 }
