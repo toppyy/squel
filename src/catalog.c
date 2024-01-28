@@ -103,7 +103,7 @@ void traverse(Node* node) {
     }
 }
 
-TableMetadata* catalogQuery(Node* astRoot, char delimiter) {
+TableMetadata* catalogQuery(Node* astRoot, char delimiter, size_t* p_tableCount) {
 
     /*
         Traverse the ast and find all table references.
@@ -111,6 +111,8 @@ TableMetadata* catalogQuery(Node* astRoot, char delimiter) {
     */
 
     traverse(astRoot);
+
+    *p_tableCount = tableCount;
 
     TableMetadata* tbls = calloc(tableCount, sizeof(TableMetadata));
 
@@ -124,6 +126,8 @@ TableMetadata* catalogQuery(Node* astRoot, char delimiter) {
         printf("Error: system catalog not implemented. Can query only files.\n");
         exit(1);
     }
+
+
 
     return tbls;
 }

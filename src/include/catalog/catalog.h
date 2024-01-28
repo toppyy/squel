@@ -28,4 +28,4 @@ typedef struct {
 
 
 
-TableMetadata* catalogQuery(Node* astRoot, char delimiter);
+TableMetadata* catalogQuery(Node* astRoot, char delimiter, size_t* tableCount);

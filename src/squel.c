@@ -38,13 +38,13 @@ int main(int argc, char* argv[]) {
 
     /* Allocate memory for parse tree and parse the raw query */
     Node* ast = createParsetree();
-    size_t nodeCount = parse(argv[1], ast);
+    parse(argv[1], ast);
 
     /* Catalog the query */
     char delimiter = ';';
-    TableMetadata* tables = catalogQuery(ast, delimiter);
-    size_t tableCount = 1;
-
+    size_t tableCount = 0;
+    TableMetadata* tables = catalogQuery(ast, delimiter, &tableCount);
+    
     /* Annotate the abstract syntax tree */
     bind(ast, tables, tableCount);
 
