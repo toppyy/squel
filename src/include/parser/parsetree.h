@@ -4,7 +4,9 @@
 
 enum nodeType {
     EXPR,
-    IDENT,
+    IDENT_COL,
+    IDENT_TBL,
+    FILEPATH,
     STRING,
     NUMBER,
     SELECT,
@@ -19,13 +21,18 @@ typedef struct Node {
     char content[50];
     struct Node *next;
     struct Node *child;
+
+    /* These are used by the binder */
+    int tableRef;
+    int colRef;
+
 } Node;
 
 
 Node* createParsetree();
 
 Node* createNode(enum nodeType type, char* content);
-void addChild(Node *parent, enum nodeType type, char* content);
-void addNext(Node *parent, enum nodeType type, char* content);
+Node* addChild(Node *parent, enum nodeType type, char* content);
+Node* addNext(Node *parent, enum nodeType type, char* content);
 
 void freeTree(Node *node);

@@ -12,13 +12,19 @@ OBJ = $(patsubst src/%, $(ODIR)/%, $(_OBJ))
 CC = gcc
 CFLAGS = -Wall -Wextra #-Werror
 
+
+
 squel: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(ODIR)/$@
 
 $(ODIR)/%.o: $(SRC)%.c
 	$(CC) -g -c $< -o $@  $(CFLAGS)
 
-
+dirs:
+	mkdir -p build/parser
+	mkdir -p build/catalog
+	mkdir -p build/binder
+	mkdir -p build/io
 
 clean:
 	rm -f squel $(OBJ)

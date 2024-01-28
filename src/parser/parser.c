@@ -1,44 +1,33 @@
-#include "./include/parser.h"
-#include "./include/utils.h"
+#include "../include/parser/parser.h"
+#include "../include/parser/utils.h"
 
 char rawSql[MAXQUERYSIZE];
 int  qsize = 0;
-char nextChar;
 int  cursor;
+char nextChar;
+bool nextToChild = false;
 
-Node *nodes = NULL;
+Node *root          = NULL;
+Node *currentNode   = NULL;
 size_t nodeCount    = 0;
-size_t nodeBuffSize = NODEBUFFSIZE;
+
+
 
 void addNode(enum nodeType type, char* content) {
-    nodes[nodeCount].type = type;
-    strcpy(nodes[nodeCount].content,content);
+    
     nodeCount++;
-    if (nodeCount == nodeBuffSize) {
-        printf("Nodebuffer is full!");
-        exit(1);
 
-    }
-}
-
-char* KEYWORDS[2] = {
-    "SELECT",
-    "FROM"
-};
-
-bool isKeyword(char* w) {
-
-    for (size_t i = 0; i < SIZEOF(KEYWORDS); i++) {
-
-        if ( strcmp(w,KEYWORDS[i]) == 0) {
-            printf("Matched: %s\n", KEYWORDS[i]);
-            return true;
-        }
-
+    if (!nextToChild) {
+        currentNode = addNext(currentNode, type, content);
+        return;
     }
 
-    return false;
+    currentNode = addChild(currentNode, type, content);
+    nextToChild = false;
+    
 }
+
+
 
 char getNextChar() {
     nextChar = rawSql[cursor++];
@@ -75,7 +64,24 @@ void skipWhite() {
 }
 
 
-void ident() {
+void filename() {
+   
+    char buff[MAXEXPRSIZE];
+    memset(buff,0,MAXEXPRSIZE);
+    int i = 0;
+    while (nextChar != '\'') {
+        buff[i++] = nextChar;
+        getNextChar();
+        if (i > qsize) {
+            printf("Something went wrong :/ Cursor exceeds query length\n");
+            exit(1);
+        }
+    }
+    addNode(FILEPATH,buff);
+}
+
+
+void ident(enum nodeType type) {
    
     char buff[MAXEXPRSIZE];
     memset(buff,0,MAXEXPRSIZE);
@@ -88,7 +94,7 @@ void ident() {
             exit(1);
         }
     }
-    addNode(IDENT,buff);
+    addNode(type,buff);
 }
 
 void string() {
@@ -144,7 +150,7 @@ void constant() {
 
 void expr() {
     if (isLetter(nextChar)) {
-        ident();
+        ident(IDENT_COL);
         return;
     }
     if (nextChar == '*') {
@@ -168,12 +174,34 @@ void exprlist() {
 
 
 void query() {
+
+    // Use tmp to jump back to the top level after collecting children
+    // The tree structure will be
+    // SELECT
+    //      children..
+    //      next: FROM
+    // FROM
+    //      children..
+    //      next: WHERE(?)
+    // WHERE
+    //      children..
+
+    Node* tmp = NULL;
+
     skipWhite();
+    
     keyword("SELECT", SELECT);
+    tmp = currentNode;
     skipWhite();
+    nextToChild = true;
     exprlist();
+
+    currentNode = tmp;
+
     keyword("FROM", FROM);
+    nextToChild = true;
     skipWhite();
+    
     source();
 }
 
@@ -185,15 +213,21 @@ void source() {
         expectChar(')');
         return;
     }
-    ident();
+    if (nextChar == '\'') {
+        getNextChar();
+        filename();
+        getNextChar();
+        return;
+    }
+    ident(IDENT_TBL);
 }   
 
 
 
-size_t parse(char* input, Node **nodeOutput __attribute__ ((unused))) {
+size_t parse(char* input, Node* p_root) {
 
-    nodes = *nodeOutput;
-
+    root = p_root;
+    currentNode = p_root;
 
     strcpy(rawSql,input);
     qsize = strlen(rawSql);

@@ -1,17 +1,22 @@
-#include "./include/utils.h"
-#include "./include/parser.h"
-#include "./include/parsetree.h"
+#include "./include/catalog/catalog.h"
+#include "./include/parser/parser.h"
+#include "./include/binder/binder.h"
+
+#define METADATABUFFSIZE 10
 
 
 void printTree(Node *node) {
 
+    if (node == NULL) {
+        return;
+    }
 
-    printf("Node with type %d and content %s.\n", node->type, node->content);
+    printf("Node with type %d and content '%s' from tbl %d and col %d\n", node->type, node->content, node->tableRef, node->colRef);
 
     if (node->child != NULL) {
         printf("Children: \n");
         printTree(node->child);
-        printf("Children done \n");
+        printf("Children from type %d done \n", node->type);
     }
 
     if (node->next != NULL) {
@@ -27,23 +32,24 @@ int main(int argc, char* argv[]) {
     }
 
     if (strlen(argv[1]) >= MAXQUERYSIZE) {
-        printf("Query length exceeds maximum :/\n");
+        printf("Error: Query length exceeds maximum.\n");
         exit(1);
     }
 
-    
-    Node *nodes = NULL;
-    nodes = (Node*) malloc(sizeof(Node) * NODEBUFFSIZE);
-    Node **p_nodes = &nodes;
-    size_t nodeCount = parse(argv[1], p_nodes);
-    
-    printf("Nodes %ld\n", nodeCount);
-    
-    
-    for (size_t i = 0; i < nodeCount; i++) {
-        printf("Node type %d, content %s\n",nodes[i].type, nodes[i].content);
-    }
-        
-    free(nodes);
+    /* Allocate memory for parse tree and parse the raw query */
+    Node* ast = createParsetree();
+    size_t nodeCount = parse(argv[1], ast);
+
+    /* Catalog the query */
+    char delimiter = ';';
+    TableMetadata* tables = catalogQuery(ast, delimiter);
+    size_t tableCount = 1;
+
+    /* Annotate the abstract syntax tree */
+    bind(ast, tables, tableCount);
+
+    /* Free all the memory used */
+    freeTree(ast);
+    free(tables);
 
 }
