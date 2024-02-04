@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef enum {
+    DTYPE_STR,
+    DTYPE_INT,
+    DTYPE_UNDEFINED
+} Datatype;
+
+
 enum nodeType {
     EXPR,
     IDENT_COL,
@@ -25,6 +32,8 @@ typedef struct Node {
     /* These are used by the binder */
     int tableRef;
     int colRef;
+    Datatype dtype;
+    size_t identifier;
 
 } Node;
 

@@ -25,6 +25,7 @@ dirs:
 	mkdir -p build/catalog
 	mkdir -p build/binder
 	mkdir -p build/io
+	mkdir -p build/executor
 
 clean:
 	rm -f squel $(OBJ)

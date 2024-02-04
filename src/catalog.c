@@ -1,6 +1,8 @@
 #include "./include/catalog/catalog.h"
 
 
+size_t identifier = 0;
+
 Datatype inferDatatype(char* item) {
     if (isNumeric(item[0])) {
         return DTYPE_INT;
@@ -21,6 +23,9 @@ void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimite
     char* firstLine = readLine(f);
     fclose(f);
 
+    // Store the path
+    strcpy(p_tablemetadata->path, path);
+
     // Parse column names from header
     size_t columnCount = 0;
     size_t cursor = 0;
@@ -36,6 +41,7 @@ void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimite
                 printf("Error: column count exceeds buffer\n");
                 exit(1);
             }
+            p_tablemetadata->columns[columnCount].identifier = ++identifier;
             continue;
         }
         p_tablemetadata->columns[columnCount].name[cursor] = header[i];

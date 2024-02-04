@@ -9,14 +9,11 @@
 #define METADATASIZE    100
 #define COLUMNSSIZE     10
 
-typedef enum {
-    DTYPE_STR,
-    DTYPE_INT,
-} Datatype;
 
 typedef struct {
     char name[METADATASIZE];
     Datatype type;
+    size_t identifier;
 } ColumnMetadata;
 
 typedef struct {

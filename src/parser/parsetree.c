@@ -12,6 +12,8 @@ Node* createNode(enum nodeType type, char* content) {
     /* These are used by the binder */
     new->tableRef = -1;
     new->colRef   = -1;
+    new->dtype    = DTYPE_UNDEFINED;
+    new->identifier = -1;
     
     return new;
 }

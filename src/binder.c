@@ -18,10 +18,10 @@ void bindColumn(Node* node,TableMetadata* tables, size_t tableCount) {
 
             node->tableRef  = i;
             node->colRef    = ci;
+            node->identifier = tables[i].columns[ci].identifier;
         }
     }
 }
-
 
 
 
