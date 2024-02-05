@@ -30,10 +30,15 @@ typedef struct {
     size_t cursor;
 } ScanInfo;
 
+typedef struct {
+    int wtf;
+} FilterInfo;
+
 
 typedef union {
     ProjectInfo project;
     ScanInfo    scan;
+    FilterInfo  filter;
 } OperatorInfo;
 
 typedef struct Operator {

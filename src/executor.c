@@ -70,6 +70,22 @@ Tuple* projectGetTuple(Operator* op) {
 
 }
 
+Tuple* filterGetTuple(Operator* op) {
+
+    if (op->child == NULL) {
+        printf("OP_FILTER has no child\n");
+        exit(1);
+    }
+
+    if ( op->child->getTuple == NULL) {
+        printf("Child of OP_FILTER has no getTuple-method\n");
+        exit(1);
+    }
+
+
+    return op->child->getTuple(op->child);
+}
+
 Tuple* scanGetTuple(Operator* op) {
 
 
@@ -146,6 +162,9 @@ void assignGetTupleFunction(Operator *op) {
         case(OP_PROJECT):
             op->getTuple = &projectGetTuple;
             break;
+        case (OP_FILTER):
+            op->getTuple = &filterGetTuple;
+            break;
         default:
             printf("Don't know how to handle op-type %d\n", op->type);
             exit(1);
@@ -178,6 +197,7 @@ void execute(Operator *op) {
 
     assignGetTupleFunction(op);
     assignGetTupleFunction(op->child);
+    assignGetTupleFunction(op->child->child);
 
     struct Tuple* tpl;
 

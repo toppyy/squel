@@ -19,7 +19,7 @@ void printTree(Node *node) {
     if (node->child != NULL) {
         printf("Children: \n");
         printTree(node->child);
-        printf("Children from type %d done \n", node->type);
+        printf("Children from '%s' \\w type %d done \n", node->content, node->type);
     }
 
     if (node->next != NULL) {
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     /* Annotate the abstract syntax tree */
     bind(parsetree, tables, tableCount);
 
-    // printTree(parsetree);
+    printTree(parsetree);
 
     /* Plan the query */
     Operator* queryplan = planQuery(parsetree, tables, tableCount);

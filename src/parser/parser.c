@@ -43,6 +43,15 @@ char expectChar(char expected) {
 }
 
 
+bool peekWordMatches(char* w) {
+
+    size_t i = 0;
+    size_t start = cursor - 1;
+    while (w[i++] == rawSql[start++]) {}    
+    return(i >= strlen(w));
+
+}
+
 void keyword(char* kw, enum nodeType type) {
 
     size_t i = 0;
@@ -168,7 +177,29 @@ void exprlist() {
     if (nextChar == ',') {
         getNextChar();
         exprlist();
+        return;
     }
+
+}
+void boolExpr(bool expectOp);
+void boolOp() {
+    if (nextChar == '=') {
+        getNextChar();
+        addNode(BOOLOP,"=");
+        boolExpr(false);
+        return;
+    }
+}
+
+void boolExpr(bool expectOp) {
+    skipWhite();
+    if (isLetter(nextChar)) {
+        ident(IDENT_COL);
+        if (expectOp) boolOp();
+        return;
+    }
+
+    printf("NOT IMPLEMENTED. Next char was '%c' at cursor %d\n", nextChar, cursor);
 }
 
 
@@ -199,10 +230,22 @@ void query() {
     currentNode = tmp;
 
     keyword("FROM", FROM);
+    tmp = currentNode;
     nextToChild = true;
     skipWhite();
-    
     source();
+    skipWhite();
+
+    currentNode = tmp; // TODO: this is shit
+
+    if (peekWordMatches("WHERE")) {
+
+        keyword("WHERE", WHERE);
+        nextToChild = true;
+        skipWhite();
+        boolExpr(true);
+        skipWhite();
+    }
 }
 
 void source() {

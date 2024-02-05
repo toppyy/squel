@@ -32,6 +32,21 @@ Operator* makeScanOp(TableMetadata tbl) {
 }
 
 
+
+Operator* makeFilterOp(Node* node, Operator* child) {
+
+    Operator* op = (Operator*) calloc(1, sizeof(Operator));
+    op->type = OP_FILTER;
+    op->next                    = NULL;
+    op->child                   = NULL;
+    op->getTuple                = NULL;
+
+    memcpy(&op->resultDescription, &child->resultDescription, sizeof(child->resultDescription));
+
+    return op;
+}
+
+
 Operator* makeProjectOp(Node* node) {
 
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
@@ -91,7 +106,19 @@ Operator* planQuery(Node* astRoot, TableMetadata* tables, size_t tableCount) {
 
     Operator* op_scan = makeScanOp(tables[0]);
 
-    op_scan->next  = op_proj;
-    op_proj->child = op_scan;
+    Node* WHERE = astRoot->next->next->next;
+    if (WHERE != NULL) {
+        Operator* op_filt = makeFilterOp(WHERE, op_scan);
+        op_scan->next   = op_filt;
+        op_filt->next   = op_proj;
+
+        op_proj->child  = op_filt;
+        op_filt->child  = op_scan;
+    } else {
+        op_scan->next  = op_proj;
+        op_proj->child = op_scan;
+    }
+
+
     return op_proj;   
 }

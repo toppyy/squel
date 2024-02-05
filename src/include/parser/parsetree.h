@@ -20,7 +20,8 @@ enum nodeType {
     STAR,
     FROM,
     WHERE,
-    ROOT
+    ROOT,
+    BOOLOP
 };
 
 typedef struct Node {
