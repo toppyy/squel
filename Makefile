@@ -29,3 +29,7 @@ dirs:
 
 clean:
 	rm -f squel $(OBJ)
+
+# Run tests
+tests:
+	./test/bats-core/bin/bats ./test

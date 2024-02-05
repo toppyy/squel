@@ -155,12 +155,8 @@ void printTuple(Tuple* tpl) {
     char* printBuff = calloc(tpl->size + 1, sizeof(char));
     for (size_t i = 0; i < tpl->columnCount; i++) {
         strcpy(printBuff + strlen(printBuff), tpl->pCols[i]);
+        if (i == tpl->columnCount - 1) continue;
         strcpy(printBuff + strlen(printBuff), ";");
-    }
-
-
-    for (size_t i = 0; i < strlen(printBuff); i++) {
-        if (printBuff[i] == '\0') printBuff[i] = ';';
     }
 
     printf("%s\n", printBuff);
