@@ -3,6 +3,9 @@
 
 #define QUERYBUFFER 10 * 1000
 #define SCANBUFFER  500
+#define DELIMITER   ';'
+#define DELIMITERSTR ";"
+
 char *buffercache;
 char *bufferscan;
 TupleBuffer tplbuffer;
@@ -47,7 +50,7 @@ Tuple* projectGetTuple(Operator* op) {
         if (!included) continue;
 
 
-        newSize += strlen(tpl->pCols[j]);
+        newSize += strlen(tpl->pCols[j]) + 1;
         
         newidentifiers[newcolumnCount] = tpl->identifiers[j];
         newpCols[newcolumnCount] = tpl->pCols[j];
@@ -110,7 +113,7 @@ Tuple* scanGetTuple(Operator* op) {
 
     for (;;) {
         
-        dlmtr = strchr(buffercacheWithCursor + cursor, ';');
+        dlmtr = strchr(buffercacheWithCursor + cursor, DELIMITER);
         
         if (dlmtr == NULL) {
             tplbuffer.tuples[idx].pCols[i] =  buffercacheWithCursor;
@@ -152,11 +155,12 @@ void assignGetTupleFunction(Operator *op) {
 
 void printTuple(Tuple* tpl) {
 
-    char* printBuff = calloc(tpl->size + 1, sizeof(char));
+    char* printBuff = calloc(tpl->size, sizeof(char));
+
     for (size_t i = 0; i < tpl->columnCount; i++) {
         strcpy(printBuff + strlen(printBuff), tpl->pCols[i]);
         if (i == tpl->columnCount - 1) continue;
-        strcpy(printBuff + strlen(printBuff), ";");
+        strcpy(printBuff + strlen(printBuff), DELIMITERSTR);
     }
 
     printf("%s\n", printBuff);
