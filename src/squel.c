@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     /* Annotate the abstract syntax tree */
     bind(parsetree, tables, tableCount);
 
-    printTree(parsetree);
+    // printTree(parsetree);
 
     /* Plan the query */
     Operator* queryplan = planQuery(parsetree, tables, tableCount);

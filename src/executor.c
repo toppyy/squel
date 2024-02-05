@@ -195,9 +195,12 @@ void execute(Operator *op) {
 
     tplbuffer.tupleCount = 0;
 
-    assignGetTupleFunction(op);
-    assignGetTupleFunction(op->child);
-    assignGetTupleFunction(op->child->child);
+    Operator* p_op = op;
+
+    while (p_op != NULL) {
+        assignGetTupleFunction(p_op);
+        p_op = p_op->child;
+    }
 
     struct Tuple* tpl;
 
