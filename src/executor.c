@@ -70,7 +70,18 @@ Tuple* projectGetTuple(Operator* op) {
 
 }
 
+
+
 Tuple* filterGetTuple(Operator* op) {
+
+    if (op == NULL) {
+        printf("Passed a NULL-pointer to filterGetTuple\n");
+        exit(1);
+    }
+
+    if (op->type != OP_FILTER) {
+        printf("Called filterGetTuple on an operator that is not OP_FILTER\n");
+    }
 
     if (op->child == NULL) {
         printf("OP_FILTER has no child\n");
@@ -82,8 +93,43 @@ Tuple* filterGetTuple(Operator* op) {
         exit(1);
     }
 
+    Tuple* tpl = NULL;
 
-    return op->child->getTuple(op->child);
+    while (true) {
+        /* Get new tuples until found something that passes the filter */
+
+        tpl = op->child->getTuple(op->child);
+
+        if (tpl == NULL) {
+            return NULL;
+        }
+
+        
+        int idx1    = op->info.filter.boolExprList[0];
+        int boolOp  = op->info.filter.boolExprList[1];
+        int idx2    = op->info.filter.boolExprList[2];
+
+        if (
+            (size_t) idx1 > tpl->columnCount
+            ||
+            (size_t) idx2 > tpl->columnCount 
+        ) {
+            printf("Filter column references out of bounds\n");
+            exit(1);
+        }
+
+        if (boolOp == -1) {
+            if (strcmp(tpl->pCols[idx1],tpl->pCols[idx2]) == 0) break;
+        } else {
+            printf("Operator %d not implemented\n", boolOp);
+            exit(1);
+        }
+
+
+
+    }
+
+    return tpl;
 }
 
 Tuple* scanGetTuple(Operator* op) {

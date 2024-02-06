@@ -4,6 +4,7 @@
 #include "../catalog/catalog.h"
 
 #define PROJCOLSIZE 10
+#define FILTERSIZE  20
 
 typedef enum {
     OP_SCAN,
@@ -31,7 +32,8 @@ typedef struct {
 } ScanInfo;
 
 typedef struct {
-    int wtf;
+    int     boolExprList[FILTERSIZE];
+    size_t  boolExprListSize;
 } FilterInfo;
 
 

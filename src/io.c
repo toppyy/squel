@@ -25,7 +25,6 @@ char* readLineToBuffer(FILE* f, char* buff, size_t buffSize) {
     char* rtrn = fgets(buff, buffSize, f);
 
     if (rtrn == NULL) {
-        printf("EOF\n");
         return NULL;
     }
     if (strlen(buff) >= buffSize) {
