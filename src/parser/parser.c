@@ -183,6 +183,7 @@ void exprlist() {
 }
 void boolExpr(bool expectOp);
 void boolOp() {
+    skipWhite();
     if (
         nextChar == '=' ||
         nextChar == '<' ||
@@ -201,6 +202,8 @@ void boolOp() {
         boolExpr(false);
         return;
     }
+    printf("Expected a boolean operator.\n");
+    exit(1);
 }
 
 void boolExpr(bool expectOp) {

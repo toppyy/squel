@@ -57,12 +57,12 @@ Node* mapBoolExpr(Node* node, ResultSet* childResultDesc, int* boolExprList, siz
     }
     
     if (node->next == NULL) {
-        printf("Making bool expr failed. Node has no next (content: %s)\n", node->content);
+        printf("Making bool expr failed. Node has no next (content: '%s')\n", node->content);
         exit(1);
     }
 
     if (node->next->next == NULL) {
-        printf("Making bool expr failed. Node's next has no next (content: %s)\n", node->content);
+        printf("Making bool expr failed. Node's next has no next (content: '%s')\n", node->content);
         exit(1);
     }
 
