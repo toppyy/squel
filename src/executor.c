@@ -119,21 +119,29 @@ Tuple* filterGetTuple(Operator* op) {
         }
 
 
-        if (boolOp == -1) {
-            if (strcmp(tpl->pCols[idx1],tpl->pCols[idx2]) == 0) break;
-            continue;
+        bool matches = false;
+
+        int cmpRes = strcmp(tpl->pCols[idx1],tpl->pCols[idx2]);
+
+        switch(boolOp) {
+            case -1:
+                matches = cmpRes == 0;
+                break;
+            case -2:
+                matches = cmpRes != 0;
+                break;
+            case -3:
+                matches = cmpRes < 0;
+                break;
+            case -4:
+                matches = cmpRes > 0;
+                break;
+            default:    
+                printf("Operator %d not implemented\n", boolOp);
+                exit(1);
         }
 
-        if (boolOp == -2) {
-            if (strcmp(tpl->pCols[idx1],tpl->pCols[idx2]) != 0) break;
-            continue;
-        }
-        
-        
-        printf("Operator %d not implemented\n", boolOp);
-        exit(1);
-        
-
+        if (matches) break;
 
 
     }

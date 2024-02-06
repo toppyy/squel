@@ -40,6 +40,12 @@ int mapBoolOpToInt(char* boolOp) {
     if (strcmp(boolOp, "!=") == 0) {
         return -2;
     }
+    if (strcmp(boolOp, "<") == 0) {
+        return -3;
+    }
+    if (strcmp(boolOp, ">") == 0) {
+        return -4;
+    }
     printf("Don't know how to handle boolean operator %s\n", boolOp);
     exit(1);
 }

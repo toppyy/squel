@@ -183,9 +183,14 @@ void exprlist() {
 }
 void boolExpr(bool expectOp);
 void boolOp() {
-    if (nextChar == '=') {
+    if (
+        nextChar == '=' ||
+        nextChar == '<' ||
+        nextChar == '>'
+    ) {
+        char op[2] = { nextChar, '\0' };
         getNextChar();
-        addNode(BOOLOP,"=");
+        addNode(BOOLOP,op);
         boolExpr(false);
         return;
     }

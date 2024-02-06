@@ -9,7 +9,7 @@
 
 /* Utilities for interacting with the file system */
 #define LINEBUFF        200
-
+#define LF              10
 
 bool fileExists(const char* path);
 

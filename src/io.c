@@ -14,7 +14,7 @@ char* readLine(FILE* f) {
         exit(1);
     }
     // Remove LF
-    rtrn[strlen(buff)-1] = '\0';
+    if (rtrn[strlen(buff)-1] == LF) rtrn[strlen(buff)-1] = '\0';
     return rtrn;
 
 }
@@ -32,10 +32,7 @@ char* readLineToBuffer(FILE* f, char* buff, size_t buffSize) {
         exit(1);
     }
     // Remove LF
-    if (rtrn == NULL) {
-        printf("RTRN IS NULL");
-    }
-    rtrn[strlen(buff)-1] = '\0';
+    if (rtrn[strlen(buff)-1] == LF) rtrn[strlen(buff)-1] = '\0';
     return rtrn;
     
 }
