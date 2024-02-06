@@ -37,6 +37,9 @@ int mapBoolOpToInt(char* boolOp) {
     if (strcmp(boolOp, "=") == 0) {
         return -1;
     }
+    if (strcmp(boolOp, "!=") == 0) {
+        return -2;
+    }
     printf("Don't know how to handle boolean operator %s\n", boolOp);
     exit(1);
 }
@@ -97,8 +100,9 @@ Node* mapBoolExpr(Node* node, ResultSet* childResultDesc, int* boolExprList, siz
         We will use a crazy decoding for bool exprs.
         Negative numbers are boolean operators:
             -1 equals '='
-            -2 equals '<'
-            -3 equals '>'
+            -2 equals '!='
+            -3 equals '<'
+            -4 equals '>'
         
         Positive integers are column indexes in the child result description.
 

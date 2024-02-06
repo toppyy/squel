@@ -189,6 +189,13 @@ void boolOp() {
         boolExpr(false);
         return;
     }
+    if (nextChar == '!') {
+        getNextChar();
+        expectChar('=');
+        addNode(BOOLOP,"!=");
+        boolExpr(false);
+        return;
+    }
 }
 
 void boolExpr(bool expectOp) {

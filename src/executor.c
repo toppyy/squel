@@ -118,12 +118,21 @@ Tuple* filterGetTuple(Operator* op) {
             exit(1);
         }
 
+
         if (boolOp == -1) {
             if (strcmp(tpl->pCols[idx1],tpl->pCols[idx2]) == 0) break;
-        } else {
-            printf("Operator %d not implemented\n", boolOp);
-            exit(1);
+            continue;
         }
+
+        if (boolOp == -2) {
+            if (strcmp(tpl->pCols[idx1],tpl->pCols[idx2]) != 0) break;
+            continue;
+        }
+        
+        
+        printf("Operator %d not implemented\n", boolOp);
+        exit(1);
+        
 
 
 
