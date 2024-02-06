@@ -38,7 +38,7 @@ char expectChar(char expected) {
     if (nextChar == expected) 
         return getNextChar();
 
-    printf("Was expecting %c, but got %c.\n", expected, nextChar);
+    printf("Was expecting '%c', but got '%c'.\n", expected, nextChar);
     exit(1);
 }
 
@@ -110,8 +110,8 @@ void string() {
     char buff[MAXEXPRSIZE];
     memset(buff,0,MAXEXPRSIZE);
     int i = 0;
-    expectChar('"');
-    while (nextChar != '"') {
+    expectChar('\'');
+    while (nextChar != '\'') {
         buff[i++] = nextChar;
         getNextChar();
         if (i > qsize) {
@@ -119,7 +119,7 @@ void string() {
             exit(1);
         }
     }
-    expectChar('"');
+    expectChar('\'');
     addNode(STRING,buff);
 }
 
@@ -150,7 +150,7 @@ void number() {
 }
 
 void constant() {
-    if (nextChar == '"') {
+    if (nextChar == '\'') {
         string();
         return;
     }
@@ -213,8 +213,13 @@ void boolExpr(bool expectOp) {
         if (expectOp) boolOp();
         return;
     }
+    if (nextChar == '\'') {
+        expr();
+        if (expectOp) boolOp();
+        return;
+    }
 
-    printf("NOT IMPLEMENTED. Next char was '%c' at cursor %d\n", nextChar, cursor);
+    printf("Parsing a boolean expression failed. Next char was '%c' at cursor %d\n", nextChar, cursor);
 }
 
 

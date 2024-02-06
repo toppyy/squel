@@ -50,6 +50,7 @@ int mapBoolOpToInt(char* boolOp) {
     exit(1);
 }
 
+
 Node* mapBoolExpr(Node* node, ResultSet* childResultDesc, int* boolExprList, size_t* boolExprListSize) {
     if (node == NULL) {
         printf("Passed NULL-pointer to mapBoolExpr.\n");
@@ -92,12 +93,12 @@ Node* mapBoolExpr(Node* node, ResultSet* childResultDesc, int* boolExprList, siz
         }
     }
 
-    if (value1Loc < 0) {
+    if (value1Loc < 0 && value1->type == IDENT_COL) {
         printf("Could not find column '%s' in result description\n", value1->content);
         exit(1);
     }
 
-    if (value2Loc < 0) {
+    if (value2Loc < 0 && value2->type == IDENT_COL) {
         printf("Could not find column '%s' in result description\n", value2->content);
         exit(1);
     }
@@ -126,6 +127,31 @@ Node* mapBoolExpr(Node* node, ResultSet* childResultDesc, int* boolExprList, siz
 
 }
 
+void boolExprAddTypes(Node* node, enum nodeType* types) {
+
+    types[0] = node->type;
+    types[1] = node->next->type;
+    types[2] = node->next->next->type;
+
+}
+
+void boolExprAddConstants(Node* node, char (*constants)[FILTERSIZE]) {
+
+    size_t i = 0;
+    Node* p_node = node;
+    while (i < 3) {
+        if (p_node == NULL) {
+            printf("Something went wrong with boolExprAddConstants\n");
+            exit(1);
+        }
+
+        if (p_node->type == STRING) strcpy(constants[i], p_node->content);
+        p_node = p_node->next;
+        i++;
+    }
+
+
+}
 
 Operator* makeFilterOp(Node* node, Operator* child) {
 
@@ -135,7 +161,7 @@ Operator* makeFilterOp(Node* node, Operator* child) {
     op->child                   = NULL;
     op->getTuple                = NULL;
 
-    op->info.filter.boolExprListSize        = 0;
+    op->info.filter.boolExprListSize = 0;
 
     memcpy(&op->resultDescription, &child->resultDescription, sizeof(child->resultDescription));
 
@@ -147,12 +173,15 @@ Operator* makeFilterOp(Node* node, Operator* child) {
         &op->info.filter.boolExprListSize
     );
 
-    // printf("MAKING FILTER\n");
-    // for (size_t i = 0; i < op->info.filter.boolExprListSize; i++) {
-    //     printf("%d, ", op->info.filter.boolExprList[i]);
-    // }
-    // printf("\n");
+    boolExprAddTypes(
+        node->child,
+        op->info.filter.exprTypes
+    );
 
+    boolExprAddConstants(
+        node->child,
+        op->info.filter.charConstants
+    );
 
     return op;
 }

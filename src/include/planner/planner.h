@@ -32,8 +32,10 @@ typedef struct {
 } ScanInfo;
 
 typedef struct {
-    int     boolExprList[FILTERSIZE];
-    size_t  boolExprListSize;
+    char            charConstants[FILTERSIZE][FILTERSIZE];
+    enum nodeType   exprTypes[FILTERSIZE];
+    int             boolExprList[FILTERSIZE];
+    size_t          boolExprListSize;
 } FilterInfo;
 
 

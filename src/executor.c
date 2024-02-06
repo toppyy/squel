@@ -109,10 +109,14 @@ Tuple* filterGetTuple(Operator* op) {
         int boolOp  = op->info.filter.boolExprList[1];
         int idx2    = op->info.filter.boolExprList[2];
 
+        enum nodeType type1 = op->info.filter.exprTypes[0];
+        enum nodeType type2 = op->info.filter.exprTypes[2];
+
+
         if (
-            (size_t) idx1 > tpl->columnCount
+            idx1 > (int) tpl->columnCount
             ||
-            (size_t) idx2 > tpl->columnCount 
+            idx2 > (int) tpl->columnCount 
         ) {
             printf("Filter column references out of bounds\n");
             exit(1);
@@ -121,7 +125,12 @@ Tuple* filterGetTuple(Operator* op) {
 
         bool matches = false;
 
-        int cmpRes = strcmp(tpl->pCols[idx1],tpl->pCols[idx2]);
+        int cmpRes = 0;
+        
+        if (type1 == IDENT_COL && type2 == IDENT_COL)       cmpRes = strcmp(tpl->pCols[idx1],tpl->pCols[idx2]);
+        else if (type1 == IDENT_COL && type2 == STRING)     cmpRes = strcmp(tpl->pCols[idx1],op->info.filter.charConstants[2]);
+        else if (type1 == STRING && type2 == IDENT_COL)     cmpRes = strcmp(op->info.filter.charConstants[0], tpl->pCols[idx2]);
+        
 
         switch(boolOp) {
             case -1:
