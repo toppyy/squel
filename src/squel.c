@@ -43,18 +43,10 @@ int main(int argc, char* argv[]) {
     Node* parsetree = createParsetree();
     parse(argv[1], parsetree);
 
-    /* Catalog the query */
-    char delimiter = ';';
-    size_t tableCount = 0;
-    TableMetadata* tables = catalogQuery(parsetree, delimiter, &tableCount);
-    
-    /* Annotate the abstract syntax tree */
-    bind(parsetree, tables, tableCount);
-
     // printTree(parsetree);
 
     /* Plan the query */
-    Operator* queryplan = planQuery(parsetree, tables, tableCount);
+    Operator* queryplan = planQuery(parsetree);
 
     /* Execute the query */
     execute(queryplan);
@@ -65,6 +57,5 @@ int main(int argc, char* argv[]) {
     if (queryplan != NULL) {
         freeQueryplan(queryplan);
     }
-    free(tables);
 
 }

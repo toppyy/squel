@@ -39,16 +39,7 @@ Tuple* projectGetTuple(Operator* op) {
 
     for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
 
-        bool included = false;
-        for (j = 0; j < tpl->columnCount; j++) {
-            
-            
-            included = op->resultDescription.columns[i].identifier == tpl->identifiers[j];
-            if (included) break;
-        }
-
-        if (!included) continue;
-
+        j = op->info.project.colRefs[i];
 
         newSize += strlen(tpl->pCols[j]) + 1;
         
@@ -245,6 +236,7 @@ void assignGetTupleFunction(Operator *op) {
 
 
 void printTuple(Tuple* tpl) {
+
 
     char* printBuff = calloc(tpl->size, sizeof(char));
 

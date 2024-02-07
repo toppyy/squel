@@ -35,6 +35,7 @@ void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimite
         if (header[i] == delimiter) {
             
             columnCount++;
+            p_tablemetadata->columns[columnCount].name[cursor + 1] = '\0';
             cursor = 0;
 
             if (columnCount > COLUMNSSIZE) {
@@ -74,8 +75,6 @@ void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimite
     p_tablemetadata->columns[columnCount].type = inferDatatype(itemBuffer);
     free(firstLine);
     free(itemBuffer);
-
-    
 
 };
 

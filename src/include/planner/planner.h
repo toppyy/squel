@@ -21,7 +21,6 @@ typedef struct {
 typedef struct {
     char    columnsToProject[PROJCOLSIZE][PROJCOLSIZE];
     int     colRefs[PROJCOLSIZE];
-    int     tblRefs[PROJCOLSIZE];
     int     colCount;
 } ProjectInfo;
 
@@ -56,4 +55,4 @@ typedef struct Operator {
 
 void freeQueryplan(Operator *node);
 
-Operator* planQuery(Node* astRoot, TableMetadata* tables, size_t tableCount) ;
+Operator* planQuery(Node* astRoot) ;

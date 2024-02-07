@@ -28,7 +28,7 @@ dirs:
 	mkdir -p build/executor
 
 clean:
-	rm -f squel $(OBJ)
+	rm -f ./build/squel $(OBJ)
 
 # Run tests
 tests:

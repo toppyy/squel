@@ -24,5 +24,5 @@ typedef struct {
 } TableMetadata;
 
 
-
+void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimiter);
 TableMetadata* catalogQuery(Node* astRoot, char delimiter, size_t* tableCount);

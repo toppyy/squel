@@ -187,41 +187,54 @@ Operator* makeFilterOp(Node* node, Operator* child) {
 }
 
 
-Operator* makeProjectOp(Node* node) {
+Operator* makeProjectOp(Node* node, Operator* child_op) {
+
+
+
+    if (child_op == NULL) {
+        printf("Passed a NULL-pointer as child to makeProjectOp\n");
+        exit(1);
+    }
 
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
-    op->type = OP_PROJECT;
+    op->type    = OP_PROJECT;
     op->next    = NULL;
     op->child   = NULL;
 
+    /*  We know the result set of the child  ofproject op. So we can just which indexes match 
+        the projected columns
+    */
     int i = 0;
 
-    while (node->next != NULL)  {
+    for (;;) {
         
         op->info.project.colCount++;
         strcpy(op->info.project.columnsToProject[i], node->content);
-        op->info.project.colRefs[i] = node->colRef;
-        op->info.project.tblRefs[i] = node->tableRef;
         op->resultDescription.columns[i].type = node->dtype;
         op->resultDescription.columns[i].identifier = node->identifier;
         i++;
-        node = node->next;
-
-        
-    } ;
-
-
-    // TODO. The last column is not handled by the loop, so 
-    // the loop body is repeated
-    op->info.project.colCount++;
-    strcpy(op->info.project.columnsToProject[i], node->content);
-    op->info.project.colRefs[i] = node->colRef;
-    op->info.project.tblRefs[i] = node->tableRef;
-    op->resultDescription.columns[i].type = node->dtype;
-    op->resultDescription.columns[i].identifier = node->identifier;
-    i++;
+        node = node->next;        
+        if (node == NULL) {
+            break;
+        }
+    };
 
     op->resultDescription.columnCount = op->info.project.colCount;
+    // printf("Projecting %d columns\n", op->info.project.colCount);
+
+    for (i = 0; i < op->info.project.colCount; i++) {
+        for (size_t j = 0; j < child_op->resultDescription.columnCount; j++) {
+            if (
+                strcmp(op->info.project.columnsToProject[i], child_op->resultDescription.columns[j].name) == 0
+            ) {
+                op->info.project.colRefs[i] = j;
+            }
+        }
+    }
+
+    
+
+    
 
 
     return op;
@@ -230,7 +243,7 @@ Operator* makeProjectOp(Node* node) {
 
 
 
-Operator* planQuery(Node* astRoot, TableMetadata* tables, size_t tableCount) {
+Operator* planQuery(Node* astRoot) {
 
     /* 
         Building the QueryPlan which is a tree of operators.
@@ -242,19 +255,25 @@ Operator* planQuery(Node* astRoot, TableMetadata* tables, size_t tableCount) {
     */
 
     Node* SELECT = astRoot->next;
-    Operator* op_proj = makeProjectOp(SELECT->child);
-
-    if (tableCount > 1) {
-        printf("More than one table. Not implemented.\n");
-        exit(1);
-    }
+    Operator* op_proj;
     
-    Operator* op_scan = makeScanOp(tables[0]);
+    TableMetadata p_table;
+    memset(&p_table, 0, sizeof(p_table));
+    if (SELECT->next->child->type != FILEPATH) printf("NOT A FILEPATH\n");
+    catalogFile(SELECT->next->child->content, &p_table, ';');
+
+    // for (size_t i = 0; i < p_table.columnCount; i++) {
+    //     printf("col %ld: %s\n", i, p_table.columns[i].name);
+    // }
+    
+    Operator* op_scan = makeScanOp(p_table);
+
     Node* WHERE = astRoot->next->next->next;
 
     if (WHERE != NULL) {
-
+        
         Operator* op_filt = makeFilterOp(WHERE, op_scan);
+        op_proj = makeProjectOp(SELECT->child, op_filt);
         op_scan->next   = op_filt;
         op_filt->next   = op_proj;
 
@@ -262,6 +281,7 @@ Operator* planQuery(Node* astRoot, TableMetadata* tables, size_t tableCount) {
         op_filt->child  = op_scan;
 
     } else {
+        op_proj = makeProjectOp(SELECT->child, op_scan);
         op_scan->next  = op_proj;
         op_proj->child = op_scan;
     }
