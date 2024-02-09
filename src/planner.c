@@ -15,7 +15,6 @@ Operator* makeScanOp(TableMetadata tbl) {
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
     op->type = OP_SCAN;
     memcpy(&op->info.scan.table, &tbl, sizeof(tbl));
-    op->next                    = NULL;
     op->child                   = NULL;
     op->info.scan.tablefile     = NULL;
     op->info.scan.cursor        = 0;
@@ -161,7 +160,6 @@ Operator* makeFilterOp(Node* node, Operator* child) {
 
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
     op->type = OP_FILTER;
-    op->next                    = NULL;
     op->child                   = NULL;
     op->getTuple                = NULL;
 
@@ -203,7 +201,6 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
 
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
     op->type    = OP_PROJECT;
-    op->next    = NULL;
     op->child   = NULL;
 
     /*  We know the result set of the child  ofproject op. So we can just which indexes match 
@@ -267,10 +264,6 @@ Operator* planQuery(Node* astRoot) {
     if (SELECT->next->child->type != FILEPATH) printf("NOT A FILEPATH\n");
     catalogFile(SELECT->next->child->content, &p_table, ';');
 
-    // for (size_t i = 0; i < p_table.columnCount; i++) {
-    //     printf("col %ld: %s\n", i, p_table.columns[i].name);
-    // }
-    
     Operator* op_scan = makeScanOp(p_table);
 
     Node* WHERE = astRoot->next->next->next;
@@ -279,15 +272,12 @@ Operator* planQuery(Node* astRoot) {
         
         Operator* op_filt = makeFilterOp(WHERE, op_scan);
         op_proj = makeProjectOp(SELECT->child, op_filt);
-        op_scan->next   = op_filt;
-        op_filt->next   = op_proj;
-
+        
         op_proj->child  = op_filt;
         op_filt->child  = op_scan;
 
     } else {
         op_proj = makeProjectOp(SELECT->child, op_scan);
-        op_scan->next  = op_proj;
         op_proj->child = op_scan;
     }
 

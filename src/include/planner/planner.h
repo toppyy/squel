@@ -49,7 +49,6 @@ typedef struct Operator {
     OperatorType type;
     OperatorInfo info;
     ResultSet resultDescription;
-    struct Operator* next;
     struct Operator* child;
     struct Tuple* (*getTuple) (struct Operator* op);
 } Operator;
