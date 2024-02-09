@@ -21,7 +21,8 @@ enum nodeType {
     FROM,
     WHERE,
     ROOT,
-    BOOLOP
+    BOOLOP,
+    ALIAS
 };
 
 typedef struct Node {

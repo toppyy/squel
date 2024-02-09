@@ -276,6 +276,14 @@ void source() {
         getNextChar();
         filename();
         getNextChar();
+        skipWhite();
+        if (peekWordMatches("AS")) {
+            getNextChar();
+            getNextChar();
+            nextToChild = true;
+            skipWhite();
+            ident(ALIAS);
+        }
         return;
     }
     ident(IDENT_TBL);
