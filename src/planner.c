@@ -10,7 +10,11 @@ void freeQueryplan(Operator *node) {
 }
 
 
-Operator* makeScanOp(TableMetadata tbl) {
+Operator* makeScanOp(Node* node) {
+
+    TableMetadata tbl;
+    memset(&tbl, 0, sizeof(tbl));
+    catalogFile(node->content, &tbl, ';');
 
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
     op->type = OP_SCAN;
@@ -259,12 +263,8 @@ Operator* planQuery(Node* astRoot) {
     Node* SELECT = astRoot->next;
     Operator* op_proj;
     
-    TableMetadata p_table;
-    memset(&p_table, 0, sizeof(p_table));
     if (SELECT->next->child->type != FILEPATH) printf("NOT A FILEPATH\n");
-    catalogFile(SELECT->next->child->content, &p_table, ';');
-
-    Operator* op_scan = makeScanOp(p_table);
+    Operator* op_scan = makeScanOp(SELECT->next->child);
 
     Node* WHERE = astRoot->next->next->next;
 
