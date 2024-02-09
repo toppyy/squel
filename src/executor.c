@@ -121,6 +121,14 @@ Tuple* filterGetTuple(Operator* op) {
         if (type1 == IDENT_COL && type2 == IDENT_COL)       cmpRes = strcmp(tpl->pCols[idx1],tpl->pCols[idx2]);
         else if (type1 == IDENT_COL && type2 == STRING)     cmpRes = strcmp(tpl->pCols[idx1],op->info.filter.charConstants[2]);
         else if (type1 == STRING && type2 == IDENT_COL)     cmpRes = strcmp(op->info.filter.charConstants[0], tpl->pCols[idx2]);
+        else if (type1 == IDENT_COL && type2 == NUMBER) {
+            int number = atoi(tpl->pCols[idx1]);
+            cmpRes = number - op->info.filter.intConstants[2];
+        }
+        else if (type1 == NUMBER && type2 == IDENT_COL) {
+            int number = atoi(tpl->pCols[idx2]);
+            cmpRes = op->info.filter.intConstants[0] - number;
+        } 
         
 
         switch(boolOp) {

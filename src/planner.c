@@ -135,7 +135,7 @@ void boolExprAddTypes(Node* node, enum nodeType* types) {
 
 }
 
-void boolExprAddConstants(Node* node, char (*constants)[FILTERSIZE]) {
+void boolExprAddConstants(Node* node, char (*charConstants)[FILTERSIZE], int* intConstants) {
 
     size_t i = 0;
     Node* p_node = node;
@@ -145,7 +145,11 @@ void boolExprAddConstants(Node* node, char (*constants)[FILTERSIZE]) {
             exit(1);
         }
 
-        if (p_node->type == STRING) strcpy(constants[i], p_node->content);
+        if (p_node->type == STRING || p_node->type == NUMBER)
+            strcpy(charConstants[i], p_node->content);
+        if (p_node->type == NUMBER)
+            intConstants[i] = atoi(p_node->content);
+            
         p_node = p_node->next;
         i++;
     }
@@ -180,7 +184,8 @@ Operator* makeFilterOp(Node* node, Operator* child) {
 
     boolExprAddConstants(
         node->child,
-        op->info.filter.charConstants
+        op->info.filter.charConstants,
+        op->info.filter.intConstants
     );
 
     return op;

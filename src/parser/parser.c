@@ -213,13 +213,9 @@ void boolExpr(bool expectOp) {
         if (expectOp) boolOp();
         return;
     }
-    if (nextChar == '\'') {
-        expr();
-        if (expectOp) boolOp();
-        return;
-    }
-
-    printf("Parsing a boolean expression failed. Next char was '%c' at cursor %d\n", nextChar, cursor);
+    expr();
+    if (expectOp) boolOp();
+    return;
 }
 
 

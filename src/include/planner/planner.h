@@ -32,6 +32,7 @@ typedef struct {
 
 typedef struct {
     char            charConstants[FILTERSIZE][FILTERSIZE];
+    int             intConstants[FILTERSIZE];
     enum nodeType   exprTypes[FILTERSIZE];
     int             boolExprList[FILTERSIZE];
     size_t          boolExprListSize;
