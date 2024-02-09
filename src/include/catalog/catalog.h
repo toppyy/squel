@@ -4,7 +4,7 @@
 #include "../parser/parsetree.h"
 #include "../parser/utils.h"
 
-/* Maintains a catalog for the data (basically access the filesystem and infers the metadata) */
+/* Cataloging the data (basically access the filesystem and infers the metadata) */
 
 #define METADATASIZE    100
 #define COLUMNSSIZE     10
@@ -25,4 +25,3 @@ typedef struct {
 
 
 void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimiter);
-TableMetadata* catalogQuery(Node* astRoot, char delimiter, size_t* tableCount);

@@ -1,7 +1,5 @@
 #include "./include/executor/executor.h"
-#include "./include/catalog/catalog.h"
 #include "./include/parser/parser.h"
-#include "./include/binder/binder.h"
 #include "./include/planner/planner.h"
 
 
@@ -50,7 +48,6 @@ int main(int argc, char* argv[]) {
 
     /* Execute the query */
     execute(queryplan);
-
 
     /* Free all the memory used */
     freeTree(parsetree);

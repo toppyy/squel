@@ -1,7 +1,6 @@
 #include "./include/catalog/catalog.h"
 
 
-size_t identifier = 0;
 
 Datatype inferDatatype(char* item) {
     if (isNumeric(item[0])) {
@@ -42,7 +41,6 @@ void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimite
                 printf("Error: column count exceeds buffer\n");
                 exit(1);
             }
-            p_tablemetadata->columns[columnCount].identifier = ++identifier;
             continue;
         }
         p_tablemetadata->columns[columnCount].name[cursor] = header[i];
@@ -78,61 +76,3 @@ void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimite
 
 };
 
-
-Node*   tables[100];
-size_t  tableCount = 0;
-
-
-void addToTableList(Node* node) {
-    tables[tableCount] = node;
-    node->tableRef = tableCount;
-    tableCount++;    
-}
-
-void traverse(Node* node) {
-
-    if (node == NULL) {
-        return;
-    }
-
-    if (node->type == IDENT_TBL || node->type == FILEPATH) {
-        addToTableList(node);
-    }
-
-    if (node->child != NULL) {
-        traverse(node->child);
-    }
-
-    if (node->next != NULL) {
-        traverse(node->next);
-    }
-}
-
-TableMetadata* catalogQuery(Node* astRoot, char delimiter, size_t* p_tableCount) {
-
-    /*
-        Traverse the ast and find all table references.
-        If they are files, peek into the file and infer metadata.
-    */
-
-    traverse(astRoot);
-
-    *p_tableCount = tableCount;
-
-    TableMetadata* tbls = calloc(tableCount, sizeof(TableMetadata));
-
-    for (size_t i = 0; i < tableCount; i++) {
-        
-        if (tables[i]->type == FILEPATH) {
-            catalogFile(tables[i]->content, &tbls[i], delimiter);
-            continue;
-        }
-        
-        printf("Error: system catalog not implemented. Can query only files.\n");
-        exit(1);
-    }
-
-
-
-    return tbls;
-}
