@@ -23,6 +23,7 @@ void exprlist();
 void query();
 void filename();
 void source();
+void from();
 size_t parse(char* input, Node *p_root);
 
 

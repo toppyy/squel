@@ -249,7 +249,7 @@ void query() {
     tmp = currentNode;
     nextToChild = true;
     skipWhite();
-    source();
+    from();
     skipWhite();
 
     currentNode = tmp; // TODO: this is shit
@@ -261,6 +261,16 @@ void query() {
         skipWhite();
         boolExpr(true);
         skipWhite();
+    }
+}
+
+void from() {
+    skipWhite();
+    source();
+    if (peekWordMatches("JOIN")) {
+        keyword("JOIN", JOIN);
+        source();
+        return;
     }
 }
 
@@ -286,6 +296,7 @@ void source() {
         }
         return;
     }
+
     ident(IDENT_TBL);
 }   
 
