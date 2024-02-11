@@ -289,39 +289,46 @@ Tuple* joinGetTuple(Operator* op) {
         exit(1);
     }
 
-    Tuple* right_tuple = NULL;
+    /*
+        This monstrosity collects the pointers to tuples
+        in the right table/subquery into an array.
+        The array is reused when iterating over values in
+        the left table/subquery.
+    */
+
+    Tuple* rightTuple = NULL;
     
     if (op->info.join.rightTuplesCollected) {
         if (op->info.join.rightTupleIdx >= op->info.join.rightTupleCount) {
             op->info.join.rightTupleIdx = 0;
-            op->info.join.last_tuple = NULL;
+            op->info.join.lastTuple = NULL;
         }
-        right_tuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
+        rightTuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
         
     } else {
-        right_tuple = op->info.join.right->getTuple(op->info.join.right);
+        rightTuple = op->info.join.right->getTuple(op->info.join.right);
 
-        if (right_tuple == NULL) {
+        if (rightTuple == NULL) {
             op->info.join.rightTuplesCollected = true;
-            op->info.join.last_tuple = NULL;
+            op->info.join.lastTuple = NULL;
             op->info.join.rightTupleIdx = 0;
-            right_tuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
+            rightTuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
             
             
         } else {
-            op->info.join.rightTuples[op->info.join.rightTupleIdx++] = right_tuple;
+            op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTuple;
             op->info.join.rightTupleCount++;
 
         }
     }
-    if (op->info.join.last_tuple == NULL) {
-        op->info.join.last_tuple   = op->info.join.left->getTuple(op->info.join.left);
-        if (op->info.join.last_tuple == NULL) {
+    if (op->info.join.lastTuple == NULL) {
+        op->info.join.lastTuple   = op->info.join.left->getTuple(op->info.join.left);
+        if (op->info.join.lastTuple == NULL) {
             return NULL;
         }
     }
 
-    return concat_tuples(op->info.join.last_tuple , right_tuple);
+    return concat_tuples(op->info.join.lastTuple, rightTuple);
 }
 
 

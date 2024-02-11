@@ -44,7 +44,7 @@ typedef struct {
     struct Operator* left;
     struct Operator* right;
     struct FilterInfo filter;
-    struct Tuple* last_tuple;
+    struct Tuple* lastTuple;
     struct Tuple* rightTuples[JOINSIZE];
     size_t rightTupleIdx;
     size_t rightTupleCount;
