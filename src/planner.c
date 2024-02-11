@@ -6,11 +6,22 @@ void freeQueryplan(Operator *node) {
         freeQueryplan(node->child);
     }
 
+
+    if (node->type == OP_JOIN) {
+        freeQueryplan(node->info.join.left);
+        freeQueryplan(node->info.join.right);
+    }
+
     free(node);
 }
 
 
 Operator* makeScanOp(Node* node) {
+    
+    if (node->type != FILEPATH) {
+        printf("Tried to make scan-operator from something else than a FILEPATH. Type: %d\n", node->type);
+        exit(1);
+    }
 
     TableMetadata tbl;
     memset(&tbl, 0, sizeof(tbl));
@@ -207,7 +218,7 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
     op->type    = OP_PROJECT;
     op->child   = NULL;
 
-    /*  We know the result set of the child  ofproject op. So we can just which indexes match 
+    /*  We know the result set of the child of project op. So we can just which indexes match 
         the projected columns
     */
     int i = 0;
@@ -226,7 +237,6 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
     };
 
     op->resultDescription.columnCount = op->info.project.colCount;
-    // printf("Projecting %d columns\n", op->info.project.colCount);
 
     for (i = 0; i < op->info.project.colCount; i++) {
         for (size_t j = 0; j < child_op->resultDescription.columnCount; j++) {
@@ -247,6 +257,40 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
 }
 
 
+Operator* buildFrom(Node* node) {
+    /* Node is the first child of FROM-type node */
+    if (node->next != NULL && node->next->type == JOIN) {
+        Operator* op_join = (Operator*) calloc(1, sizeof(Operator));
+        op_join->info.join.left     = makeScanOp(node);
+        op_join->info.join.right    = makeScanOp(node->next->next);
+        op_join->type = OP_JOIN;
+        op_join->info.join.rightTupleCount = 0;
+        op_join->info.join.rightTupleIdx = 0;
+        op_join->info.join.rightTuplesCollected = false;
+
+
+        ResultSet result_desc = op_join->info.join.left->resultDescription;
+        for (size_t i = 0; i < result_desc.columnCount; i++) {
+            op_join->resultDescription.columns[i].type = result_desc.columns[i].type;
+            strcpy(op_join->resultDescription.columns[i].name, result_desc.columns[i].name);
+        }
+        op_join->resultDescription.columnCount = result_desc.columnCount;
+
+        result_desc = op_join->info.join.right->resultDescription;
+        size_t rd_i = op_join->resultDescription.columnCount;
+        for (size_t i = 0; i < result_desc.columnCount; i++) {
+            op_join->resultDescription.columns[i + rd_i].type = result_desc.columns[i].type;
+            strcpy(op_join->resultDescription.columns[i + rd_i].name, result_desc.columns[i].name);
+        }
+        op_join->resultDescription.columnCount += result_desc.columnCount;
+
+        return op_join;
+    }
+    if (node->type == FILEPATH) {
+        return makeScanOp(node);
+    }
+    return NULL;
+}
 
 
 Operator* planQuery(Node* astRoot) {
@@ -263,22 +307,22 @@ Operator* planQuery(Node* astRoot) {
     Node* SELECT = astRoot->next;
     Operator* op_proj;
     
-    if (SELECT->next->child->type != FILEPATH) printf("NOT A FILEPATH\n");
-    Operator* op_scan = makeScanOp(SELECT->next->child);
+    Node* FROM = SELECT->next;
+    Operator* op_from = buildFrom(FROM->child);
 
     Node* WHERE = astRoot->next->next->next;
 
     if (WHERE != NULL) {
         
-        Operator* op_filt = makeFilterOp(WHERE, op_scan);
+        Operator* op_filt = makeFilterOp(WHERE, op_from);
         op_proj = makeProjectOp(SELECT->child, op_filt);
         
         op_proj->child  = op_filt;
-        op_filt->child  = op_scan;
+        op_filt->child  = op_from;
 
     } else {
-        op_proj = makeProjectOp(SELECT->child, op_scan);
-        op_proj->child = op_scan;
+        op_proj = makeProjectOp(SELECT->child, op_from);
+        op_proj->child = op_from;
     }
 
 

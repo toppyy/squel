@@ -1,13 +1,15 @@
 #include "./include/executor/executor.h"
 #include "./include/buffer/buffer.h"
 
-#define QUERYBUFFER 10 * 1000
-#define SCANBUFFER  500
+#define QUERYBUFFER 1000
+#define SCANBUFFER  1000
 #define DELIMITER   ';'
 #define DELIMITERSTR ";"
 
 char *buffercache;
+char *p_buffercache;
 char *bufferscan;
+size_t buffercacheSize = 0;
 TupleBuffer tplbuffer;
 
 
@@ -159,6 +161,10 @@ Tuple* filterGetTuple(Operator* op) {
 
 Tuple* scanGetTuple(Operator* op) {
 
+    if (op == NULL) {
+        printf("NULL pointer passed to scanGetTuple\n");
+        exit(1);
+    }
 
     // Read header and first line of data
     FILE* f = op->info.scan.tablefile;
@@ -169,8 +175,8 @@ Tuple* scanGetTuple(Operator* op) {
     
     }
 
-    char* buffercacheWithCursor = buffercache + op->info.scan.cursor;
-    char* line = readLineToBuffer(f, buffercacheWithCursor, SCANBUFFER - op->info.scan.cursor);
+    char* buffercacheWithCursor = buffercache;
+    char* line = readLineToBuffer(f, buffercacheWithCursor, QUERYBUFFER - buffercacheSize);
 
     if (line == NULL) {
         
@@ -180,7 +186,7 @@ Tuple* scanGetTuple(Operator* op) {
     }
 
     tplbuffer.tupleCount++;
-    size_t idx = tplbuffer.tupleCount;
+    size_t idx = tplbuffer.tupleCount;    
     size_t len = strlen(line);
 
     tplbuffer.tuples[idx].columnCount = op->resultDescription.columnCount;
@@ -214,9 +220,108 @@ Tuple* scanGetTuple(Operator* op) {
         i++;
     
     };
+
     
     op->info.scan.cursor += len;
+    buffercache += len + 1;
+    buffercacheSize += len + 1;
+
     return &tplbuffer.tuples[idx];
+}
+
+Tuple* concat_tuples(Tuple* left, Tuple* right) {
+
+    if (
+        left == NULL ||
+        right == NULL
+    ) {
+        printf("Passed a NULL pointer to concat_tuples\n");
+        exit(1);
+    }
+
+    tplbuffer.tupleCount++;
+    size_t idx = tplbuffer.tupleCount;
+    size_t len = left->size + right->size;
+
+    tplbuffer.tuples[idx].columnCount = left->columnCount + right->columnCount;
+    tplbuffer.tuples[idx].size        = len;
+
+    // Fill identifiers for tuple
+    for (size_t i = 0; i < tplbuffer.tuples[idx].columnCount; i++) {
+        tplbuffer.tuples[idx].identifiers[i] = -1; // TODO: Any use?
+    }
+    // Add pointers to start of each column
+    // Reuse the data in the original tuples
+    // Move only pointers to two columns; do not copy data
+
+
+    size_t i = 0;
+    for (size_t j = 0; j < left->columnCount; j++) {
+        tplbuffer.tuples[idx].pCols[i] = left->pCols[j];
+        i++;
+    }
+
+    for (size_t j = 0; j < right->columnCount; j++) {
+        tplbuffer.tuples[idx].pCols[i] = right->pCols[j];
+        i++;
+    }
+
+    return &tplbuffer.tuples[idx];
+}
+
+Tuple* joinGetTuple(Operator* op) {
+
+    if (
+        op->info.join.left == NULL ||
+        op->info.join.right == NULL
+        ) {
+        printf("Join left or right operator is NULL\n");
+        exit(1);
+    }
+    
+
+    if (
+        op->info.join.left->type != OP_SCAN ||
+        op->info.join.right->type != OP_SCAN
+        ) {
+        printf("Join left or right operator not of type OP_SCAN\n");
+        printf("Left type: %d. Right type: %d.\n", op->info.join.left->type, op->info.join.right->type );
+        exit(1);
+    }
+
+    Tuple* right_tuple = NULL;
+    
+    if (op->info.join.rightTuplesCollected) {
+        if (op->info.join.rightTupleIdx >= op->info.join.rightTupleCount) {
+            op->info.join.rightTupleIdx = 0;
+            op->info.join.last_tuple = NULL;
+        }
+        right_tuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
+        
+    } else {
+        right_tuple = op->info.join.right->getTuple(op->info.join.right);
+
+        if (right_tuple == NULL) {
+            op->info.join.rightTuplesCollected = true;
+            op->info.join.last_tuple = NULL;
+            op->info.join.rightTupleIdx = 0;
+            right_tuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
+            
+            
+        } else {
+            op->info.join.rightTuples[op->info.join.rightTupleIdx++] = right_tuple;
+            op->info.join.rightTupleCount++;
+
+        }
+    }
+    if (op->info.join.last_tuple == NULL) {
+        op->info.join.last_tuple   = op->info.join.left->getTuple(op->info.join.left);
+        if (op->info.join.last_tuple == NULL) {
+            return NULL;
+        }
+    }
+
+    return concat_tuples(op->info.join.last_tuple , right_tuple);
 }
 
 
@@ -235,6 +340,9 @@ void assignGetTupleFunction(Operator *op) {
             break;
         case (OP_FILTER):
             op->getTuple = &filterGetTuple;
+            break;
+        case (OP_JOIN):
+            op->getTuple = &joinGetTuple;
             break;
         default:
             printf("Don't know how to handle op-type %d\n", op->type);
@@ -260,21 +368,53 @@ void printTuple(Tuple* tpl) {
 }
 
 
+void doAssignGetTupleFunction(Operator* p_op) {
+
+    if (p_op == NULL) {
+        return;
+    }
+
+    assignGetTupleFunction(p_op);
+
+    if (p_op->child != NULL) {
+        doAssignGetTupleFunction(p_op->child);
+    }
+
+    if (p_op->type == OP_JOIN) {
+        doAssignGetTupleFunction(p_op->info.join.left);
+        doAssignGetTupleFunction(p_op->info.join.right);
+    }
+}
+
+void printBuffercache() {
+    size_t i = 0;
+    char prev = 'a', cur = 'a';
+    while (i < QUERYBUFFER) {
+        prev = cur;   
+        cur = p_buffercache[i++];
+        if (prev == '\0' && cur == '\0') {
+            continue;
+        }
+        if (cur == '\0') {
+            printf("\n");
+            continue;
+        }
+        printf("%c",cur);
+    }
+}
+
 void execute(Operator *op) {
 
-    buffercache = calloc(QUERYBUFFER, sizeof(char)); 
+    p_buffercache = calloc(QUERYBUFFER, sizeof(char)); 
     bufferscan  = calloc(SCANBUFFER, sizeof(char)); 
+    buffercache = p_buffercache;
 
     tplbuffer.tupleCount = 0;
 
-    Operator* p_op = op;
-
-    while (p_op != NULL) {
-        assignGetTupleFunction(p_op);
-        p_op = p_op->child;
-    }
+    doAssignGetTupleFunction(op);
 
     struct Tuple* tpl;
+
 
     for (;;) {
         tpl = op->getTuple(op);
@@ -283,6 +423,6 @@ void execute(Operator *op) {
         printTuple(tpl);
     };
 
-    free(buffercache);
+    free(p_buffercache);
     free(bufferscan);
 }
