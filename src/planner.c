@@ -292,6 +292,12 @@ Operator* buildFrom(Node* node) {
         }
         op_join->resultDescription.columnCount += result_desc.columnCount;
 
+        /* ON-clause */
+        Node* ON = node->next->next->next;
+        Operator* op_filter = makeFilterOp(ON, op_join);
+
+        op_join->info.join.filter = op_filter;
+
         return op_join;
     }
     if (node->type == FILEPATH) {

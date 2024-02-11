@@ -43,7 +43,7 @@ typedef struct FilterInfo {
 typedef struct {
     struct Operator* left;
     struct Operator* right;
-    struct FilterInfo filter;
+    struct Operator* filter;
     struct Tuple* lastTuple;
     struct Tuple* rightTuples[JOINSIZE];
     size_t rightTupleIdx;

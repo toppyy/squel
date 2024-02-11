@@ -69,36 +69,43 @@ Tuple* joinGetTuple(Operator* op) {
     */
 
     Tuple* rightTuple = NULL;
-    
-    if (op->info.join.rightTuplesCollected) {
-        if (op->info.join.rightTupleIdx >= op->info.join.rightTupleCount) {
-            op->info.join.rightTupleIdx = 0;
-            op->info.join.lastTuple = NULL;
-        }
-        rightTuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
-        
-    } else {
-        rightTuple = op->info.join.right->getTuple(op->info.join.right);
+    Tuple* tpl = NULL;
 
-        if (rightTuple == NULL) {
-            op->info.join.rightTuplesCollected = true;
-            op->info.join.lastTuple = NULL;
-            op->info.join.rightTupleIdx = 0;
+    do {
+        
+        if (op->info.join.rightTuplesCollected) {
+            if (op->info.join.rightTupleIdx >= op->info.join.rightTupleCount) {
+                op->info.join.rightTupleIdx = 0;
+                op->info.join.lastTuple = NULL;
+            }
             rightTuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
             
-            
         } else {
-            op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTuple;
-            op->info.join.rightTupleCount++;
+            rightTuple = op->info.join.right->getTuple(op->info.join.right);
 
+            if (rightTuple == NULL) {
+                op->info.join.rightTuplesCollected = true;
+                op->info.join.lastTuple = NULL;
+                op->info.join.rightTupleIdx = 0;
+                rightTuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
+                
+                
+            } else {
+                op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTuple;
+                op->info.join.rightTupleCount++;
+
+            }
         }
-    }
-    if (op->info.join.lastTuple == NULL) {
-        op->info.join.lastTuple   = op->info.join.left->getTuple(op->info.join.left);
         if (op->info.join.lastTuple == NULL) {
-            return NULL;
+            op->info.join.lastTuple   = op->info.join.left->getTuple(op->info.join.left);
+            if (op->info.join.lastTuple == NULL) {
+                return NULL;
+            }
         }
-    }
+        tpl = concat_tuples(op->info.join.lastTuple, rightTuple);
+        if (evaluateTupleAgainsFilterOp(tpl, op->info.join.filter)) {
+            return tpl;
+        }
+    } while(true);
 
-    return concat_tuples(op->info.join.lastTuple, rightTuple);
 }
