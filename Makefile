@@ -26,6 +26,7 @@ dirs:
 	mkdir -p build/binder
 	mkdir -p build/io
 	mkdir -p build/executor
+	mkdir -p build/operators
 
 clean:
 	rm -f ./build/squel $(OBJ)
