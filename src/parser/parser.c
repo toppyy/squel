@@ -267,6 +267,7 @@ void query() {
 void from() {
     skipWhite();
     source();
+    skipWhite();
     if (peekWordMatches("JOIN")) {
         keyword("JOIN", JOIN);
         source();
@@ -290,9 +291,11 @@ void source() {
         if (peekWordMatches("AS")) {
             getNextChar();
             getNextChar();
+            Node* tmp = currentNode;
             nextToChild = true;
             skipWhite();
             ident(ALIAS);
+            currentNode = tmp;
         }
         return;
     }

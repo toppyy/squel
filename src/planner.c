@@ -238,13 +238,21 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
 
     op->resultDescription.columnCount = op->info.project.colCount;
 
+    bool matched;
     for (i = 0; i < op->info.project.colCount; i++) {
+        matched = false;
         for (size_t j = 0; j < child_op->resultDescription.columnCount; j++) {
             if (
                 strcmp(op->info.project.columnsToProject[i], child_op->resultDescription.columns[j].name) == 0
             ) {
                 op->info.project.colRefs[i] = j;
+                matched = true;
+                break;
             }
+        }
+        if (!matched) {
+            printf("Unable to find column '%s'\n", op->info.project.columnsToProject[i]);
+            exit(1);
         }
     }
 
