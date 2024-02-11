@@ -271,6 +271,15 @@ void from() {
     if (peekWordMatches("JOIN")) {
         keyword("JOIN", JOIN);
         source();
+        skipWhite();
+        if (!peekWordMatches("ON")) {
+            printf("Expected 'ON' specifying join keys\n");
+            exit(1);
+        }
+        skipWhite();
+        keyword("ON", ON);
+        nextToChild = true;
+        boolExpr(true);
         return;
     }
 }

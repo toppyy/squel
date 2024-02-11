@@ -303,14 +303,6 @@ Operator* buildFrom(Node* node) {
 
 Operator* planQuery(Node* astRoot) {
 
-    /* 
-        Building the QueryPlan which is a tree of operators.
-        The tree is built from the ground up. 
-
-        - Each reference to a physical table is a leaf node
-        - The root if the tree is always an project operation
-    
-    */
 
     Node* SELECT = astRoot->next;
     Operator* op_proj;

@@ -21,6 +21,7 @@ enum nodeType {
     STAR,
     FROM,
     WHERE,
+    ON,
     ROOT,
     BOOLOP,
     ALIAS
