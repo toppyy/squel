@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     // printTree(parsetree);
 
     /* Plan the query */
-    Operator* queryplan = planQuery(parsetree);
+    Operator* queryplan = planQuery(parsetree->next);
 
     /* Execute the query */
     execute(queryplan);

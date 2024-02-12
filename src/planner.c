@@ -230,6 +230,7 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
         strcpy(op->info.project.columnsToProject[i], node->content);
         op->resultDescription.columns[i].type = node->dtype;
         op->resultDescription.columns[i].identifier = node->identifier;
+        strcpy(op->resultDescription.columns[i].name, node->content); 
         i++;
         node = node->next;        
         if (node == NULL) {
@@ -252,15 +253,10 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
             }
         }
         if (!matched) {
-            printf("Unable to find column '%s'\n", op->info.project.columnsToProject[i]);
+            printf("Making projection failed: Unable to find column '%s'\n", op->info.project.columnsToProject[i]);
             exit(1);
         }
     }
-
-    
-
-    
-
 
     return op;
 }
@@ -308,27 +304,32 @@ Operator* buildFrom(Node* node) {
 }
 
 
-Operator* planQuery(Node* astRoot) {
+Operator* planQuery(Node* nodeSELECT) {
 
 
-    Node* SELECT = astRoot->next;
     Operator* op_proj;
     
-    Node* FROM = SELECT->next;
-    Operator* op_from = buildFrom(FROM->child);
+    Node* FROM = nodeSELECT->next;
+    Operator* op_from = NULL;
 
-    Node* WHERE = astRoot->next->next->next;
+    if (FROM->child->type == SELECT) {
+        op_from = planQuery(FROM->child);
+    } else {
+        op_from = buildFrom(FROM->child);
+    }
+
+    Node* WHERE = nodeSELECT->next->next;
 
     if (WHERE != NULL) {
         
         Operator* op_filt = makeFilterOp(WHERE, op_from);
-        op_proj = makeProjectOp(SELECT->child, op_filt);
+        op_proj = makeProjectOp(nodeSELECT->child, op_filt);
         
         op_proj->child  = op_filt;
         op_filt->child  = op_from;
 
     } else {
-        op_proj = makeProjectOp(SELECT->child, op_from);
+        op_proj = makeProjectOp(nodeSELECT->child, op_from);
         op_proj->child = op_from;
     }
 
