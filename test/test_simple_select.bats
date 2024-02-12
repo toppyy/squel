@@ -20,4 +20,9 @@ setup_file() {
     run ./build/squel "SELECT col3 FROM './test/data/small.csv'"
     [[ $"${lines[0]}" == "32" ]]
     [[ $"${lines[1]}" == "999" ]]
+    [[ $"${lines[2]}" == "100" ]]
+    [[ $"${lines[3]}" == "300" ]]
+    [[ $"${lines[4]}" == "400" ]]
+    [[ $"${lines[5]}" == "2" ]]
+    [[ $"${lines[6]}" == "" ]]
 }

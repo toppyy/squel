@@ -76,7 +76,7 @@ bool evaluateTupleAgainsFilterOp(Tuple* tpl, Operator* op) {
                 cmpRes = number1 - number2;
                 break;
             default:
-                printf("Don't know how to compare datatypes %d vs .%d\n", dtype1, dtype2);
+                printf("Don't know how to compare datatype %d\n", dtype1);
                 exit(1);
         }
     }
@@ -86,7 +86,7 @@ bool evaluateTupleAgainsFilterOp(Tuple* tpl, Operator* op) {
             printf("Can't compare different datatypes\n");
             exit(1);
         }
-        switch (dtype1)   {
+        switch (nodeDtype1)   {
             case DTYPE_STR:
                 cmpRes = strcmp(op->info.filter.charConstants[0], op->info.filter.charConstants[2]);
                 break;
@@ -94,7 +94,7 @@ bool evaluateTupleAgainsFilterOp(Tuple* tpl, Operator* op) {
                 cmpRes = op->info.filter.intConstants[0] - op->info.filter.intConstants[2];
                 break;
             default:
-                printf("Don't know how to compare datatypes %d vs %d\n", nodeDtype1, nodeDtype2);
+                printf("Don't know how to compare datatype %d\n", nodeDtype1);
                 exit(1);
         }
     }
@@ -110,7 +110,6 @@ bool evaluateTupleAgainsFilterOp(Tuple* tpl, Operator* op) {
         
         if (type2 == IDENT_COL) {
             // Guess was wrong, fix it
-            // printf("Got it wrong\n");
             constDatatype   = nodeDtype1;
             colDatatype     = dtype2;
             constIdx        = 0;
@@ -133,7 +132,6 @@ bool evaluateTupleAgainsFilterOp(Tuple* tpl, Operator* op) {
             case DTYPE_INT:
                 int colNumber = atoi(tpl->pCols[colIdx]);
                 int constNumber = op->info.filter.intConstants[constIdx];
-                // printf("Comparing %d to %d\n", colNumber, constNumber);
                 // Order matters here
                 if (constIdx == 0) {
                     cmpRes = constNumber - colNumber;
