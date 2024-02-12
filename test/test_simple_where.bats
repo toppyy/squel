@@ -29,11 +29,17 @@ setup_file() {
     [[ $"${lines[2]}" == "UU;CCCCDDD;300" ]]
 }
 
-@test "Simple WHERE \w Greater than \w constants." {
+@test "Simple WHERE \w Greater/less than \w constants." {
     run ./build/squel "SELECT col3 FROM './test/data/small.csv' WHERE col3<100"
     [[ $"${lines[0]}" == "32" ]]
     [[ $"${lines[1]}" == "2" ]]
     [[ $"${lines[2]}" == "" ]]
+
+    run ./build/squel "SELECT col3 FROM './test/data/small.csv' WHERE col3>100"
+    [[ $"${lines[0]}" == "999" ]]
+    [[ $"${lines[1]}" == "300" ]]
+    [[ $"${lines[2]}" == "400" ]]
+    [[ $"${lines[3]}" == "" ]]
 
     run ./build/squel "SELECT col3 FROM './test/data/small.csv' WHERE 998<col3"
     [[ $"${lines[0]}" == "999" ]]

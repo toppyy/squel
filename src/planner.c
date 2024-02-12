@@ -161,8 +161,9 @@ void boolExprAddConstants(Node* node, char (*charConstants)[FILTERSIZE], int* in
 
         if (p_node->type == STRING || p_node->type == NUMBER)
             strcpy(charConstants[i], p_node->content);
-        if (p_node->type == NUMBER)
+        if (p_node->type == NUMBER) {
             intConstants[i] = atoi(p_node->content);
+        }
             
         p_node = p_node->next;
         i++;

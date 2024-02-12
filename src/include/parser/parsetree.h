@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef enum {
+typedef enum Datatype {
     DTYPE_STR,
     DTYPE_INT,
     DTYPE_UNDEFINED
