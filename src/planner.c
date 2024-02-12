@@ -248,6 +248,7 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
                 strcmp(op->info.project.columnsToProject[i], child_op->resultDescription.columns[j].name) == 0
             ) {
                 op->info.project.colRefs[i] = j;
+                op->resultDescription.columns[i].type = child_op->resultDescription.columns[j].type;
                 matched = true;
                 break;
             }
