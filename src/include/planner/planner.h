@@ -33,11 +33,12 @@ typedef struct {
 
 
 typedef struct FilterInfo {
-    char            charConstants[FILTERSIZE][FILTERSIZE];
-    int             intConstants[FILTERSIZE];
-    enum nodeType   exprTypes[FILTERSIZE];
-    int             boolExprList[FILTERSIZE];
-    size_t          boolExprListSize;
+    char                charConstants[FILTERSIZE][FILTERSIZE];
+    int                 intConstants[FILTERSIZE];
+    enum nodeType       exprTypes[FILTERSIZE];
+    int                 boolExprList[FILTERSIZE];
+    size_t              boolExprListSize;
+    struct Operator*    next;
 } FilterInfo;
 
 typedef struct {

@@ -2,6 +2,10 @@
 
 void freeQueryplan(Operator *node) {
 
+    if (node == NULL) {
+        return;
+    }
+
     if (node->child != NULL) {
         freeQueryplan(node->child);
     }
@@ -10,6 +14,10 @@ void freeQueryplan(Operator *node) {
     if (node->type == OP_JOIN) {
         freeQueryplan(node->info.join.left);
         freeQueryplan(node->info.join.right);
+    }
+
+    if (node->type == OP_FILTER) {
+        freeQueryplan(node->info.filter.next);
     }
 
     free(node);
@@ -172,6 +180,7 @@ void boolExprAddConstants(Node* node, char (*charConstants)[FILTERSIZE], int* in
 
 }
 
+
 Operator* makeFilterOp(Node* node, Operator* child) {
 
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
@@ -185,19 +194,19 @@ Operator* makeFilterOp(Node* node, Operator* child) {
 
 
     mapBoolExpr(
-        node->child,
+        node,
         &child->resultDescription,
         op->info.filter.boolExprList,
         &op->info.filter.boolExprListSize
     );
 
     boolExprAddTypes(
-        node->child,
+        node,
         op->info.filter.exprTypes
     );
 
     boolExprAddConstants(
-        node->child,
+        node,
         op->info.filter.charConstants,
         op->info.filter.intConstants
     );
@@ -206,6 +215,30 @@ Operator* makeFilterOp(Node* node, Operator* child) {
 }
 
 
+Operator* makeFilterOps(Node* where_node, Operator* child) {
+
+    /*  Returns a linked list of OP_FILTER operators.
+        Each have a resultsDescription, but only the first's one is depended on.
+    */
+
+    Node* node = where_node->child;
+    Operator* op_filt = makeFilterOp(node, child);
+    
+    /* An boolean expr node is expected to have three linked nodes and inbetween 'AND' or 'OR'. So iterate +4 nodes until NULL-pointer */
+    Operator* cur_op = op_filt;
+    while (node != NULL) {
+        // Check the assumption holds
+        if (node->next == NULL)                     break;
+        if (node->next->next == NULL)               break;
+        if (node->next->next->next == NULL)         break;
+        if (node->next->next->next->next == NULL)   break;
+        node = node->next->next->next->next;
+        cur_op->info.filter.next = makeFilterOp(node, child);
+        cur_op = cur_op->info.filter.next;        
+    }
+
+    return op_filt;
+}
 Operator* makeProjectOp(Node* node, Operator* child_op) {
 
 
@@ -292,7 +325,7 @@ Operator* buildFrom(Node* node) {
 
         /* ON-clause */
         Node* ON = node->next->next->next;
-        Operator* op_filter = makeFilterOp(ON, op_join);
+        Operator* op_filter = makeFilterOps(ON, op_join);
 
         op_join->info.join.filter = op_filter;
 
@@ -323,7 +356,7 @@ Operator* planQuery(Node* nodeSELECT) {
 
     if (WHERE != NULL) {
         
-        Operator* op_filt = makeFilterOp(WHERE, op_from);
+        Operator* op_filt = makeFilterOps(WHERE, op_from);
         op_proj = makeProjectOp(nodeSELECT->child, op_filt);
         
         op_proj->child  = op_filt;

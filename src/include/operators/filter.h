@@ -3,4 +3,4 @@
 #include "../planner/planner.h"
 
 Tuple* filterGetTuple(Operator* op);
-bool evaluateTupleAgainsFilterOp(Tuple* tpl, Operator* op);
+bool evaluateTupleAgainstFilterOps(Tuple* tpl, Operator* op);

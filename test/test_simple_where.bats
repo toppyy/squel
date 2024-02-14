@@ -58,3 +58,13 @@ setup_file() {
     [[ $"${lines[5]}" == "2" ]]
     [[ $"${lines[6]}" == "" ]]
 }
+
+
+@test "Simple WHERE with two conditions." {
+    run ./build/squel "SELECT col1,col2,col3 FROM './test/data/small.csv' WHERE col1='UU' AND col3<900"
+    [[ $"${lines[0]}" == "UU;UU;100" ]]
+    [[ $"${lines[1]}" == "UU;CCCCDDD;300" ]]
+    [[ $"${lines[6]}" == "" ]]
+}
+
+

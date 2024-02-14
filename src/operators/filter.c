@@ -15,7 +15,7 @@ Datatype mapNodeTypeToDataType(enum nodeType type) {
     }
 }
 
-bool evaluateTupleAgainsFilterOp(Tuple* tpl, Operator* op) {
+bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
 
     if (tpl == NULL) {
         return NULL;
@@ -167,6 +167,17 @@ bool evaluateTupleAgainsFilterOp(Tuple* tpl, Operator* op) {
     return matches;
 }
 
+bool evaluateTupleAgainstFilterOps(Tuple* tpl, Operator* op) {
+
+    Operator* p_op = op;
+    while (p_op != NULL) {
+        if (!evaluateTupleAgainstFilterOp(tpl, p_op)) return false;
+        p_op = p_op->info.filter.next;
+    }
+
+    return true;
+}
+
 Tuple* filterGetTuple(Operator* op) {
 
     if (op == NULL) {
@@ -199,7 +210,7 @@ Tuple* filterGetTuple(Operator* op) {
             return false;
         }
 
-        if (evaluateTupleAgainsFilterOp(tpl, op)) break;
+        if (evaluateTupleAgainstFilterOps(tpl, op)) break;
 
 
     }

@@ -103,7 +103,7 @@ Tuple* joinGetTuple(Operator* op) {
             }
         }
         tpl = concat_tuples(op->info.join.lastTuple, rightTuple);
-        if (evaluateTupleAgainsFilterOp(tpl, op->info.join.filter)) {
+        if (evaluateTupleAgainstFilterOps(tpl, op->info.join.filter)) {
             return tpl;
         }
     } while(true);

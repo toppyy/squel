@@ -218,6 +218,16 @@ void boolExpr(bool expectOp) {
     return;
 }
 
+void boolExprList() {
+    skipWhite();
+    boolExpr(true);
+    skipWhite();
+    if (peekWordMatches("AND")) {
+        keyword("AND",AND);
+        boolExprList();
+    }
+}
+
 
 
 void query() {
@@ -259,7 +269,7 @@ void query() {
         keyword("WHERE", WHERE);
         nextToChild = true;
         skipWhite();
-        boolExpr(true);
+        boolExprList();
         skipWhite();
     }
 }
@@ -279,7 +289,7 @@ void from() {
         skipWhite();
         keyword("ON", ON);
         nextToChild = true;
-        boolExpr(true);
+        boolExprList();
         return;
     }
 }

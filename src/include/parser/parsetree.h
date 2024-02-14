@@ -24,7 +24,9 @@ enum nodeType {
     ON,
     ROOT,
     BOOLOP,
-    ALIAS
+    ALIAS,
+    AND,
+    OR
 };
 
 typedef struct Node {
