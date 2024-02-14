@@ -59,19 +59,22 @@ setup_file() {
     [[ $"${lines[6]}" == "" ]]
 }
 
-
-@test "Simple WHERE \w two conditions." {
+@test "Simple WHERE \w two conditions (AND)." {
     run ./build/squel "SELECT col1,col2,col3 FROM './test/data/small.csv' WHERE col1='UU' AND col3<900"
     [[ $"${lines[0]}" == "UU;UU;100" ]]
     [[ $"${lines[1]}" == "UU;CCCCDDD;300" ]]
     [[ $"${lines[2]}" == "" ]]
 }
-@test "Simple WHERE \w three conditions." {
+
+@test "Simple WHERE \w three conditions (AND)." {
     run ./build/squel "SELECT col1,col2,col3 FROM './test/data/small.csv' WHERE col1='UU' AND col1=col2 AND col3<900"
     [[ $"${lines[0]}" == "UU;UU;100" ]]
     [[ $"${lines[1]}" == "" ]]
 }
 
-
-
-
+@test "Simple WHERE \w two conditions (OR)." {
+    run ./build/squel "SELECT char FROM './test/data/small2.csv' WHERE char='OTHER' OR char='DATA'"
+    [[ $"${lines[0]}" == "OTHER" ]]
+    [[ $"${lines[1]}" == "DATA" ]]
+    [[ $"${lines[2]}" == "" ]]
+}

@@ -39,6 +39,7 @@ typedef struct FilterInfo {
     int                 boolExprList[FILTERSIZE];
     size_t              boolExprListSize;
     struct Operator*    next;
+    enum nodeType       operatorNext;
 } FilterInfo;
 
 typedef struct {

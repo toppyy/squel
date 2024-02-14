@@ -226,14 +226,23 @@ Operator* makeFilterOps(Node* where_node, Operator* child) {
     
     /* An boolean expr node is expected to have three linked nodes and inbetween 'AND' or 'OR'. So iterate +4 nodes until NULL-pointer */
     Operator* cur_op = op_filt;
+    enum nodeType optype = AND;
+    cur_op->info.filter.operatorNext = optype;
+
     while (node != NULL) {
         // Check the assumption holds
         if (node->next == NULL)                     break;
         if (node->next->next == NULL)               break;
         if (node->next->next->next == NULL)         break;
         if (node->next->next->next->next == NULL)   break;
+        optype = node->next->next->next->type;
+        if (optype != AND && optype != OR) {
+            printf("Unknown boolean operator %d\n", optype);
+            exit(1);
+        }
         node = node->next->next->next->next;
         cur_op->info.filter.next = makeFilterOp(node, child);
+        cur_op->info.filter.operatorNext = optype;
         cur_op = cur_op->info.filter.next;        
     }
 

@@ -47,7 +47,8 @@ bool peekWordMatches(char* w) {
 
     size_t i = 0;
     size_t start = cursor - 1;
-    while (w[i++] == rawSql[start++]) {}    
+    while (w[i++] == rawSql[start++]) {}
+    if ((int) start > qsize) return false;
     return(i >= strlen(w));
 
 }
@@ -202,7 +203,7 @@ void boolOp() {
         boolExpr(false);
         return;
     }
-    printf("Expected a boolean operator.\n");
+    printf("Parser error: Expected a boolean operator. Got '%c'.\n", nextChar);
     exit(1);
 }
 
@@ -225,6 +226,12 @@ void boolExprList() {
     if (peekWordMatches("AND")) {
         keyword("AND",AND);
         boolExprList();
+        return;
+    }
+    else if (peekWordMatches("OR")) {
+        keyword("OR",OR);
+        boolExprList();
+        return;
     }
 }
 
@@ -283,7 +290,7 @@ void from() {
         source();
         skipWhite();
         if (!peekWordMatches("ON")) {
-            printf("Expected 'ON' specifying join keys\n");
+            printf("Parser: Expected 'ON' specifying join keys\n");
             exit(1);
         }
         skipWhite();

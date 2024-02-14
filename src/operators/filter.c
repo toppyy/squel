@@ -36,7 +36,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
         ||
         idx2 > (int) tpl->columnCount 
     ) {
-        printf("Filter column references out of bounds\n");
+        printf("FILTER_OP: Filter column references out of bounds\n");
         exit(1);
     }
 
@@ -62,7 +62,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
     if (type1 == IDENT_COL && type2 == IDENT_COL)   {
 
         if (dtype1 != dtype2) {
-            printf("Can't compare different datatypes\n");
+            printf("FILTER_OP: Can't compare different datatypes\n");
             exit(1);
         }
 
@@ -76,14 +76,14 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
                 cmpRes = number1 - number2;
                 break;
             default:
-                printf("Don't know how to compare datatype %d\n", dtype1);
+                printf("FILTER_OP: Don't know how to compare datatype %d\n", dtype1);
                 exit(1);
         }
     }
     // 2. Both are constants
     else if (type1 != IDENT_COL && type2 != IDENT_COL) {
         if (nodeDtype1 != nodeDtype2) {
-            printf("Can't compare different datatypes\n");
+            printf("FILTER_OP: Can't compare different datatypes\n");
             exit(1);
         }
         switch (nodeDtype1)   {
@@ -94,7 +94,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
                 cmpRes = op->info.filter.intConstants[0] - op->info.filter.intConstants[2];
                 break;
             default:
-                printf("Don't know how to compare datatype %d\n", nodeDtype1);
+                printf("FILTER_OP: Don't know how to compare datatype %d\n", nodeDtype1);
                 exit(1);
         }
     }
@@ -116,7 +116,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
             colIdx          = idx2;
         }
         if (constDatatype != colDatatype) {
-            printf("Don't know how to compare datatypes %d vs %d\n", constDatatype, colDatatype);
+            printf("FILTER_OP: Don't know how to compare datatypes %d vs %d\n", constDatatype, colDatatype);
             exit(1);
         }
         // Now we have to only deal with correct combinations of all the eight possible
@@ -140,7 +140,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
                 }
                 break;        
             default:
-                printf("Don't know how to handle datatype %d\n", constDatatype);
+                printf("FILTER_OP: Don't know how to handle datatype %d\n", constDatatype);
                 exit(1);
         }
     }
@@ -160,7 +160,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
             matches = cmpRes > 0;
             break;
         default:    
-            printf("Operator %d not implemented\n", boolOp);
+            printf("FILTER_OP: Operator %d not implemented\n", boolOp);
             exit(1);
     }
 
@@ -169,33 +169,53 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
 
 bool evaluateTupleAgainstFilterOps(Tuple* tpl, Operator* op) {
 
+    bool rtrnValue = true,
+         result = true;
+
+    enum nodeType boolOp = AND;
     Operator* p_op = op;
+
     while (p_op != NULL) {
-        if (!evaluateTupleAgainstFilterOp(tpl, p_op)) return false;
+        
+        result = evaluateTupleAgainstFilterOp(tpl, p_op);
+
+        switch (boolOp) {
+            case AND:
+                rtrnValue = result && rtrnValue;            
+                break;
+            case OR:
+                rtrnValue = result || rtrnValue;
+                break;
+            default:
+                printf("FILTER_OP: Don't know how evaluate bool. op %d\n", boolOp);
+                exit(1);
+        }
+        boolOp = p_op->info.filter.operatorNext;
         p_op = p_op->info.filter.next;
+        
     }
 
-    return true;
+    return rtrnValue;
 }
 
 Tuple* filterGetTuple(Operator* op) {
 
     if (op == NULL) {
-        printf("Passed a NULL-pointer to filterGetTuple\n");
+        printf("FILTER_OP: Passed a NULL-pointer to filterGetTuple\n");
         exit(1);
     }
 
     if (op->type != OP_FILTER) {
-        printf("Called filterGetTuple on an operator that is not OP_FILTER\n");
+        printf("FILTER_OP: Called filterGetTuple on an operator that is not OP_FILTER\n");
     }
 
     if (op->child == NULL) {
-        printf("OP_FILTER has no child\n");
+        printf("FILTER_OP: OP_FILTER has no child\n");
         exit(1);
     }
 
     if ( op->child->getTuple == NULL) {
-        printf("Child of OP_FILTER has no getTuple-method\n");
+        printf("FILTER_OP: Child of OP_FILTER has no getTuple-method\n");
         exit(1);
     }
 
