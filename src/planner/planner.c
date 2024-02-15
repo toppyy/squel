@@ -23,40 +23,38 @@ void freeQueryplan(Operator *node) {
     free(node);
 }
 
+void copyResultDescription(Operator* opFrom, Operator* opTo, size_t offset) {
+
+    ResultSet resultDesc = opFrom->resultDescription;
+    for (size_t i = 0; i < resultDesc.columnCount; i++) {
+        opTo->resultDescription.columns[i + offset].type = resultDesc.columns[i].type;
+        strcpy(opTo->resultDescription.columns[i + offset].name, resultDesc.columns[i].name);
+    }
+    opTo->resultDescription.columnCount += resultDesc.columnCount;
+
+}
+
 Operator* buildFrom(Node* node) {
     /* Node is the first child of FROM-type node */
     if (node->next != NULL && node->next->type == JOIN) {
-        Operator* op_join = (Operator*) calloc(1, sizeof(Operator));
-        op_join->info.join.left     = makeScanOp(node);
-        op_join->info.join.right    = makeScanOp(node->next->next);
-        op_join->type = OP_JOIN;
-        op_join->info.join.rightTupleCount = 0;
-        op_join->info.join.rightTupleIdx = 0;
-        op_join->info.join.rightTuplesCollected = false;
+        Operator* opJoin = (Operator*) calloc(1, sizeof(Operator));
+        opJoin->info.join.left     = makeScanOp(node);
+        opJoin->info.join.right    = makeScanOp(node->next->next);
+        opJoin->type = OP_JOIN;
+        opJoin->info.join.rightTupleCount = 0;
+        opJoin->info.join.rightTupleIdx = 0;
+        opJoin->info.join.rightTuplesCollected = false;
 
-
-        ResultSet result_desc = op_join->info.join.left->resultDescription;
-        for (size_t i = 0; i < result_desc.columnCount; i++) {
-            op_join->resultDescription.columns[i].type = result_desc.columns[i].type;
-            strcpy(op_join->resultDescription.columns[i].name, result_desc.columns[i].name);
-        }
-        op_join->resultDescription.columnCount = result_desc.columnCount;
-
-        result_desc = op_join->info.join.right->resultDescription;
-        size_t rd_i = op_join->resultDescription.columnCount;
-        for (size_t i = 0; i < result_desc.columnCount; i++) {
-            op_join->resultDescription.columns[i + rd_i].type = result_desc.columns[i].type;
-            strcpy(op_join->resultDescription.columns[i + rd_i].name, result_desc.columns[i].name);
-        }
-        op_join->resultDescription.columnCount += result_desc.columnCount;
+        copyResultDescription(opJoin->info.join.left, opJoin,     0);
+        copyResultDescription(opJoin->info.join.right, opJoin, opJoin->resultDescription.columnCount);
 
         /* ON-clause */
         Node* ON = node->next->next->next;
-        Operator* op_filter = makeFilterOps(ON, op_join);
+        Operator* op_filter = makeFilterOps(ON, opJoin);
 
-        op_join->info.join.filter = op_filter;
+        opJoin->info.join.filter = op_filter;
 
-        return op_join;
+        return opJoin;
     }
     if (node->type == FILEPATH) {
         return makeScanOp(node);
