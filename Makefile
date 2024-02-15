@@ -22,7 +22,7 @@ $(ODIR)/%.o: $(SRC)%.c
 
 dirs:
 	mkdir -p build/parser
-	mkdir -p build/planner
+	mkdir -p build/planner/operators
 	mkdir -p build/binder
 	mkdir -p build/io
 	mkdir -p build/executor

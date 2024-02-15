@@ -96,4 +96,9 @@ typedef struct Operator {
 void freeQueryplan(Operator *node);
 void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimiter);
 
+
+Operator* makeProjectOp(struct Node* node, struct Operator* child_op);
+Operator* makeScanOp(Node* node);
+Operator* makeFilterOps(Node* where_node, Operator* child);
+
 Operator* planQuery(Node* astRoot) ;
