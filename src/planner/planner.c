@@ -50,9 +50,9 @@ Operator* buildFrom(Node* node) {
 
         /* ON-clause */
         Node* ON = node->next->next->next;
-        Operator* op_filter = makeFilterOps(ON, opJoin);
+        Operator* opFilter = makeFilterOps(ON, opJoin);
 
-        opJoin->info.join.filter = op_filter;
+        opJoin->info.join.filter = opFilter;
 
         return opJoin;
     }
@@ -66,32 +66,32 @@ Operator* buildFrom(Node* node) {
 Operator* planQuery(Node* nodeSELECT) {
 
 
-    Operator* op_proj;
+    Operator* opProj;
     
     Node* FROM = nodeSELECT->next;
-    Operator* op_from = NULL;
+    Operator* opFrom = NULL;
 
     if (FROM->child->type == SELECT) {
-        op_from = planQuery(FROM->child);
+        opFrom = planQuery(FROM->child);
     } else {
-        op_from = buildFrom(FROM->child);
+        opFrom = buildFrom(FROM->child);
     }
 
     Node* WHERE = nodeSELECT->next->next;
 
     if (WHERE != NULL) {
         
-        Operator* op_filt = makeFilterOps(WHERE, op_from);
-        op_proj = makeProjectOp(nodeSELECT->child, op_filt);
+        Operator* opFilter = makeFilterOps(WHERE, opFrom);
+        opProj = makeProjectOp(nodeSELECT->child, opFilter);
         
-        op_proj->child  = op_filt;
-        op_filt->child  = op_from;
+        opProj->child  = opFilter;
+        opFilter->child  = opFrom;
 
     } else {
-        op_proj = makeProjectOp(nodeSELECT->child, op_from);
-        op_proj->child = op_from;
+        opProj = makeProjectOp(nodeSELECT->child, opFrom);
+        opProj->child = opFrom;
     }
 
 
-    return op_proj;   
+    return opProj;   
 }
