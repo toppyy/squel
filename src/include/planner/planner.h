@@ -1,11 +1,14 @@
 #pragma once
-
+#include <stdbool.h>
+#include <stdio.h>
+#include "../io/io.h"
+#include "../parser/utils.h"
 #include "../parser/parsetree.h"
-#include "../catalog/catalog.h"
 
 #define PROJCOLSIZE 10
 #define FILTERSIZE  20
 #define JOINSIZE 100
+#define NAMESIZEMAX 255
 
 typedef enum {
     OP_SCAN,
@@ -13,6 +16,27 @@ typedef enum {
     OP_FILTER,
     OP_JOIN
 } OperatorType;
+
+
+#define METADATASIZE    100
+#define COLUMNSSIZE     10
+
+typedef struct {
+    char name[NAMESIZEMAX];
+    Datatype type;
+    size_t identifier;
+} ColumnMetadata;
+
+
+
+typedef struct {
+    char path[METADATASIZE];
+    char alias[METADATASIZE];
+    ColumnMetadata columns[COLUMNSSIZE];
+    size_t columnCount;
+} TableMetadata;
+
+
 
 typedef struct {
     size_t columnCount;
@@ -70,5 +94,6 @@ typedef struct Operator {
 } Operator;
 
 void freeQueryplan(Operator *node);
+void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimiter);
 
 Operator* planQuery(Node* astRoot) ;

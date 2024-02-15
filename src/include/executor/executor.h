@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 #include "../parser/parsetree.h"
 #include "../planner/planner.h"
 #include "../buffer/buffer.h"

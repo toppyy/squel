@@ -1,4 +1,4 @@
-#include "./include/planner/planner.h"
+#include "../include/planner/planner.h"
 
 void freeQueryplan(Operator *node) {
 
