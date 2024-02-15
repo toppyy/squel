@@ -24,6 +24,7 @@ void query();
 void filename();
 void source();
 void from();
+void function();
 size_t parse(char* input, Node *p_root);
 
 

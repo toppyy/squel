@@ -17,6 +17,7 @@ enum nodeType {
     STRING,
     NUMBER,
     SELECT,
+    IDENT_FUN,
     JOIN,
     STAR,
     FROM,

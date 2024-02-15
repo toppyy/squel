@@ -12,7 +12,7 @@ void printTree(Node *node) {
         return;
     }
 
-    printf("Node (%ld) with type %d and content '%s' from tbl %d and col %d\n",node->identifier, node->type, node->content, node->tableRef, node->colRef);
+    printf("Node (%ld) with type %d and content '%s' \n",node->identifier, node->type, node->content);
 
     if (node->child != NULL) {
         printf("Children: \n");

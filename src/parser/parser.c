@@ -53,6 +53,14 @@ bool peekWordMatches(char* w) {
 
 }
 
+char peekNextNonAlphanumeric() {
+    int start = cursor - 1;
+    while (isAlphaNumeric(rawSql[start++]) && start < qsize) {}
+    if (start == qsize) return '\0';
+    return rawSql[--start];
+}
+
+
 void keyword(char* kw, enum nodeType type) {
 
     size_t i = 0;
@@ -62,7 +70,7 @@ void keyword(char* kw, enum nodeType type) {
     }
 
     if (i < strlen(kw)) {
-        printf("Expected to see %s at position %d (was %c)", kw, start, rawSql[start]);
+        printf("Expected to see %s at position %d (was %c)\n", kw, start, rawSql[start]);
         exit(1);
     }
     addNode(type,kw);
@@ -89,6 +97,7 @@ void filename() {
     }
     addNode(FILEPATH,buff);
 }
+
 
 
 void ident(enum nodeType type) {
@@ -160,6 +169,14 @@ void constant() {
 
 void expr() {
     if (isLetter(nextChar)) {
+        if (peekNextNonAlphanumeric() == '(') {
+            ident(IDENT_FUN);
+            nextToChild = true;
+            expectChar('(');
+            exprlist();
+            expectChar(')');
+            return;
+        }
         ident(IDENT_COL);
         return;
     }
