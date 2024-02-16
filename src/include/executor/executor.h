@@ -7,6 +7,7 @@
 #include "../operators/filter.h"
 #include "../operators/scan.h"
 #include "../operators/project.h"
+#include "../operators/aggregate.h"
 
 #define QUERYBUFFER 1000
 #define SCANBUFFER  1000

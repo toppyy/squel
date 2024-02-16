@@ -29,6 +29,9 @@ void assignGetTupleFunction(Operator *op) {
         case (OP_JOIN):
             op->getTuple = &joinGetTuple;
             break;
+        case (OP_AGGREGATE):
+            op->getTuple = &aggregateGetTuple;
+            break;
         default:
             printf("Don't know how to handle op-type %d\n", op->type);
             exit(1);
@@ -37,6 +40,7 @@ void assignGetTupleFunction(Operator *op) {
 
 
 void printTuple(Tuple* tpl) {
+
 
 
     char* printBuff = calloc(tpl->size, sizeof(char));

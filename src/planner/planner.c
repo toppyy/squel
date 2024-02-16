@@ -62,6 +62,26 @@ Operator* buildFrom(Node* node) {
     return NULL;
 }
 
+Operator* buildSelect(Node* node, Operator* child) {
+    /* Return a simple projection or a sequence of operators (eg. aggregation) */
+    Node* tmp = node;
+    bool isAggregate = false;
+    while (tmp != NULL) {
+        if (tmp->type == IDENT_FUN) {
+            isAggregate = true;
+            break;
+        }
+        tmp = tmp->next;
+    }
+
+    if (!isAggregate) {
+        return makeProjectOp(node, child);
+    }
+
+    Operator* aggregation = makeAggregateOp(node, child);
+    return aggregation;
+}
+
 
 Operator* planQuery(Node* nodeSELECT) {
 
@@ -88,7 +108,7 @@ Operator* planQuery(Node* nodeSELECT) {
         opFilter->child  = opFrom;
 
     } else {
-        opProj = makeProjectOp(nodeSELECT->child, opFrom);
+        opProj = buildSelect(nodeSELECT->child, opFrom);
         opProj->child = opFrom;
     }
 

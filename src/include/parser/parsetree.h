@@ -5,7 +5,8 @@
 typedef enum Datatype {
     DTYPE_STR,
     DTYPE_INT,
-    DTYPE_UNDEFINED
+    DTYPE_UNDEFINED,
+    DTYPE_LONG
 } Datatype;
 
 

@@ -14,8 +14,15 @@ typedef enum {
     OP_SCAN,
     OP_PROJECT,
     OP_FILTER,
-    OP_JOIN
+    OP_JOIN,
+    OP_AGGREGATE
 } OperatorType;
+
+typedef enum {
+    COUNT,
+    AVG,
+    SUM
+} AggregationType;
 
 
 #define METADATASIZE    100
@@ -77,12 +84,18 @@ typedef struct {
     bool rightTuplesCollected;
 } JoinInfo;
 
+typedef struct {
+    bool aggregationDone;
+    AggregationType aggtype;
+} AggInfo;
+
 
 typedef union {
     ProjectInfo project;
     ScanInfo    scan;
     FilterInfo  filter;
     JoinInfo    join;
+    AggInfo     aggregate;
 } OperatorInfo;
 
 typedef struct Operator {
@@ -100,5 +113,7 @@ void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimite
 Operator* makeProjectOp(struct Node* node, struct Operator* child_op);
 Operator* makeScanOp(Node* node);
 Operator* makeFilterOps(Node* where_node, Operator* child);
+Operator* makeAggregateOp(Node* node, Operator* child_op);
+
 
 Operator* planQuery(Node* astRoot) ;
