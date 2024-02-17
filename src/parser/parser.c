@@ -105,7 +105,7 @@ void ident(enum nodeType type) {
     char buff[MAXEXPRSIZE];
     memset(buff,0,MAXEXPRSIZE);
     int i = 0;
-    while (isAlphaNumeric(nextChar)) {
+    while (isAlphaNumeric(nextChar) || nextChar=='_') {
         buff[i++] = nextChar;
         getNextChar();
         if (i > qsize) {
@@ -278,7 +278,6 @@ void query() {
     exprlist();
 
     currentNode = tmp;
-
     keyword("FROM", FROM);
     tmp = currentNode;
     nextToChild = true;

@@ -5,8 +5,8 @@
 #include "../parser/utils.h"
 #include "../parser/parsetree.h"
 
-#define PROJCOLSIZE 10
-#define FILTERSIZE  20
+#define PROJCOLSIZE 50
+#define FILTERSIZE  50
 #define JOINSIZE 100
 #define NAMESIZEMAX 255
 

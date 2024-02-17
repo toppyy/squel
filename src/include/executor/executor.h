@@ -9,8 +9,8 @@
 #include "../operators/project.h"
 #include "../operators/aggregate.h"
 
-#define QUERYBUFFER 1000
-#define SCANBUFFER  1000
+#define QUERYBUFFER 10000
+#define SCANBUFFER  10000
 #define DELIMITER   ';'
 #define DELIMITERSTR ";"
 
