@@ -1,6 +1,37 @@
 #include "../include/operators/aggregate.h"
 
+char* doCount(Operator* opToIterate, char* resultBuffer) {
+    Tuple* tpl = opToIterate->getTuple(opToIterate);
+    long result = 0;
+    while (tpl != NULL) {
+        tpl = opToIterate->getTuple(opToIterate);
+        result++;
+    };
+    sprintf(resultBuffer, "%ld", result);
+    return resultBuffer;
+}
 
+
+char* doSum(Operator* opToIterate, int colIdx, char* resultBuffer) {
+
+    Tuple* tpl = NULL;
+    long result = 0;
+
+    for (;;) {
+        tpl = opToIterate->getTuple(opToIterate);
+        if (tpl == NULL) {
+            break;
+        }
+        if (opToIterate->resultDescription.columns[colIdx].type == DTYPE_INT) {
+            result += atol(tpl->pCols[colIdx]);
+        } else {
+            printf("Sum not implement for non-integers\n");
+            exit(1);
+        }
+    };
+    sprintf(resultBuffer, "%ld", result);
+    return resultBuffer;
+}
 
 
 Tuple* aggregateGetTuple(Operator* op) {
@@ -17,27 +48,33 @@ Tuple* aggregateGetTuple(Operator* op) {
     if (op->info.aggregate.aggregationDone) {
         return NULL;
     }
-    
-    Tuple* tpl = op->child->getTuple(op->child);
-    long result = 0;
-    while (tpl != NULL) {
-        tpl = op->child->getTuple(op->child);
-        result++;
-    };
 
+    char* resultLocation = NULL;
+
+    switch(op->info.aggregate.aggtype) {
+        case COUNT:
+            resultLocation = doCount(op->child, buffercache);
+            break;
+        case SUM:
+            resultLocation = doSum(op->child, op->info.aggregate.colToAggregate, buffercache);
+            break;
+        default:
+            printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
+            exit(1);
+    }
+    
+    
     // Build new tuple
 
     tplbuffer->tupleCount++;
-    size_t idx = tplbuffer->tupleCount;    
-
-    sprintf(buffercache, "%ld", result);
-    size_t numSizeAsChar = strlen(buffercache);
+    size_t idx = tplbuffer->tupleCount;
+    size_t numSizeAsChar = strlen(resultLocation);
     
-    tplbuffer->tuples[idx].pCols[0] = buffercache;
-    tplbuffer->tuples[idx].size = numSizeAsChar;
+    tplbuffer->tuples[idx].pCols[0] = resultLocation;
+    tplbuffer->tuples[idx].size = numSizeAsChar + 1;
     tplbuffer->tuples[idx].columnCount = 1;
 
-    buffercache += numSizeAsChar;
+
     op->info.aggregate.aggregationDone = true;
     
     return &tplbuffer->tuples[idx];

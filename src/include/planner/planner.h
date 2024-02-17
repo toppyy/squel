@@ -87,6 +87,7 @@ typedef struct {
 typedef struct {
     bool aggregationDone;
     AggregationType aggtype;
+    int colToAggregate;
 } AggInfo;
 
 

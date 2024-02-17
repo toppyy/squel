@@ -37,8 +37,11 @@ Operator* makeAggregateOp(Node* node, Operator* child_op) {
     for (;;) {
         if (node->type == IDENT_FUN) {
             op->info.aggregate.aggtype = mapFunctionNameToAggregation(node->content);
+            // NOTE: Indexed to 0. Multiple aggregations not supported ATM
             op->resultDescription.columns[0].type = DTYPE_LONG;
-            strcpy(op->resultDescription.columns[0].name, node->content); 
+            if (node->child != NULL) {
+                strcpy(op->resultDescription.columns[0].name, node->child->content);
+            }
             break;
         }
 
@@ -49,6 +52,31 @@ Operator* makeAggregateOp(Node* node, Operator* child_op) {
             exit(1);
         }
     };
+
+    // Find the index of the column referred to in the function call if it's
+    // a column reference
+    op->info.aggregate.colToAggregate = -1;
+    if (node->child->type == IDENT_COL) {
+        bool matched = false;
+        for (size_t j = 0; j < child_op->resultDescription.columnCount; j++) {
+        
+            if (
+                strcmp(op->resultDescription.columns[0].name, child_op->resultDescription.columns[j].name) == 0
+            ) {
+                op->info.aggregate.colToAggregate = j;
+                matched = true;
+                break;
+            }
+
+        }
+        if (!matched) {
+            printf("Could not find column '%s'\n", op->resultDescription.columns[0].name);
+            exit(1);
+        }
+    } else {
+        printf("Aggregates on constants not supported\n");
+        exit(1);
+    }
 
 
     return op;
