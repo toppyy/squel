@@ -11,6 +11,34 @@ char* doCount(Operator* opToIterate, char* resultBuffer) {
     return resultBuffer;
 }
 
+char* doAverage(Operator* opToIterate, int colIdx, char* resultBuffer) {
+    Tuple* tpl = NULL;
+    long sum = 0;
+    long count = 0;
+
+    for (;;) {
+        tpl = opToIterate->getTuple(opToIterate);
+        if (tpl == NULL) {
+            break;
+        }
+        if (opToIterate->resultDescription.columns[colIdx].type == DTYPE_INT) {
+            sum += atol(tpl->pCols[colIdx]);
+            count++;
+        } else {
+            printf("Sum not implement for non-integers\n");
+            exit(1);
+        }
+    };
+    double result = 0.0; 
+    if (count > 0) {
+        result = sum / (double) count;
+    }
+    sprintf(resultBuffer, "%.2f", result);
+    return resultBuffer;
+}
+
+
+
 
 char* doSum(Operator* opToIterate, int colIdx, char* resultBuffer) {
 
@@ -57,6 +85,9 @@ Tuple* aggregateGetTuple(Operator* op) {
             break;
         case SUM:
             resultLocation = doSum(op->child, op->info.aggregate.colToAggregate, buffercache);
+            break;
+        case AVG:
+            resultLocation = doAverage(op->child, op->info.aggregate.colToAggregate, buffercache);
             break;
         default:
             printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);

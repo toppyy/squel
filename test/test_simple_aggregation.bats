@@ -15,3 +15,10 @@ setup_file() {
     [[ $"${lines[0]}" == "6867380" ]]
     [[ $"${lines[1]}" == "" ]]
 }
+
+@test "Simple AVG" {
+    run ./build/squel "SELECT AVG(unemployed) FROM './test/data/unemployment.csv'"
+    [[ $"${lines[0]}" == "32241.22" ]]
+    [[ $"${lines[1]}" == "" ]]
+}
+
