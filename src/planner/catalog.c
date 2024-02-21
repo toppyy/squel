@@ -3,10 +3,12 @@
 
 
 Datatype inferDatatype(char* item) {
-    if (isNumeric(item[0])) {
-        return DTYPE_INT;
+    
+    size_t i = 0;
+    while (item[i] != '\0') {
+        if (!isNumeric(item[i++])) return DTYPE_STR;
     }
-    return DTYPE_STR;
+    return DTYPE_INT;
 }
 
 void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimiter) {
