@@ -105,8 +105,24 @@ void execute(Operator *op) {
     doAssignGetTupleFunction(op);
 
     struct Tuple* tpl;
+    
+    if (op->resultDescription.columnCount == 0) {
+        printf("No columns selected.");
+        exit(1);
+    }
+    
+    // Print column names
+    char delimiter = ';';
+    printf("%s", op->resultDescription.columns[0].name);
+    for (size_t i = 1; i < op->resultDescription.columnCount; i++) {
+        printf("%c%s", delimiter, op->resultDescription.columns[i].name);
+        
+        
+    }
+    printf("\n");
 
 
+    // Get tuples one by one
     for (;;) {
         tpl = op->getTuple(op);
         if (tpl == NULL) break;

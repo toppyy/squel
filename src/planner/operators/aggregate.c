@@ -64,6 +64,7 @@ Operator* makeAggregateOp(Node* node, Operator* child_op) {
                 strcmp(op->resultDescription.columns[0].name, child_op->resultDescription.columns[j].name) == 0
             ) {
                 op->info.aggregate.colToAggregate = j;
+                op->resultDescription.columnCount++;
                 matched = true;
                 break;
             }
