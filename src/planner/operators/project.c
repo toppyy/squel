@@ -1,6 +1,22 @@
 #include "../../include/planner/planner.h"
 
 
+Operator* makeStarProjection(Operator* op, Operator* child_op) {
+
+    for (size_t i = 0; i < child_op->resultDescription.columnCount; i++) {
+        op->info.project.colRefs[i] = i;
+        op->resultDescription.columns[i].type = child_op->resultDescription.columns[i].type;
+        strcpy(op->resultDescription.columns[i].name, child_op->resultDescription.columns[i].name); 
+        strcpy(op->info.project.columnsToProject[i], child_op->resultDescription.columns[i].name);
+        op->info.project.colCount++;
+    }
+
+    op->resultDescription.columnCount = child_op->resultDescription.columnCount;
+
+    
+    return op;
+}
+
 Operator* makeProjectOp(Node* node, Operator* child_op) {
 
     if (child_op == NULL) {
@@ -8,13 +24,26 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
         exit(1);
     }
 
+
+
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
     op->type    = OP_PROJECT;
     op->child   = NULL;
 
+    /*
+        SELECT * 
+
+        TODO: how about SELECT *,col1 etc.?
+    
+    */
+    if (node->type == STAR) {
+        return makeStarProjection(op, child_op);
+    }
+
     /*  We know the result set of the child of project op. So we can just which indexes match 
         the projected columns
     */
+
     int i = 0;
 
     for (;;) {

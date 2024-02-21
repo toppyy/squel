@@ -26,3 +26,16 @@ setup_file() {
     [[ $"${lines[5]}" == "2" ]]
     [[ $"${lines[6]}" == "" ]]
 }
+
+@test "Simple SELECT *" {
+    run ./build/squel "SELECT * FROM './test/data/small.csv'"
+    [[ $"${lines[0]}" == "MAMA;ABC;32" ]]
+    [[ $"${lines[1]}" == "UU;DEFG;999" ]]
+    [[ $"${lines[2]}" == "UU;UU;100" ]]
+    [[ $"${lines[3]}" == "UU;CCCCDDD;300" ]]
+    [[ $"${lines[4]}" == "DEFG;DEFG;400" ]]
+    [[ $"${lines[5]}" == "ABC;ZYX;2" ]]
+    [[ $"${lines[6]}" == "" ]]
+
+
+}
