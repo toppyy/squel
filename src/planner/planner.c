@@ -37,24 +37,7 @@ void copyResultDescription(Operator* opFrom, Operator* opTo, size_t offset) {
 Operator* buildFrom(Node* node) {
     /* Node is the first child of FROM-type node */
     if (node->next != NULL && node->next->type == JOIN) {
-        Operator* opJoin = (Operator*) calloc(1, sizeof(Operator));
-        opJoin->info.join.left     = makeScanOp(node);
-        opJoin->info.join.right    = makeScanOp(node->next->next);
-        opJoin->type = OP_JOIN;
-        opJoin->info.join.rightTupleCount = 0;
-        opJoin->info.join.rightTupleIdx = 0;
-        opJoin->info.join.rightTuplesCollected = false;
-
-        copyResultDescription(opJoin->info.join.left, opJoin,     0);
-        copyResultDescription(opJoin->info.join.right, opJoin, opJoin->resultDescription.columnCount);
-
-        /* ON-clause */
-        Node* ON = node->next->next->next;
-        Operator* opFilter = makeFilterOps(ON, opJoin);
-
-        opJoin->info.join.filter = opFilter;
-
-        return opJoin;
+        return makeJoinOp(node);
     }
     if (node->type == FILEPATH) {
         return makeScanOp(node);

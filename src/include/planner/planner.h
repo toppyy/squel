@@ -115,6 +115,7 @@ Operator* makeProjectOp(struct Node* node, struct Operator* child_op);
 Operator* makeScanOp(Node* node);
 Operator* makeFilterOps(Node* where_node, Operator* child);
 Operator* makeAggregateOp(Node* node, Operator* child_op);
+Operator* makeJoinOp(Node* node);
 
 
 Operator* planQuery(Node* astRoot) ;
