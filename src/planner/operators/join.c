@@ -2,6 +2,13 @@
 
 Operator* makeJoinOp(Node* node) {
     
+        /*
+            TODO:
+                - Collect aliases for left and right
+                - If not specified, make them up
+                - pass alias + offset in result description to makeFilterOps
+                - ON is expected to have aliases
+        */
 
         Operator* opJoin = (Operator*) calloc(1, sizeof(Operator));
         opJoin->info.join.left     = makeScanOp(node);

@@ -108,6 +108,7 @@ typedef struct Operator {
 } Operator;
 
 void freeQueryplan(Operator *node);
+void copyResultDescription(Operator* opFrom, Operator* opTo, size_t offset);
 void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimiter);
 
 
