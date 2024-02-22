@@ -77,7 +77,7 @@ void keyword(char* kw, enum nodeType type) {
 }
 
 void skipWhite() {
-    while (isWhiteSpace(nextChar))
+    while (isWhiteSpace(nextChar) & (cursor < qsize))
         getNextChar();
 }
 
