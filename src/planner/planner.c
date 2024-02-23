@@ -14,6 +14,7 @@ void freeQueryplan(Operator *node) {
     if (node->type == OP_JOIN) {
         freeQueryplan(node->info.join.left);
         freeQueryplan(node->info.join.right);
+        freeQueryplan(node->info.join.filter);
     }
 
     if (node->type == OP_FILTER) {
@@ -37,7 +38,14 @@ void copyResultDescription(Operator* opFrom, Operator* opTo, size_t offset) {
 Operator* buildFrom(Node* node) {
     /* Node is the first child of FROM-type node */
     if (node->next != NULL && node->next->type == JOIN) {
-        return makeJoinOp(node);
+
+        Node* ON = node->next->next->next;
+        // TODO: Support sub-query
+        return makeJoinOp(
+            makeScanOp(node),
+            makeScanOp(node->next->next),
+            ON
+        );
     }
     if (node->type == FILEPATH) {
         return makeScanOp(node);
