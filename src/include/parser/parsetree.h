@@ -37,6 +37,7 @@ typedef struct Node {
     struct Node *child;
     
     char alias[50];
+    char tblref[50];
 
     /* These are used by the binder */
     int tableRef;

@@ -105,15 +105,27 @@ void ident(enum nodeType type) {
     char buff[MAXEXPRSIZE];
     memset(buff,0,MAXEXPRSIZE);
     int i = 0;
+    size_t tblrefCutOff = 0;
     while (isAlphaNumeric(nextChar) || nextChar=='_') {
         buff[i++] = nextChar;
         getNextChar();
+        if (nextChar == '.') {
+            getNextChar();
+            tblrefCutOff = i;
+        }
         if (i > qsize) {
             printf("Something went wrong :/ Cursor exceeds query length\n");
             exit(1);
         }
     }
-    addNode(type,buff);
+    if (tblrefCutOff == 0) {
+        addNode(type,buff);
+        return;
+    }
+
+    addNode(type, &buff[tblrefCutOff]);
+    buff[tblrefCutOff] = '\0';
+    strcpy(currentNode->tblref, buff);    
 }
 
 void string() {
