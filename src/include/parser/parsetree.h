@@ -26,7 +26,6 @@ enum nodeType {
     ON,
     ROOT,
     BOOLOP,
-    ALIAS,
     AND,
     OR
 };
@@ -36,6 +35,8 @@ typedef struct Node {
     char content[50];
     struct Node *next;
     struct Node *child;
+    
+    char alias[50];
 
     /* These are used by the binder */
     int tableRef;

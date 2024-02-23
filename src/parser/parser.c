@@ -252,7 +252,13 @@ void boolExprList() {
     }
 }
 
-
+void addAlias(Node* node) {
+    size_t i = 0;
+    while (isLetter(nextChar)) {
+        node->alias[i++] = nextChar;
+        getNextChar();
+    }
+}
 
 void query() {
 
@@ -277,7 +283,7 @@ void query() {
     nextToChild = true;
     exprlist();
 
-    currentNode = tmp;
+    currentNode = tmp; // TODO: this is shit
     keyword("FROM", FROM);
     tmp = currentNode;
     nextToChild = true;
@@ -285,7 +291,16 @@ void query() {
     from();
     skipWhite();
 
-    currentNode = tmp; // TODO: this is shit
+    currentNode = tmp;
+
+    if (peekWordMatches("AS")) {
+        getNextChar();
+        getNextChar();
+        skipWhite();
+        addAlias(currentNode);
+        skipWhite();
+    }
+
 
     if (peekWordMatches("WHERE")) {
 
@@ -333,11 +348,8 @@ void source() {
         if (peekWordMatches("AS")) {
             getNextChar();
             getNextChar();
-            Node* tmp = currentNode;
-            nextToChild = true;
             skipWhite();
-            ident(ALIAS);
-            currentNode = tmp;
+            addAlias(currentNode);
         }
         return;
     }
