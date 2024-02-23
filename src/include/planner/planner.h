@@ -112,7 +112,7 @@ typedef struct Operator {
 void freeQueryplan(Operator *node);
 void copyResultDescription(Operator* opFrom, Operator* opTo, size_t offset);
 void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimiter);
-
+int findColIdxInResDesc(ResultSet* resultDesc, char* name, char* tblref);
 
 Operator* makeProjectOp(struct Node* node, struct Operator* child_op);
 Operator* makeScanOp(Node* node);

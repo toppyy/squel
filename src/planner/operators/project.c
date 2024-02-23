@@ -25,7 +25,6 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
     }
 
 
-
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
     op->type    = OP_PROJECT;
     op->child   = NULL;
@@ -49,10 +48,19 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
     for (;;) {
         
         op->info.project.colCount++;
+        
         strcpy(op->info.project.columnsToProject[i], node->content);
+        strcpy(op->resultDescription.columns[i].name, node->content);
+
         op->resultDescription.columns[i].type = node->dtype;
         op->resultDescription.columns[i].identifier = node->identifier;
-        strcpy(op->resultDescription.columns[i].name, node->content); 
+        
+        // Find the index of the projected column in the result description
+        // of the child
+        int j = findColIdxInResDesc(&child_op->resultDescription, node->content, node->tblref);
+        op->info.project.colRefs[i] = j;
+        op->resultDescription.columns[i].type = child_op->resultDescription.columns[j].type;
+
         i++;
         node = node->next;        
         if (node == NULL) {
@@ -61,25 +69,6 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
     };
 
     op->resultDescription.columnCount = op->info.project.colCount;
-
-    bool matched;
-    for (i = 0; i < op->info.project.colCount; i++) {
-        matched = false;
-        for (size_t j = 0; j < child_op->resultDescription.columnCount; j++) {
-            if (
-                strcmp(op->info.project.columnsToProject[i], child_op->resultDescription.columns[j].name) == 0
-            ) {
-                op->info.project.colRefs[i] = j;
-                op->resultDescription.columns[i].type = child_op->resultDescription.columns[j].type;
-                matched = true;
-                break;
-            }
-        }
-        if (!matched) {
-            printf("Making projection failed: Unable to find column '%s'\n", op->info.project.columnsToProject[i]);
-            exit(1);
-        }
-    }
 
     return op;
 }

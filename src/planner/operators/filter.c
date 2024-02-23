@@ -45,45 +45,9 @@ Node* mapBoolExpr(Node* node, ResultSet* childResultDesc, int* boolExprList, siz
     }
 
 
-    int value1Loc = -1;
-    int value2Loc = -1;
+    int value1Loc = value1->type == IDENT_COL ? findColIdxInResDesc(childResultDesc, value1->content, value1->tblref) : -1;
+    int value2Loc = value2->type == IDENT_COL ? findColIdxInResDesc(childResultDesc, value2->content, value2->tblref) : -1;
 
-    for (size_t i = 0; i < childResultDesc->columnCount; i++) {
-        if (value1Loc >= 0 && value2Loc >= 0) break;
-
-        if (
-            ( strcmp(value1->content, childResultDesc->columns[i].name) == 0 )
-            &&
-            ( strcmp(value1->tblref, childResultDesc->columns[i].resultSetAlias) == 0 )
-        ) {
-            value1Loc = i;
-        }
-        
-        if (
-            ( strcmp(value2->content, childResultDesc->columns[i].name) == 0 )
-            &&
-            ( strcmp(value2->tblref, childResultDesc->columns[i].resultSetAlias) == 0 )
-        ) {
-            value2Loc = i;
-        }
-    }
-
-    if (value1Loc < 0 && value1->type == IDENT_COL) {
-        if (strlen(value1->tblref) > 0) {
-            printf("Could not find column '%s.%s' in result description\n", value1->tblref, value1->content);
-        } else {
-            printf("Could not find column '%s' in result description\n", value1->content);
-        }
-        exit(1);
-    }
-
-    if (value2Loc < 0 && value2->type == IDENT_COL) {
-        if (strlen(value2->tblref) > 0) {
-            printf("Could not find column '%s.%s' in result description\n", value2->tblref, value2->content);
-        } else {
-            printf("Could not find column '%s' in result description\n", value2->content);
-        }exit(1);
-    }
 
     /*
         We will use a crazy decoding for bool exprs.

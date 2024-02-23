@@ -36,6 +36,27 @@ void copyResultDescription(Operator* opFrom, Operator* opTo, size_t offset) {
 
 }
 
+int findColIdxInResDesc(ResultSet* resultDesc, char* name, char* tblref) {
+
+    for (size_t i = 0; i < resultDesc->columnCount; i++) {
+
+        if (
+            ( strcmp(name, resultDesc->columns[i].name) == 0 )
+            &&
+            ( strcmp(tblref, resultDesc->columns[i].resultSetAlias) == 0 )
+        ) {
+            return i;
+        }
+    }
+    if (strlen(tblref) > 0) {
+        printf("Could not find column '%s.%s' in result description\n", tblref, name);
+    } else {
+        printf("Could not find column '%s' in result description\n", name);
+    }
+    exit(1);    
+
+}
+
 Operator* buildFrom(Node* node) {
     /* Node is the first child of FROM-type node */
     if (node->next != NULL && node->next->type == JOIN) {
