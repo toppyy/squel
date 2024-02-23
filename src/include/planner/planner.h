@@ -111,6 +111,7 @@ typedef struct Operator {
 
 void freeQueryplan(Operator *node);
 void copyResultDescription(Operator* opFrom, Operator* opTo, size_t offset);
+void checkPtrNotNull(void* node, char* msg);
 void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimiter);
 int findColIdxInResDesc(ResultSet* resultDesc, char* name, char* tblref);
 

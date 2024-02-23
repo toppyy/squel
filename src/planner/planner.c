@@ -24,6 +24,13 @@ void freeQueryplan(Operator *node) {
     free(node);
 }
 
+void checkPtrNotNull(void* node, char* msg) {
+    if (node == NULL) {
+        printf("%s\n", msg);
+        exit(1);
+    }
+}
+
 void copyResultDescription(Operator* opFrom, Operator* opTo, size_t offset) {
 
     ResultSet resultDesc = opFrom->resultDescription;

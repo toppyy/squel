@@ -19,11 +19,7 @@ Operator* makeStarProjection(Operator* op, Operator* child_op) {
 
 Operator* makeProjectOp(Node* node, Operator* child_op) {
 
-    if (child_op == NULL) {
-        printf("Passed a NULL-pointer as child to makeProjectOp\n");
-        exit(1);
-    }
-
+    checkPtrNotNull(child_op,"Passed a NULL-pointer as child to makeProjectOp.");
 
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
     op->type    = OP_PROJECT;

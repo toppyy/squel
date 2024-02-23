@@ -18,10 +18,8 @@ AggregationType mapFunctionNameToAggregation(char* name) {
 
 Operator* makeAggregateOp(Node* node, Operator* child_op) {
 
-    if (child_op == NULL) {
-        printf("Passed a NULL-pointer as child to makeAggregateOp\n");
-        exit(1);
-    }
+    checkPtrNotNull(node,"Passed a NULL-pointer to makeAggregateOp.");
+    checkPtrNotNull(child_op,"Passed a NULL-pointer as child to makeAggregateOp.");
 
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
     op->type    = OP_AGGREGATE;

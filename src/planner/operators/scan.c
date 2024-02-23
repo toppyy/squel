@@ -1,6 +1,9 @@
 #include "../../include/planner/planner.h"
 
 Operator* makeScanOp(Node* node) {
+
+    checkPtrNotNull(node,"Passed a NULL-pointer to makeScanOp.");
+
     
     if (node->type != FILEPATH) {
         printf("Tried to make scan-operator from something else than a FILEPATH. Type: %d\n", node->type);

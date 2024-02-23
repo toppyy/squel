@@ -19,21 +19,9 @@ int mapBoolOpToInt(char* boolOp) {
 
 
 Node* mapBoolExpr(Node* node, ResultSet* childResultDesc, int* boolExprList, size_t* boolExprListSize) {
-    if (node == NULL) {
-        printf("Passed NULL-pointer to mapBoolExpr.\n");
-        exit(1);
-    }
-    
-    if (node->next == NULL) {
-        printf("Making bool expr failed. Node has no next (content: '%s')\n", node->content);
-        exit(1);
-    }
-
-    if (node->next->next == NULL) {
-        printf("Making bool expr failed. Node's next has no next (content: '%s')\n", node->content);
-        exit(1);
-    }
-
+    checkPtrNotNull(node, "Passed NULL-pointer to mapBoolExpr.");
+    checkPtrNotNull(node->next, "Making bool expr failed. Node has no next.");
+    checkPtrNotNull(node->next->next, "Making bool expr failed. Node's next has no next.");
 
     Node* value1    = node;
     Node* op        = node->next;
