@@ -30,6 +30,8 @@ typedef enum {
 
 typedef struct {
     char name[NAMESIZEMAX];
+    char alias[METADATASIZE];
+    char resultSetAlias[METADATASIZE];
     Datatype type;
     size_t identifier;
 } ColumnMetadata;

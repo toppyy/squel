@@ -30,6 +30,7 @@ void copyResultDescription(Operator* opFrom, Operator* opTo, size_t offset) {
     for (size_t i = 0; i < resultDesc.columnCount; i++) {
         opTo->resultDescription.columns[i + offset].type = resultDesc.columns[i].type;
         strcpy(opTo->resultDescription.columns[i + offset].name, resultDesc.columns[i].name);
+        strcpy(opTo->resultDescription.columns[i + offset].resultSetAlias, resultDesc.columns[i].resultSetAlias);
     }
     opTo->resultDescription.columnCount += resultDesc.columnCount;
 

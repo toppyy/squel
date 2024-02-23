@@ -18,6 +18,7 @@ Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
         opJoin->info.join.rightTupleIdx = 0;
         opJoin->info.join.rightTuplesCollected = false;
 
+
         copyResultDescription(opJoin->info.join.left, opJoin,     0);
         copyResultDescription(opJoin->info.join.right, opJoin, opJoin->resultDescription.columnCount);
 

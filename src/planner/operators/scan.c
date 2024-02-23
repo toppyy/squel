@@ -19,11 +19,11 @@ Operator* makeScanOp(Node* node) {
     op->info.scan.cursor        = 0;
     op->getTuple                = NULL;
 
-    for (size_t i = 0; i < tbl.columnCount; i++) {
+    for (size_t i = 0; i < tbl.columnCount; i++) {        
         op->resultDescription.columns[i].type = tbl.columns[i].type;
         op->resultDescription.columns[i].identifier = tbl.columns[i].identifier;
         strcpy(op->resultDescription.columns[i].name, tbl.columns[i].name);
-
+        strcpy(op->resultDescription.columns[i].resultSetAlias, node->alias);
     }
     op->resultDescription.columnCount = tbl.columnCount;
 
