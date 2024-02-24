@@ -18,10 +18,6 @@ Tuple* concat_tuples(Tuple* left, Tuple* right) {
     tpl->columnCount = left->columnCount + right->columnCount;
     tpl->size        = len;
 
-    // Fill identifiers for tuple
-    for (size_t i = 0; i < tpl->columnCount; i++) {
-        tpl->identifiers[i] = -1; // TODO: Any use?
-    }
     // Add pointers to start of each column
     // Reuse the data in the original tuples
     // Move only pointers to two columns; do not copy data

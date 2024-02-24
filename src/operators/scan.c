@@ -32,13 +32,6 @@ Tuple* scanGetTuple(Operator* op) {
     tpl->columnCount = op->resultDescription.columnCount;
     tpl->size        = len;
 
-   
-
-    // Fill datatypes for tuple
-    // TODO: useless work here? use child resultDescription
-    for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
-        tpl->datatypes[i] = op->resultDescription.columns[i].type;
-    }
     // Add pointers to start of each column
     char* dlmtr = NULL;
 
