@@ -11,16 +11,16 @@ Tuple* concat_tuples(Tuple* left, Tuple* right) {
         exit(1);
     }
 
-    tplbuffer->tupleCount++;
-    size_t idx = tplbuffer->tupleCount;
+    
     size_t len = left->size + right->size;
 
-    tplbuffer->tuples[idx].columnCount = left->columnCount + right->columnCount;
-    tplbuffer->tuples[idx].size        = len;
+    Tuple* tpl = addTuple();
+    tpl->columnCount = left->columnCount + right->columnCount;
+    tpl->size        = len;
 
     // Fill identifiers for tuple
-    for (size_t i = 0; i < tplbuffer->tuples[idx].columnCount; i++) {
-        tplbuffer->tuples[idx].identifiers[i] = -1; // TODO: Any use?
+    for (size_t i = 0; i < tpl->columnCount; i++) {
+        tpl->identifiers[i] = -1; // TODO: Any use?
     }
     // Add pointers to start of each column
     // Reuse the data in the original tuples
@@ -29,16 +29,16 @@ Tuple* concat_tuples(Tuple* left, Tuple* right) {
 
     size_t i = 0;
     for (size_t j = 0; j < left->columnCount; j++) {
-        tplbuffer->tuples[idx].pCols[i] = left->pCols[j];
+        tpl->pCols[i] = left->pCols[j];
         i++;
     }
 
     for (size_t j = 0; j < right->columnCount; j++) {
-        tplbuffer->tuples[idx].pCols[i] = right->pCols[j];
+        tpl->pCols[i] = right->pCols[j];
         i++;
     }
 
-    return &tplbuffer->tuples[idx];
+    return tpl;
 }
 
 Tuple* joinGetTuple(Operator* op) {

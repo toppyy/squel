@@ -28,24 +28,23 @@ Tuple* scanGetTuple(Operator* op) {
 
     }
 
-    tplbuffer->tupleCount++;
-    size_t idx = tplbuffer->tupleCount;    
     size_t len = strlen(line);
 
-    tplbuffer->tuples[idx].columnCount = op->resultDescription.columnCount;
-    tplbuffer->tuples[idx].size        = len;
+    Tuple* tpl = addTuple();
+    tpl->columnCount = op->resultDescription.columnCount;
+    tpl->size        = len;
 
     // Fill datatypes for tuple
     // TODO: useless work here? use child resultDescription
     for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
-        tplbuffer->tuples[idx].datatypes[i] = op->resultDescription.columns[i].type;
+        tpl->datatypes[i] = op->resultDescription.columns[i].type;
     }
     // Add pointers to start of each column
     char* dlmtr = NULL;
 
     size_t cursor = 0;
 
-    tplbuffer->tuples[idx].pCols[0] = buffercacheWithCursor;
+    tpl->pCols[0] = buffercacheWithCursor;
     size_t i = 1;
 
     for (;;) {
@@ -53,12 +52,12 @@ Tuple* scanGetTuple(Operator* op) {
         dlmtr = strchr(buffercacheWithCursor + cursor, DELIMITER);
         
         if (dlmtr == NULL) {
-            tplbuffer->tuples[idx].pCols[i] =  buffercacheWithCursor;
+            tpl->pCols[i] =  buffercacheWithCursor;
             break;
         }
         cursor += dlmtr - (buffercacheWithCursor + cursor) + 1;
         
-        tplbuffer->tuples[idx].pCols[i] =  buffercacheWithCursor + cursor;
+        tpl->pCols[i] =  buffercacheWithCursor + cursor;
         
         (*dlmtr) = '\0'; // Replace delimiter with NULL so each column is a NULL-terminated string
         i++;
@@ -70,6 +69,6 @@ Tuple* scanGetTuple(Operator* op) {
     buffercache += len + 1;
     buffercacheSize += len + 1;
 
-    return &tplbuffer->tuples[idx];
+    return tpl;
 }
 

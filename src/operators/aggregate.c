@@ -94,20 +94,18 @@ Tuple* aggregateGetTuple(Operator* op) {
             exit(1);
     }
     
-    
-    // Build new tuple
-
-    tplbuffer->tupleCount++;
-    size_t idx = tplbuffer->tupleCount;
     size_t numSizeAsChar = strlen(resultLocation);
-    
-    tplbuffer->tuples[idx].pCols[0] = resultLocation;
-    tplbuffer->tuples[idx].size = numSizeAsChar + 1;
-    tplbuffer->tuples[idx].columnCount = 1;
+   
+    // Build new tuple
+ 
+    Tuple* tpl = addTuple();    
+    tpl->pCols[0] = resultLocation;
+    tpl->size = numSizeAsChar + 1;
+    tpl->columnCount = 1;
 
 
     op->info.aggregate.aggregationDone = true;
     
-    return &tplbuffer->tuples[idx];
+    return tpl;
 
 }
