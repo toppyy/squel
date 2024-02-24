@@ -68,11 +68,11 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
 
         switch (dtype1)   {
             case DTYPE_STR:
-                cmpRes = strcmp(tpl->pCols[idx1],tpl->pCols[idx2]);
+                cmpRes = strcmp(getCol(tpl,idx1),getCol(tpl,idx2));
                 break;
             case DTYPE_INT:
-                int number1 = atoi(tpl->pCols[idx1]);
-                int number2 = atoi(tpl->pCols[idx2]);
+                int number1 = atoi(getCol(tpl,idx1));
+                int number2 = atoi(getCol(tpl,idx2));
                 cmpRes = number1 - number2;
                 break;
             default:
@@ -127,10 +127,10 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
         //      DTYPE_INT vs. IDENT_COL + NUMBER
         switch (constDatatype) {
             case DTYPE_STR:
-                cmpRes = strcmp(op->info.filter.charConstants[constIdx], tpl->pCols[colIdx]);
+                cmpRes = strcmp(op->info.filter.charConstants[constIdx], getCol(tpl,colIdx));
                 break;
             case DTYPE_INT:
-                int colNumber = atoi(tpl->pCols[colIdx]);
+                int colNumber = atoi(getCol(tpl,colIdx));
                 int constNumber = op->info.filter.intConstants[constIdx];
                 // Order matters here
                 if (constIdx == 0) {

@@ -13,7 +13,7 @@ Tuple* projectGetTuple(Operator* op) {
     
     size_t  newcolumnCount = 0;
     size_t  newSize = 0;
-    char*   newpCols[ARRAYMAXSIZE];
+    size_t   newpCols[ARRAYMAXSIZE];
     
     size_t  j = 0;
 
@@ -21,7 +21,7 @@ Tuple* projectGetTuple(Operator* op) {
 
         j = op->info.project.colRefs[i];
 
-        newSize += strlen(tpl->pCols[j]) + 1;
+        newSize += strlen(getCol(tpl,j)) + 1;
         
         newpCols[newcolumnCount] = tpl->pCols[j];
         newcolumnCount++;

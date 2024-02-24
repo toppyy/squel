@@ -74,7 +74,7 @@ typedef struct {
     struct Operator* right;
     struct Operator* filter;
     struct Tuple* lastTuple;
-    struct Tuple* rightTuples[QUERYBUFFER];
+    struct Tuple* rightTuples[JOINPTRBUFFER];
     size_t rightTupleIdx;
     size_t rightTupleCount;
     bool rightTuplesCollected;

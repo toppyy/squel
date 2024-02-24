@@ -22,7 +22,7 @@ char* doAverage(Operator* opToIterate, int colIdx, char* resultBuffer) {
             break;
         }
         if (opToIterate->resultDescription.columns[colIdx].type == DTYPE_INT) {
-            sum += atol(tpl->pCols[colIdx]);
+            sum += atol(getCol(tpl,colIdx));
             count++;
         } else {
             printf("Sum not implement for non-integers\n");
@@ -51,7 +51,7 @@ char* doSum(Operator* opToIterate, int colIdx, char* resultBuffer) {
             break;
         }
         if (opToIterate->resultDescription.columns[colIdx].type == DTYPE_INT) {
-            result += atol(tpl->pCols[colIdx]);
+            result += atol(getCol(tpl,colIdx));
         } else {
             printf("Sum not implement for non-integers\n");
             exit(1);
@@ -94,13 +94,9 @@ Tuple* aggregateGetTuple(Operator* op) {
             exit(1);
     }
 
-    tpl->pCols[0] = resultLocation;
-    tpl->size = strlen(resultLocation);
+    tpl->pCols[0] = 0;
+    tpl->size = strlen(resultLocation) + 1;
     
-    
-   
-
-
     op->info.aggregate.aggregationDone = true;
     
     return tpl;

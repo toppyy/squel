@@ -2,10 +2,7 @@
 
 Tuple* scanGetTuple(Operator* op) {
 
-    if (op == NULL) {
-        printf("NULL pointer passed to scanGetTuple\n");
-        exit(1);
-    }
+    checkPtrNotNull(op, "NULL pointer passed to scanGetTuple");
 
     // Read header and first line of data
     FILE* f = op->info.scan.tablefile;
@@ -32,26 +29,26 @@ Tuple* scanGetTuple(Operator* op) {
     tpl->columnCount = op->resultDescription.columnCount;
     tpl->size        = len;
 
-    // Add pointers to start of each column
+    // Calculate offsets to each column
     char* dlmtr = NULL;
 
     size_t cursor = 0;
     size_t i = 1;
 
     char* ptrData = tpl->data;
-    tpl->pCols[0] = ptrData;
+    tpl->pCols[0] = 0;
 
     for (;;) {
         
         dlmtr = strchr(ptrData + cursor, DELIMITER);
         
         if (dlmtr == NULL) {
-            tpl->pCols[i] =  ptrData;
+            tpl->pCols[i] =  cursor;
             break;
         }
         cursor += dlmtr - (ptrData + cursor) + 1;
         
-        tpl->pCols[i] =  ptrData + cursor;
+        tpl->pCols[i] = cursor;
         
         (*dlmtr) = '\0'; // Replace delimiter with NULL so each column is a NULL-terminated string
         i++;

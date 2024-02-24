@@ -7,8 +7,9 @@
 #define LF 10
 
 // Bufferpool
-#define QUERYBUFFER 10000
-#define TUPLEDATAMAXSIZE 500
+#define TUPLEBUFFSIZE       100
+#define TUPLEDATAMAXSIZE    500
+#define JOINPTRBUFFER       1000
 
 // Define max size (in chars) of expressions and query
 #define MAXQUERYSIZE 1000

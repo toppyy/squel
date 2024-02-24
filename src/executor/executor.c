@@ -40,7 +40,7 @@ void printTuple(Tuple* tpl) {
     char* printBuff = calloc(tpl->size, sizeof(char));
 
     for (size_t i = 0; i < tpl->columnCount; i++) {
-        strcpy(printBuff + strlen(printBuff), tpl->pCols[i]);
+        strcpy(printBuff + strlen(printBuff), getCol(tpl,i));
         if (i == tpl->columnCount - 1) continue;
         strcpy(printBuff + strlen(printBuff), DELIMITERSTR);
     }
@@ -74,6 +74,8 @@ void execute(Operator *op) {
 
  
     tplbuffer = calloc(1, sizeof(TupleBuffer));
+    tplbuffer->tuples = calloc(TUPLEBUFFSIZE, sizeof(Tuple));
+    tplbuffer->bufferSize = TUPLEBUFFSIZE;
 
     tplbuffer->tupleCount = 0;
 
@@ -102,5 +104,6 @@ void execute(Operator *op) {
         printTuple(tpl);
     };
 
+    free(tplbuffer->tuples);
     free(tplbuffer);
 }

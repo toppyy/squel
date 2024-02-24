@@ -22,15 +22,17 @@ typedef struct Tuple {
     size_t  columnCount;
     size_t  size;
     char    data[TUPLEDATAMAXSIZE]; 
-    char*   pCols[ARRAYMAXSIZE];
+    size_t  pCols[ARRAYMAXSIZE];
 } Tuple;
 
 typedef struct {
-    Tuple tuples[QUERYBUFFER];
+    Tuple* tuples;
     size_t tupleCount;
+    size_t bufferSize;
 } TupleBuffer;
 
 extern TupleBuffer* tplbuffer;
 
 
 Tuple* addTuple();
+char* getCol(Tuple* tpl, size_t colIdx);

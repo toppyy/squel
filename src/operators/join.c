@@ -18,10 +18,14 @@ Tuple* concat_tuples(Tuple* left, Tuple* right) {
     tpl->columnCount = left->columnCount + right->columnCount;
     tpl->size        = len;
 
+    // Copy data
+
+    memcpy(tpl->data, left->data, left->size);
+    memcpy(tpl->data +  left->size + 1, right->data, right->size);
+
     // Add pointers to start of each column
     // Reuse the data in the original tuples
     // Move only pointers to two columns; do not copy data
-
 
     size_t i = 0;
     for (size_t j = 0; j < left->columnCount; j++) {
@@ -29,10 +33,12 @@ Tuple* concat_tuples(Tuple* left, Tuple* right) {
         i++;
     }
 
+    size_t offset = tpl->pCols[i-1] + strlen(getCol(left, i-1)) + 1;
     for (size_t j = 0; j < right->columnCount; j++) {
-        tpl->pCols[i] = right->pCols[j];
+        tpl->pCols[i] = offset + right->pCols[j];
         i++;
     }
+
 
     return tpl;
 }
