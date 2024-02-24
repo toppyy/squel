@@ -21,6 +21,7 @@
 typedef struct Tuple {
     size_t  columnCount;
     size_t  size;
+    size_t  idx;
     char    data[TUPLEDATAMAXSIZE]; 
     size_t  pCols[ARRAYMAXSIZE];
 } Tuple;
@@ -36,3 +37,4 @@ extern TupleBuffer* tplbuffer;
 
 Tuple* addTuple();
 char* getCol(Tuple* tpl, size_t colIdx);
+Tuple* getTuple(int idx);

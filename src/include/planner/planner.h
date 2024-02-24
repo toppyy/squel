@@ -74,7 +74,7 @@ typedef struct {
     struct Operator* right;
     struct Operator* filter;
     struct Tuple* lastTuple;
-    struct Tuple* rightTuples[JOINPTRBUFFER];
+    size_t rightTuples[JOINPTRBUFFER];
     size_t rightTupleIdx;
     size_t rightTupleCount;
     bool rightTuplesCollected;
@@ -100,7 +100,7 @@ typedef struct Operator {
     OperatorInfo info;
     ResultSet resultDescription;
     struct Operator* child;
-    struct Tuple* (*getTuple) (struct Operator* op);
+    int (*getTuple) (struct Operator* op);
 } Operator;
 
 void freeQueryplan(Operator *node);

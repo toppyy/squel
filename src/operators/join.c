@@ -43,7 +43,7 @@ Tuple* concat_tuples(Tuple* left, Tuple* right) {
     return tpl;
 }
 
-Tuple* joinGetTuple(Operator* op) {
+int joinGetTuple(Operator* op) {
 
     if (
         op->info.join.left == NULL ||
@@ -80,33 +80,33 @@ Tuple* joinGetTuple(Operator* op) {
                 op->info.join.rightTupleIdx = 0;
                 op->info.join.lastTuple = NULL;
             }
-            rightTuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
+            rightTuple = getTuple(op->info.join.rightTuples[op->info.join.rightTupleIdx++]);
             
         } else {
-            rightTuple = op->info.join.right->getTuple(op->info.join.right);
+            rightTuple = getTuple(op->info.join.right->getTuple(op->info.join.right));
 
             if (rightTuple == NULL) {
                 op->info.join.rightTuplesCollected = true;
                 op->info.join.lastTuple = NULL;
                 op->info.join.rightTupleIdx = 0;
-                rightTuple = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
+                rightTuple = getTuple(op->info.join.rightTuples[op->info.join.rightTupleIdx++]);
                 
                 
             } else {
-                op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTuple;
+                op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTuple->idx;
                 op->info.join.rightTupleCount++;
 
             }
         }
         if (op->info.join.lastTuple == NULL) {
-            op->info.join.lastTuple   = op->info.join.left->getTuple(op->info.join.left);
+            op->info.join.lastTuple   = getTuple(op->info.join.left->getTuple(op->info.join.left));
             if (op->info.join.lastTuple == NULL) {
-                return NULL;
+                return -1;
             }
         }
         tpl = concat_tuples(op->info.join.lastTuple, rightTuple);
         if (evaluateTupleAgainstFilterOps(tpl, op->info.join.filter)) {
-            return tpl;
+            return tpl->idx;
         }
     } while(true);
 

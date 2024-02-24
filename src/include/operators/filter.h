@@ -3,5 +3,5 @@
 #include "../bufferpool/bufferpool.h"
 #include "../planner/planner.h"
 
-Tuple* filterGetTuple(Operator* op);
+int filterGetTuple(Operator* op);
 bool evaluateTupleAgainstFilterOps(Tuple* tpl, Operator* op);

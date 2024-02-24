@@ -198,7 +198,7 @@ bool evaluateTupleAgainstFilterOps(Tuple* tpl, Operator* op) {
     return rtrnValue;
 }
 
-Tuple* filterGetTuple(Operator* op) {
+int filterGetTuple(Operator* op) {
 
     if (op == NULL) {
         printf("FILTER_OP: Passed a NULL-pointer to filterGetTuple\n");
@@ -224,16 +224,15 @@ Tuple* filterGetTuple(Operator* op) {
     while (true) {
         /* Get new tuples until found something that passes the filter */
 
-        tpl = op->child->getTuple(op->child);
+        tpl = getTuple(op->child->getTuple(op->child));
 
         if (tpl == NULL) {
-            return false;
+            return -1;
         }
 
         if (evaluateTupleAgainstFilterOps(tpl, op)) break;
 
 
     }
-
-    return tpl;
+    return tpl->idx;
 }

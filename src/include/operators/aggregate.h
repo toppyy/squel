@@ -4,4 +4,4 @@
 #include "../planner/planner.h"
 #include "../executor/executor.h"
 
-Tuple* aggregateGetTuple(Operator* op);
+int aggregateGetTuple(Operator* op);

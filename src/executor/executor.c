@@ -98,7 +98,7 @@ void execute(Operator *op) {
 
     // Get tuples one by one
     for (;;) {
-        tpl = op->getTuple(op);
+        tpl = getTuple(op->getTuple(op));
         if (tpl == NULL) break;
 
         printTuple(tpl);

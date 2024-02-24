@@ -7,7 +7,7 @@
 #define LF 10
 
 // Bufferpool
-#define TUPLEBUFFSIZE       100
+#define TUPLEBUFFSIZE       1000
 #define TUPLEDATAMAXSIZE    500
 #define JOINPTRBUFFER       1000
 

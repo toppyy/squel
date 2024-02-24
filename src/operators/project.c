@@ -1,14 +1,14 @@
 #include "../include/operators/project.h"
 
-Tuple* projectGetTuple(Operator* op) {
+int projectGetTuple(Operator* op) {
 
     checkPtrNotNull(op->child, "OP_PROJECT has no child");
     checkPtrNotNull(op->child->getTuple, "Child of OP_PROJECT has no getTuple-method");
     
-    Tuple* tpl = op->child->getTuple(op->child);
+    Tuple* tpl = getTuple(op->child->getTuple(op->child));
 
     if (tpl == NULL) {
-        return NULL;
+        return -1;
     }
     
     size_t  newcolumnCount = 0;
@@ -35,6 +35,5 @@ Tuple* projectGetTuple(Operator* op) {
     tpl->columnCount = newcolumnCount;
     tpl->size = newSize;
 
-    return tpl;
-
+    return tpl->idx;
 }

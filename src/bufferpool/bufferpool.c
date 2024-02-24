@@ -13,10 +13,18 @@ Tuple* addTuple() {
     tplbuffer->tupleCount++;
     size_t idx = tplbuffer->tupleCount;
     tplbuffer->tuples[idx].pCols[0] = 0;
+    tplbuffer->tuples[idx].idx = idx;
     return &tplbuffer->tuples[idx];
 }
 
 
 char* getCol(Tuple* tpl, size_t colIdx) {
     return tpl->data + tpl->pCols[colIdx];
+}
+
+Tuple* getTuple(int idx) {
+    if (idx < 0) {
+        return NULL;
+    }
+    return &tplbuffer->tuples[idx];
 }

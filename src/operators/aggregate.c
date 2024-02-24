@@ -1,10 +1,10 @@
 #include "../include/operators/aggregate.h"
 
 char* doCount(Operator* opToIterate, char* resultBuffer) {
-    Tuple* tpl = opToIterate->getTuple(opToIterate);
+    Tuple* tpl = getTuple(opToIterate->getTuple(opToIterate));
     long result = 0;
     while (tpl != NULL) {
-        tpl = opToIterate->getTuple(opToIterate);
+        tpl = getTuple(opToIterate->getTuple(opToIterate));
         result++;
     };
     sprintf(resultBuffer, "%ld", result);
@@ -17,7 +17,7 @@ char* doAverage(Operator* opToIterate, int colIdx, char* resultBuffer) {
     long count = 0;
 
     for (;;) {
-        tpl = opToIterate->getTuple(opToIterate);
+        tpl = getTuple(opToIterate->getTuple(opToIterate));
         if (tpl == NULL) {
             break;
         }
@@ -46,7 +46,7 @@ char* doSum(Operator* opToIterate, int colIdx, char* resultBuffer) {
     long result = 0;
 
     for (;;) {
-        tpl = opToIterate->getTuple(opToIterate);
+        tpl = getTuple(opToIterate->getTuple(opToIterate));
         if (tpl == NULL) {
             break;
         }
@@ -62,43 +62,44 @@ char* doSum(Operator* opToIterate, int colIdx, char* resultBuffer) {
 }
 
 
-Tuple* aggregateGetTuple(Operator* op) {
+int aggregateGetTuple(Operator* op) {
     
     checkPtrNotNull(op->child, "OP_AGGREGATE has no child.");
     checkPtrNotNull(op->child->getTuple, "Child of OP_AGGREGATE has no getTuple-method.");
 
     if (op->info.aggregate.aggregationDone) {
-        return NULL;
+        return -1;
     }
 
     // Build new tuple to store result
- 
-    Tuple* tpl = addTuple();    
-    tpl->columnCount = 1;
 
-
+    char* resultBuffer = (char*) malloc(CHARMAXSIZE);
     char* resultLocation = NULL;
 
     switch(op->info.aggregate.aggtype) {
         case COUNT:
-            resultLocation = doCount(op->child, tpl->data);
+            resultLocation = doCount(op->child, resultBuffer);
             break;
         case SUM:
-            resultLocation = doSum(op->child, op->info.aggregate.colToAggregate, tpl->data);
+            resultLocation = doSum(op->child, op->info.aggregate.colToAggregate, resultBuffer);
             break;
         case AVG:
-            resultLocation = doAverage(op->child, op->info.aggregate.colToAggregate, tpl->data);
+            resultLocation = doAverage(op->child, op->info.aggregate.colToAggregate, resultBuffer);
             break;
         default:
             printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
             exit(1);
     }
-
+ 
+    Tuple* tpl = addTuple();
+    strcpy(tpl->data, resultBuffer);    
+    tpl->columnCount = 1;
     tpl->pCols[0] = 0;
     tpl->size = strlen(resultLocation) + 1;
     
     op->info.aggregate.aggregationDone = true;
     
-    return tpl;
+    free(resultBuffer);
+    return tpl->idx;
 
 }

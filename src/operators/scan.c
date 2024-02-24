@@ -1,6 +1,6 @@
 #include "../include/operators/scan.h"
 
-Tuple* scanGetTuple(Operator* op) {
+int scanGetTuple(Operator* op) {
 
     checkPtrNotNull(op, "NULL pointer passed to scanGetTuple");
 
@@ -22,7 +22,7 @@ Tuple* scanGetTuple(Operator* op) {
      if (line == NULL) {
         // TODO: free tuple
         fclose(op->info.scan.tablefile);
-        return NULL;
+        return -1;
     }
     size_t len = strlen(line);
 
@@ -57,6 +57,6 @@ Tuple* scanGetTuple(Operator* op) {
     
     op->info.scan.cursor += len;
 
-    return tpl;
+    return tpl->idx;
 }
 

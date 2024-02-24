@@ -3,4 +3,4 @@
 #include "../planner/planner.h"
 #include "../executor/executor.h"
 
-Tuple* scanGetTuple(Operator* op);
+int scanGetTuple(Operator* op);
