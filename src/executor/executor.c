@@ -6,7 +6,6 @@ TupleBuffer* tplbuffer;
 
 char *buffercache;
 char *p_buffercache;
-char *bufferscan;
 size_t buffercacheSize = 0;
 
 
@@ -95,7 +94,6 @@ void printBuffercache() {
 void execute(Operator *op) {
 
     p_buffercache = calloc(QUERYBUFFER, sizeof(char)); 
-    bufferscan  = calloc(SCANBUFFER, sizeof(char)); 
     buffercache = p_buffercache;
 
     tplbuffer = calloc(1, sizeof(TupleBuffer));
@@ -112,12 +110,9 @@ void execute(Operator *op) {
     }
     
     // Print column names
-    char delimiter = ';';
     printf("%s", op->resultDescription.columns[0].name);
     for (size_t i = 1; i < op->resultDescription.columnCount; i++) {
-        printf("%c%s", delimiter, op->resultDescription.columns[i].name);
-        
-        
+        printf("%c%s", DELIMITER, op->resultDescription.columns[i].name);
     }
     printf("\n");
 
@@ -131,6 +126,5 @@ void execute(Operator *op) {
     };
 
     free(p_buffercache);
-    free(bufferscan);
     free(tplbuffer);
 }

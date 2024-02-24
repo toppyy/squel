@@ -39,7 +39,7 @@ void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimite
             p_tablemetadata->columns[columnCount].name[cursor + 1] = '\0';
             cursor = 0;
 
-            if (columnCount > COLUMNSSIZE) {
+            if (columnCount > ARRAYMAXSIZE) {
                 printf("Error: column count exceeds buffer\n");
                 exit(1);
             }

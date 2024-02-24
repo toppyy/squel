@@ -1,14 +1,11 @@
-#ifndef PARSER_H
-#define PARSER_H
+#pragma once
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "../const.h"
 #include "./parsetree.h"
 #include "./utils.h"
-
-#define MAXQUERYSIZE 1000
-#define MAXEXPRSIZE  100
 
 char getNextChar();
 char expectChar(char expected);
@@ -26,6 +23,3 @@ void source();
 void from();
 void function();
 size_t parse(char* input, Node *p_root);
-
-
-#endif  // PARSER_H

@@ -1,14 +1,11 @@
 #pragma once
 #include <stdbool.h>
 #include <stdio.h>
+#include "../const.h"
 #include "../io/io.h"
 #include "../parser/utils.h"
 #include "../parser/parsetree.h"
 
-#define PROJCOLSIZE 50
-#define FILTERSIZE  50
-#define JOINSIZE 100
-#define NAMESIZEMAX 255
 
 typedef enum {
     OP_SCAN,
@@ -25,13 +22,10 @@ typedef enum {
 } AggregationType;
 
 
-#define METADATASIZE    100
-#define COLUMNSSIZE     10
-
 typedef struct {
-    char name[NAMESIZEMAX];
-    char alias[METADATASIZE];
-    char resultSetAlias[METADATASIZE];
+    char name[CHARMAXSIZE];
+    char alias[CHARMAXSIZE];
+    char resultSetAlias[CHARMAXSIZE];
     Datatype type;
     size_t identifier;
 } ColumnMetadata;
@@ -39,9 +33,9 @@ typedef struct {
 
 
 typedef struct {
-    char path[METADATASIZE];
-    char alias[METADATASIZE];
-    ColumnMetadata columns[COLUMNSSIZE];
+    char path[CHARMAXSIZE];
+    char alias[CHARMAXSIZE];
+    ColumnMetadata columns[ARRAYMAXSIZE];
     size_t columnCount;
 } TableMetadata;
 
@@ -49,12 +43,12 @@ typedef struct {
 
 typedef struct {
     size_t columnCount;
-    ColumnMetadata columns[PROJCOLSIZE];
+    ColumnMetadata columns[ARRAYMAXSIZE];
 } ResultSet;
 
 typedef struct {
-    char    columnsToProject[PROJCOLSIZE][PROJCOLSIZE];
-    int     colRefs[PROJCOLSIZE];
+    char    columnsToProject[ARRAYMAXSIZE][CHARMAXSIZE];
+    int     colRefs[ARRAYMAXSIZE];
     int     colCount;
 } ProjectInfo;
 
@@ -66,10 +60,10 @@ typedef struct {
 
 
 typedef struct FilterInfo {
-    char                charConstants[FILTERSIZE][FILTERSIZE];
-    int                 intConstants[FILTERSIZE];
-    enum nodeType       exprTypes[FILTERSIZE];
-    int                 boolExprList[FILTERSIZE];
+    char                charConstants[ARRAYMAXSIZE][CHARMAXSIZE];
+    int                 intConstants[ARRAYMAXSIZE];
+    enum nodeType       exprTypes[ARRAYMAXSIZE];
+    int                 boolExprList[ARRAYMAXSIZE];
     size_t              boolExprListSize;
     struct Operator*    next;
     enum nodeType       operatorNext;
@@ -80,7 +74,7 @@ typedef struct {
     struct Operator* right;
     struct Operator* filter;
     struct Tuple* lastTuple;
-    struct Tuple* rightTuples[JOINSIZE];
+    struct Tuple* rightTuples[QUERYBUFFER];
     size_t rightTupleIdx;
     size_t rightTupleCount;
     bool rightTuplesCollected;

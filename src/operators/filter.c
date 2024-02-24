@@ -55,7 +55,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
         Three cases:
             1. Both are columns
             2. Neither is a column
-            3. 1 is column, 2 is constant
+            3. 1 is column, 1 is constant
     */
 
     // 1. Both are columns. They must be of the same datatype

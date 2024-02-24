@@ -10,10 +10,12 @@ Tuple* scanGetTuple(Operator* op) {
     // Read header and first line of data
     FILE* f = op->info.scan.tablefile;
     if (f == NULL) {
+        char* buff = malloc(LINEBUFF);
         f = fopen(op->info.scan.table.path, "r");
-        readLineToBuffer(f, bufferscan, SCANBUFFER); // Read header
+        // Read header and discard it (already used by catalogTable)
+        readLineToBuffer(f, buff, LINEBUFF); 
         op->info.scan.tablefile = f;
-    
+        free(buff);    
     }
 
     char* buffercacheWithCursor = buffercache;

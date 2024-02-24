@@ -20,9 +20,9 @@ Tuple* projectGetTuple(Operator* op) {
 
     
     size_t  newcolumnCount = 0;
-    size_t  newidentifiers[TUPLECOLS];
+    size_t  newidentifiers[ARRAYMAXSIZE];
     size_t  newSize = 0;
-    char*   newpCols[TUPLECOLS];
+    char*   newpCols[ARRAYMAXSIZE];
     
     size_t  j = 0;
 

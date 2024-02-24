@@ -12,7 +12,7 @@ Operator* makeScanOp(Node* node) {
 
     TableMetadata tbl;
     memset(&tbl, 0, sizeof(tbl));
-    catalogFile(node->content, &tbl, ';');
+    catalogFile(node->content, &tbl, DELIMITER);
 
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
     op->type = OP_SCAN;

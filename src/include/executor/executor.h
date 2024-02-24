@@ -1,5 +1,6 @@
 #pragma once
 #include <stdio.h>
+#include "../const.h"
 #include "../parser/parsetree.h"
 #include "../planner/planner.h"
 #include "../buffer/buffer.h"
@@ -8,11 +9,6 @@
 #include "../operators/scan.h"
 #include "../operators/project.h"
 #include "../operators/aggregate.h"
-
-#define QUERYBUFFER 10000
-#define SCANBUFFER  10000
-#define DELIMITER   ';'
-#define DELIMITERSTR ";"
 
 
 extern char *buffercache;

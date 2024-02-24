@@ -1,6 +1,7 @@
 #pragma once
 #include <stdlib.h>
 #include <string.h>
+#include "../const.h"
 
 typedef enum Datatype {
     DTYPE_STR,
@@ -32,12 +33,12 @@ enum nodeType {
 
 typedef struct Node {
     enum nodeType type;
-    char content[50];
+    char content[CHARMAXSIZE];
     struct Node *next;
     struct Node *child;
     
-    char alias[50];
-    char tblref[50];
+    char alias[CHARMAXSIZE];
+    char tblref[CHARMAXSIZE];
 
     /* These are used by the binder */
     int tableRef;

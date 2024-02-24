@@ -69,7 +69,7 @@ void boolExprAddTypes(Node* node, enum nodeType* types) {
 
 }
 
-void boolExprAddConstants(Node* node, char (*charConstants)[FILTERSIZE], int* intConstants) {
+void boolExprAddConstants(Node* node, char (*charConstants)[CHARMAXSIZE], int* intConstants) {
 
     size_t i = 0;
     Node* p_node = node;
