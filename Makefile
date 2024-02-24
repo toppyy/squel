@@ -26,7 +26,7 @@ dirs:
 	mkdir -p build/binder
 	mkdir -p build/io
 	mkdir -p build/executor
-	mkdir -p build/buffer
+	mkdir -p build/bufferpool
 	mkdir -p build/operators
 
 clean:

@@ -1,6 +1,6 @@
 #pragma once
 #include <stdbool.h>
-#include "../buffer/buffer.h"
+#include "../bufferpool/bufferpool.h"
 #include "../planner/planner.h"
 
 Tuple* filterGetTuple(Operator* op);

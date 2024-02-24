@@ -1,5 +1,5 @@
 #pragma once
-#include "../buffer/buffer.h"
+#include "../bufferpool/bufferpool.h"
 #include "../planner/planner.h"
 #include "../executor/executor.h"
 

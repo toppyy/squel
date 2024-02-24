@@ -3,7 +3,7 @@
 #include "../const.h"
 #include "../parser/parsetree.h"
 #include "../planner/planner.h"
-#include "../buffer/buffer.h"
+#include "../bufferpool/bufferpool.h"
 #include "../operators/join.h"
 #include "../operators/filter.h"
 #include "../operators/scan.h"
