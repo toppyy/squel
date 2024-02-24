@@ -1,7 +1,7 @@
 #include "../include/operators/join.h"
 
 
-Tuple* concat_tuples(Tuple* left, Tuple* right) {
+Tuple* concat_tuples(Tuple* tpl, Tuple* left, Tuple* right) {
 
     if (
         left == NULL ||
@@ -10,16 +10,12 @@ Tuple* concat_tuples(Tuple* left, Tuple* right) {
         printf("Passed a NULL pointer to concat_tuples\n");
         exit(1);
     }
-
     
-    size_t len = left->size + right->size;
-
-    Tuple* tpl = addTuple();
     tpl->columnCount = left->columnCount + right->columnCount;
-    tpl->size        = len;
+    tpl->size        = left->size + right->size;
 
     // Copy data
-
+    memset(tpl->data, 0, TUPLEDATAMAXSIZE);
     memcpy(tpl->data, left->data, left->size);
     memcpy(tpl->data +  left->size + 1, right->data, right->size);
 
@@ -72,6 +68,7 @@ int joinGetTuple(Operator* op) {
 
     Tuple* rightTuple = NULL;
     Tuple* tpl = NULL;
+    Tuple* filterTuple = addTuple(); // Reuse this and only create a new tuple if it passes the filter
 
     do {
         
@@ -98,15 +95,19 @@ int joinGetTuple(Operator* op) {
 
             }
         }
+
         if (op->info.join.lastTuple == NULL) {
             op->info.join.lastTuple   = getTuple(op->info.join.left->getTuple(op->info.join.left));
             if (op->info.join.lastTuple == NULL) {
                 return -1;
             }
         }
-        tpl = concat_tuples(op->info.join.lastTuple, rightTuple);
+        tpl = concat_tuples(filterTuple, op->info.join.lastTuple, rightTuple);
+
         if (evaluateTupleAgainstFilterOps(tpl, op->info.join.filter)) {
-            return tpl->idx;
+            Tuple* newTuple = addTuple();
+            memcpy(newTuple, filterTuple, sizeof(*filterTuple));
+            return newTuple->idx;
         }
     } while(true);
 
