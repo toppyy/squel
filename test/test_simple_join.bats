@@ -21,6 +21,15 @@ setup_file() {
 }
 
 
+@test "Simple JOIN on column unequality using aliases" {
+    run ./build/squel "SELECT a.col3 FROM './test/data/small.csv' AS a JOIN './test/data/small2.csv' AS b ON a.col3>b.int"
+    [[ $"${lines[1]}" == "999" ]]
+    [[ $"${lines[2]}" == "100" ]]
+    [[ $"${lines[3]}" == "300" ]]
+    [[ $"${lines[4]}" == "400" ]]
+    [[ $"${lines[5]}" == "" ]]
+}
+
 
 
 
