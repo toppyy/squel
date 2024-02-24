@@ -63,45 +63,42 @@ char* doSum(Operator* opToIterate, int colIdx, char* resultBuffer) {
 
 
 Tuple* aggregateGetTuple(Operator* op) {
-    if (op->child == NULL) {
-        printf("OP_AGGREGATE has no child\n");
-        exit(1);
-    }
-
-    if ( op->child->getTuple == NULL) {
-        printf("Child of OP_AGGREGATE has no getTuple-method\n");
-        exit(1);
-    }
+    
+    checkPtrNotNull(op->child, "OP_AGGREGATE has no child.");
+    checkPtrNotNull(op->child->getTuple, "Child of OP_AGGREGATE has no getTuple-method.");
 
     if (op->info.aggregate.aggregationDone) {
         return NULL;
     }
 
+    // Build new tuple to store result
+ 
+    Tuple* tpl = addTuple();    
+    tpl->columnCount = 1;
+
+
     char* resultLocation = NULL;
 
     switch(op->info.aggregate.aggtype) {
         case COUNT:
-            resultLocation = doCount(op->child, buffercache);
+            resultLocation = doCount(op->child, tpl->data);
             break;
         case SUM:
-            resultLocation = doSum(op->child, op->info.aggregate.colToAggregate, buffercache);
+            resultLocation = doSum(op->child, op->info.aggregate.colToAggregate, tpl->data);
             break;
         case AVG:
-            resultLocation = doAverage(op->child, op->info.aggregate.colToAggregate, buffercache);
+            resultLocation = doAverage(op->child, op->info.aggregate.colToAggregate, tpl->data);
             break;
         default:
             printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
             exit(1);
     }
-    
-    size_t numSizeAsChar = strlen(resultLocation);
-   
-    // Build new tuple
- 
-    Tuple* tpl = addTuple();    
+
     tpl->pCols[0] = resultLocation;
-    tpl->size = numSizeAsChar + 1;
-    tpl->columnCount = 1;
+    tpl->size = strlen(resultLocation);
+    
+    
+   
 
 
     op->info.aggregate.aggregationDone = true;

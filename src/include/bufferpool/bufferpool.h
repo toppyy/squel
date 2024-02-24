@@ -22,7 +22,7 @@ typedef struct Tuple {
     size_t  columnCount;
     size_t  identifiers[ARRAYMAXSIZE];
     size_t  size;
-    char*   data[TUPLEDATAMAXSIZE]; 
+    char    data[TUPLEDATAMAXSIZE]; 
     char*   pCols[ARRAYMAXSIZE];
     enum Datatype datatypes[ARRAYMAXSIZE];
 } Tuple;

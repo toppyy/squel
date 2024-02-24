@@ -4,11 +4,6 @@
 TupleBuffer* tplbuffer;
 
 
-char *buffercache;
-char *p_buffercache;
-size_t buffercacheSize = 0;
-
-
 void assignGetTupleFunction(Operator *op) {
 
     if (op == NULL) {
@@ -74,28 +69,10 @@ void doAssignGetTupleFunction(Operator* p_op) {
     }
 }
 
-void printBuffercache() {
-    size_t i = 0;
-    char prev = 'a', cur = 'a';
-    while (i < QUERYBUFFER) {
-        prev = cur;   
-        cur = p_buffercache[i++];
-        if (prev == '\0' && cur == '\0') {
-            continue;
-        }
-        if (cur == '\0') {
-            printf("\n");
-            continue;
-        }
-        printf("%c",cur);
-    }
-}
 
 void execute(Operator *op) {
 
-    p_buffercache = calloc(QUERYBUFFER, sizeof(char)); 
-    buffercache = p_buffercache;
-
+ 
     tplbuffer = calloc(1, sizeof(TupleBuffer));
 
     tplbuffer->tupleCount = 0;
@@ -125,6 +102,5 @@ void execute(Operator *op) {
         printTuple(tpl);
     };
 
-    free(p_buffercache);
     free(tplbuffer);
 }

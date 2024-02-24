@@ -18,21 +18,21 @@ Tuple* scanGetTuple(Operator* op) {
         free(buff);    
     }
 
-    char* buffercacheWithCursor = buffercache;
-    char* line = readLineToBuffer(f, buffercacheWithCursor, QUERYBUFFER - buffercacheSize);
-
-    if (line == NULL) {
-        
-        fclose(op->info.scan.tablefile);
-        return NULL;
-
-    }
-
-    size_t len = strlen(line);
 
     Tuple* tpl = addTuple();
+    char* line = readLineToBuffer(f, tpl->data, TUPLEDATAMAXSIZE);
+
+     if (line == NULL) {
+        // TODO: free tuple
+        fclose(op->info.scan.tablefile);
+        return NULL;
+    }
+    size_t len = strlen(line);
+
     tpl->columnCount = op->resultDescription.columnCount;
     tpl->size        = len;
+
+   
 
     // Fill datatypes for tuple
     // TODO: useless work here? use child resultDescription
@@ -43,31 +43,29 @@ Tuple* scanGetTuple(Operator* op) {
     char* dlmtr = NULL;
 
     size_t cursor = 0;
-
-    tpl->pCols[0] = buffercacheWithCursor;
     size_t i = 1;
+
+    char* ptrData = tpl->data;
+    tpl->pCols[0] = ptrData;
 
     for (;;) {
         
-        dlmtr = strchr(buffercacheWithCursor + cursor, DELIMITER);
+        dlmtr = strchr(ptrData + cursor, DELIMITER);
         
         if (dlmtr == NULL) {
-            tpl->pCols[i] =  buffercacheWithCursor;
+            tpl->pCols[i] =  ptrData;
             break;
         }
-        cursor += dlmtr - (buffercacheWithCursor + cursor) + 1;
+        cursor += dlmtr - (ptrData + cursor) + 1;
         
-        tpl->pCols[i] =  buffercacheWithCursor + cursor;
+        tpl->pCols[i] =  ptrData + cursor;
         
         (*dlmtr) = '\0'; // Replace delimiter with NULL so each column is a NULL-terminated string
         i++;
     
     };
-
     
     op->info.scan.cursor += len;
-    buffercache += len + 1;
-    buffercacheSize += len + 1;
 
     return tpl;
 }
