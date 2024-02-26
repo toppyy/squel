@@ -61,18 +61,24 @@ char peekNextNonAlphanumeric() {
 }
 
 
-void keyword(char* kw, enum nodeType type) {
+void expectWord(char* w) {
 
     size_t i = 0;
     int start = cursor;
-    while (kw[i++] == nextChar) {
+    while (w[i++] == nextChar) {
         getNextChar();
     }
 
-    if (i < strlen(kw)) {
-        printf("Expected to see %s at position %d (was %c)\n", kw, start, rawSql[start]);
+    if (i < strlen(w)) {
+        printf("Expected to see %s at position %d (was %c)\n", w, start, rawSql[start]);
         exit(1);
     }
+}
+
+
+void keyword(char* kw, enum nodeType type) {
+
+    expectWord(kw);
     addNode(type,kw);
 }
 
@@ -367,8 +373,55 @@ void source() {
     }
 
     ident(IDENT_TBL);
-}   
+}
 
+void getDatatype() {
+    // Opportunistic reuse
+    bool isChar = peekWordMatches("CHAR");
+    ident(DATATYPE);
+    skipWhite();
+    if (isChar) {
+        nextToChild = true;
+        number();
+    }
+}
+
+void columnDefinition() {
+    skipWhite();
+    ident(IDENT_COL);
+    skipWhite();
+    nextToChild = true;
+    Node* tmp = currentNode;
+    getDatatype();
+    currentNode = tmp;
+    skipWhite();
+}
+
+void columDefinitions() {
+    skipWhite();
+    columnDefinition();
+    if (nextChar == ',') {
+        getNextChar();        
+        columDefinitions();
+    }
+    skipWhite();
+}
+
+void create() {
+    keyword("CREATE", STMT);
+    skipWhite();
+    keyword("TABLE", STMT);
+    skipWhite();
+    ident(IDENT_TBL);
+    skipWhite();
+    expectWord("AS");
+    skipWhite();
+    expectChar('(');
+    addNode(COLUMNLIST, "list of columns");
+    nextToChild = true;
+    columDefinitions();
+    expectChar(')');
+}
 
 
 size_t parse(char* input, Node* p_root) {
@@ -379,7 +432,11 @@ size_t parse(char* input, Node* p_root) {
     strcpy(rawSql,input);
     qsize = strlen(rawSql);
     getNextChar();
-    query();
-    
+    if (peekWordMatches("CREATE")) {
+        create();
+    } else {
+        query();
+    }
+
     return nodeCount;   
 }

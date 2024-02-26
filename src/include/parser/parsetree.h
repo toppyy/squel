@@ -27,7 +27,10 @@ enum nodeType {
     ON,
     ROOT,
     BOOLOP,
+    DATATYPE,
+    COLUMNLIST,
     AND,
+    STMT,
     OR
 };
 

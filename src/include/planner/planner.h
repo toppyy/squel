@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "../const.h"
-#include "../io/io.h"
+#include "../io/flatfile.h"
 #include "../parser/utils.h"
 #include "../parser/parsetree.h"
 

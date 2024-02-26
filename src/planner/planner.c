@@ -103,8 +103,8 @@ Operator* buildSelect(Node* node, Operator* child) {
 }
 
 
-Operator* planQuery(Node* nodeSELECT) {
 
+Operator* planSelect(Node* nodeSELECT) {
 
     Operator* opProj;
     
@@ -134,4 +134,14 @@ Operator* planQuery(Node* nodeSELECT) {
 
 
     return opProj;   
+}
+
+
+Operator* planQuery(Node* root) { 
+
+    if (root->type == SELECT) {
+        return planSelect(root);
+    }
+    
+    return NULL;
 }

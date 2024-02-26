@@ -72,6 +72,10 @@ void doAssignGetTupleFunction(Operator* p_op) {
 
 void execute(Operator *op) {
 
+    if (op == NULL) {
+        return;
+    }
+
  
     tplbuffer = calloc(1, sizeof(TupleBuffer));
     tplbuffer->tuples = calloc(TUPLEBUFFSIZE, sizeof(Tuple));
