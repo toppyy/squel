@@ -70,32 +70,31 @@ int joinGetTuple(Operator* op) {
     Tuple* tpl = NULL;
     Tuple* filterTuple = addTuple(); // Reuse this and only create a new tuple if it passes the filter
 
-    do {
+    // This is only entered first time the operator is called
+    while (!op->info.join.rightTuplesCollected) {
         
-        if (op->info.join.rightTuplesCollected) {
-            if (op->info.join.rightTupleIdx >= op->info.join.rightTupleCount) {
-                op->info.join.rightTupleIdx = 0;
-                op->info.join.lastTuple = NULL;
-            }
-            rightTuple = getTuple(op->info.join.rightTuples[op->info.join.rightTupleIdx++]);
+        rightTuple = getTuple(op->info.join.right->getTuple(op->info.join.right));
+
+        if (rightTuple == NULL) {
+            op->info.join.rightTuplesCollected = true;
+            op->info.join.lastTuple = NULL;
+            op->info.join.rightTupleIdx = 0;            
             
         } else {
-            rightTuple = getTuple(op->info.join.right->getTuple(op->info.join.right));
-
-            if (rightTuple == NULL) {
-                op->info.join.rightTuplesCollected = true;
-                op->info.join.lastTuple = NULL;
-                op->info.join.rightTupleIdx = 0;
-                rightTuple = getTuple(op->info.join.rightTuples[op->info.join.rightTupleIdx++]);
-                
-                
-            } else {
-                op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTuple->idx;
-                op->info.join.rightTupleCount++;
-
-            }
+            op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTuple->idx;
+            op->info.join.rightTupleCount++;
         }
+    }
 
+    // Join loop
+    do {
+        
+        if (op->info.join.rightTupleIdx >= op->info.join.rightTupleCount) {
+            op->info.join.rightTupleIdx = 0;
+            op->info.join.lastTuple = NULL;
+        }
+        rightTuple = getTuple(op->info.join.rightTuples[op->info.join.rightTupleIdx++]);
+        
         if (op->info.join.lastTuple == NULL) {
             op->info.join.lastTuple   = getTuple(op->info.join.left->getTuple(op->info.join.left));
             if (op->info.join.lastTuple == NULL) {
