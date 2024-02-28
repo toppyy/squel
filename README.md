@@ -33,13 +33,13 @@ This is about as complicated as it can get.
     WHERE long_term_unemployed > 10000 OR unemployed > 50000
 
 
-See `./tests` for further examples.
+See [./test/](./test/)  for further examples.
 
 ### Storage
 
 Besides querying CSV-files, one can persist data in `.tdb` -format. The data is stored in a custom binary format along with header information on the structure of the stored table.
 
-See [tests/test_tdb.bats](./tests/test_tdb.bats) for an example of how to and [src/include/io/tdb.h](src/include/io/tdb.h) for a brief description of the file layout.
+See [test/test_tdb.bats](./test/test_tdb.bats) for an example of how to and [src/include/io/tdb.h](src/include/io/tdb.h) for a brief description of the file layout.
 
 ## Building
 
