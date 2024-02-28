@@ -16,8 +16,11 @@
     Layout is:
         u64bit int - number of records
         8bit int - number of columns
-        At least one 8bit int for each column indicating type
-            If it's a string, a second 8bit int indicating length of
+        For each column:
+            Byte representing column name length
+            x bytes for column name
+            Byte for column datatype
+            Byte for column datalength
         Records..        
 
 */
@@ -28,6 +31,7 @@ typedef struct TDB {
     size_t colCount;
     char lengths[ARRAYMAXSIZE];
     Datatype datatypes[ARRAYMAXSIZE];
+    char colNames[ARRAYMAXSIZE][CHARMAXSIZE];
 } TDB;
 
 void writeTdb(char* path, TDB tbldef);

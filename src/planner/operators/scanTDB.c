@@ -33,7 +33,7 @@ Operator* makeScanTDBOp(Node* node) {
 
     for (size_t i = 0; i < tbldef.colCount; i++) {        
         op->resultDescription.columns[i].type = tbldef.datatypes[i];
-        sprintf(op->resultDescription.columns[i].name, "col_%ld", i);
+        strcpy(op->resultDescription.columns[i].name, tbldef.colNames[i]);
         strcpy(op->resultDescription.columns[i].resultSetAlias, node->content);
         
     }

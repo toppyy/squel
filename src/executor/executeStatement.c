@@ -26,17 +26,17 @@ TDB constructTDB(Node* node) {
     size_t colIdx = 0;
     while (ptr_col != NULL) {
         checkPtrNotNull(ptr_col->child, "TDB needs datatype of column (NULL-ptr)\n");
-        
-        tbl.lengths[colIdx] = sizeof(long);
-
         Datatype dtype = mapParsedDatatypeToEnumDatatype(ptr_col->child->content);
 
+        strcpy(tbl.colNames[colIdx], ptr_col->content);
+        tbl.datatypes[colIdx] = DTYPE_STR;
+        tbl.lengths[colIdx] = sizeof(long);
         if (dtype == DTYPE_STR) {
             checkPtrNotNull(ptr_col->child->child, "STRING needs length\n");
             tbl.lengths[colIdx] = atoi(ptr_col->child->child->content);
         }
 
-        tbl.datatypes[colIdx] = DTYPE_STR;
+        
 
         ptr_col = ptr_col->next;
         colIdx++;
@@ -71,7 +71,6 @@ void executeCreateTable(Node* node) {
     char* ptr_filepath = filepath;
     buildPathToTDBtable(ptr_filepath, tbl.alias);
 
-    printf("Creating a table %s\n", filepath);
     writeTdb(filepath, tbl);
 }
 
