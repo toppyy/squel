@@ -30,7 +30,8 @@ enum nodeType {
     DATATYPE,
     COLUMNLIST,
     AND,
-    STMT,
+    STMTCREATE,
+    TABLE,
     OR
 };
 

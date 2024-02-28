@@ -5,6 +5,8 @@
 // IO
 #define LINEBUFF 200
 #define LF 10
+#define DATAPATH "./data"
+#define TDBFILEXT "tdb"
 
 // Bufferpool
 #define TUPLEBUFFSIZE       1000

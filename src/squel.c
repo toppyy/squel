@@ -41,13 +41,20 @@ int main(int argc, char* argv[]) {
     Node* parsetree = createParsetree();
     parse(argv[1], parsetree);
 
-    // printTree(parsetree);
+    printTree(parsetree);
 
-    /* Plan the query */
-    Operator* queryplan = planQuery(parsetree->next);
+    // It's either a SELECT or a STMT
+    Operator* queryplan = NULL;
+    if (parsetree->next->type == SELECT) {
+        /* Plan the query */
+        queryplan = planQuery(parsetree->next);
 
-    /* Execute the query */
-    execute(queryplan);
+        /* Execute the query */
+        execute(queryplan);
+
+    } else {
+        executeStatement(parsetree->next);
+    }
 
     /* Free all the memory used */
     freeTree(parsetree);

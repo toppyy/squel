@@ -408,9 +408,9 @@ void columDefinitions() {
 }
 
 void create() {
-    keyword("CREATE", STMT);
+    keyword("CREATE", STMTCREATE);
     skipWhite();
-    keyword("TABLE", STMT);
+    keyword("TABLE", TABLE);
     skipWhite();
     ident(IDENT_TBL);
     skipWhite();
