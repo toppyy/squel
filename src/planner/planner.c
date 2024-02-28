@@ -128,7 +128,7 @@ Operator* planQuery(Node* nodeSELECT) {
     if (WHERE != NULL) {
         
         Operator* opFilter = makeFilterOps(WHERE, opFrom);
-        opProj = makeProjectOp(nodeSELECT->child, opFilter);
+        opProj = buildSelect(nodeSELECT->child, opFilter);
         
         opProj->child  = opFilter;
         opFilter->child  = opFrom;
