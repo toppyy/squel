@@ -21,6 +21,7 @@ $(ODIR)/%.o: $(SRC)%.c
 	$(CC) -g -c $< -o $@  $(CFLAGS)
 
 dirs:
+	mkdir -p data
 	mkdir -p build/parser
 	mkdir -p build/planner/operators
 	mkdir -p build/binder

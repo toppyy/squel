@@ -13,6 +13,7 @@ void writeTdb(char* path, TDB tbldef) {
 
     // Number of columns
     fwrite(&tbldef.colCount, 1, sizeof(tbldef.colCount), f);
+    printf("Wrote %ld cols\n", tbldef.colCount);
 
     // Columns: Datatype and length (in bytes)
     for (size_t i = 0; i < tbldef.colCount; i++) {
@@ -44,3 +45,8 @@ TDB readTdbMetadata(char* path) {
 
     return tbldef;
 }
+
+void buildPathToTDBtable(char* ptr_target, char* tblName) {
+    sprintf(ptr_target, "%s/%s.%s", DATAPATH, tblName, TDBFILEXT);
+}
+

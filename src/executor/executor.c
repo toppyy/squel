@@ -14,6 +14,9 @@ void assignGetTupleFunction(Operator *op) {
         case(OP_SCAN):
             op->getTuple = &scanGetTuple;
             break;
+        case(OP_SCANTDB):
+            op->getTuple = &scanTDBGetTuple;
+            break;
         case(OP_PROJECT):
             op->getTuple = &projectGetTuple;
             break;

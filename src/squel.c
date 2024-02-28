@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
     Node* parsetree = createParsetree();
     parse(argv[1], parsetree);
 
-    printTree(parsetree);
+    // printTree(parsetree);
 
     // It's either a SELECT or a STMT
     Operator* queryplan = NULL;

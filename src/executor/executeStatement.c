@@ -1,6 +1,17 @@
 #include "../include/executor/executor.h"
 
 
+Datatype mapParsedDatatypeToEnumDatatype(char* parsed) {
+
+
+    if (strcmp(parsed, "CHAR") == 0) return DTYPE_STR;
+    if (strcmp(parsed, "INT") == 0) return DTYPE_LONG;
+
+
+    printf("Don't know how map nodetype %s to datatype\n", parsed);
+    exit(1);
+}
+
 
 TDB constructTDB(Node* node) {
     checkPtrNotNull(node, "NULL-ptr to constructTDB\n");
@@ -17,14 +28,18 @@ TDB constructTDB(Node* node) {
         checkPtrNotNull(ptr_col->child, "TDB needs datatype of column (NULL-ptr)\n");
         
         tbl.lengths[colIdx] = sizeof(long);
-        if (ptr_col->child->type == DTYPE_STR) {
-            checkPtrNotNull(ptr_col->child->child, "DTYPE_STR needs length\n");
+
+        Datatype dtype = mapParsedDatatypeToEnumDatatype(ptr_col->child->content);
+
+        if (dtype == DTYPE_STR) {
+            checkPtrNotNull(ptr_col->child->child, "STRING needs length\n");
             tbl.lengths[colIdx] = atoi(ptr_col->child->child->content);
         }
 
-        tbl.datatypes[colIdx] = ptr_col->child->type;
+        tbl.datatypes[colIdx] = DTYPE_STR;
 
         ptr_col = ptr_col->next;
+        colIdx++;
     }
 
     
@@ -54,7 +69,7 @@ void executeCreateTable(Node* node) {
 
     char filepath[CHARMAXSIZE];
     char* ptr_filepath = filepath;
-    sprintf(ptr_filepath, "%s/%s.%s", DATAPATH, tbl.alias, TDBFILEXT);
+    buildPathToTDBtable(ptr_filepath, tbl.alias);
 
     printf("Creating a table %s\n", filepath);
     writeTdb(filepath, tbl);

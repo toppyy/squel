@@ -76,9 +76,15 @@ Operator* buildFrom(Node* node) {
             ON
         );
     }
+
     if (node->type == FILEPATH) {
         return makeScanOp(node);
     }
+
+    if (node->type == IDENT_TBL) {
+        return makeScanTDBOp(node);
+    }
+
     return NULL;
 }
 

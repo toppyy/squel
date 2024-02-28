@@ -32,3 +32,4 @@ typedef struct TDB {
 
 void writeTdb(char* path, TDB tbldef);
 TDB readTdbMetadata(char* path);
+void buildPathToTDBtable(char* ptr_target, char* tblName);

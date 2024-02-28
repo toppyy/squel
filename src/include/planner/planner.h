@@ -3,11 +3,13 @@
 #include <stdio.h>
 #include "../const.h"
 #include "../io/flatfile.h"
+#include "../io/tdb.h"
 #include "../parser/utils.h"
 #include "../parser/parsetree.h"
 
 
 typedef enum {
+    OP_SCANTDB,
     OP_SCAN,
     OP_PROJECT,
     OP_FILTER,
@@ -111,6 +113,7 @@ int findColIdxInResDesc(ResultSet* resultDesc, char* name, char* tblref);
 
 Operator* makeProjectOp(struct Node* node, struct Operator* child_op);
 Operator* makeScanOp(Node* node);
+Operator* makeScanTDBOp(Node* node);
 Operator* makeFilterOps(Node* where_node, Operator* child);
 Operator* makeAggregateOp(Node* node, Operator* child_op);
 Operator* makeJoinOp(Operator* left, Operator* right, Node* ON);
