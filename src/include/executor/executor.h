@@ -1,6 +1,6 @@
 #pragma once
 #include <stdio.h>
-
+#include <assert.h>
 #include "../const.h"
 #include "../parser/parsetree.h"
 #include "../planner/planner.h"
@@ -20,5 +20,7 @@ extern size_t buffercacheSize;
 
 extern TupleBuffer* tplbuffer;
 
-void execute(Operator* op);
+void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl));
 void executeStatement(Node* node);
+void executeCreateTable(Node* node);
+void executeInsert(Node* node);

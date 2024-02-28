@@ -36,22 +36,7 @@ void assignGetTupleFunction(Operator *op) {
 }
 
 
-void printTuple(Tuple* tpl) {
 
-
-
-    char* printBuff = calloc(tpl->size, sizeof(char));
-
-    for (size_t i = 0; i < tpl->columnCount; i++) {
-        strcpy(printBuff + strlen(printBuff), getCol(tpl,i));
-        if (i == tpl->columnCount - 1) continue;
-        strcpy(printBuff + strlen(printBuff), DELIMITERSTR);
-    }
-
-    printf("%s\n", printBuff);
-
-    free(printBuff);
-}
 
 
 void doAssignGetTupleFunction(Operator* p_op) {
@@ -73,7 +58,7 @@ void doAssignGetTupleFunction(Operator* p_op) {
 }
 
 
-void execute(Operator *op) {
+void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl)) {
 
     if (op == NULL) {
         return;
@@ -96,19 +81,21 @@ void execute(Operator *op) {
     }
     
     // Print column names
-    printf("%s", op->resultDescription.columns[0].name);
-    for (size_t i = 1; i < op->resultDescription.columnCount; i++) {
-        printf("%c%s", DELIMITER, op->resultDescription.columns[i].name);
-    }
-    printf("\n");
+    if (printColNames) {
+        printf("%s", op->resultDescription.columns[0].name);
+        for (size_t i = 1; i < op->resultDescription.columnCount; i++) {
+            printf("%c%s", DELIMITER, op->resultDescription.columns[i].name);
+        }
+        printf("\n");
 
+    }
 
     // Get tuples one by one
     for (;;) {
         tpl = getTuple(op->getTuple(op));
         if (tpl == NULL) break;
 
-        printTuple(tpl);
+        tupleHandler(tpl);
     };
 
     free(tplbuffer->tuples);

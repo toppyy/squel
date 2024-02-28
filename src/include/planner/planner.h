@@ -58,6 +58,8 @@ typedef struct {
     TableMetadata table;
     FILE* tablefile;
     size_t cursor;
+    struct TDB tbldef;
+    size_t recordSize;
 } ScanInfo;
 
 

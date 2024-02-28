@@ -31,6 +31,7 @@ enum nodeType {
     COLUMNLIST,
     AND,
     STMTCREATE,
+    STMTINSERT,
     TABLE,
     OR
 };

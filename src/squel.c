@@ -25,6 +25,23 @@ void printTree(Node *node) {
     }
 }
 
+void printTuple(Tuple* tpl) {
+
+
+
+    char* printBuff = calloc(tpl->size, sizeof(char));
+
+    for (size_t i = 0; i < tpl->columnCount; i++) {
+        strcpy(printBuff + strlen(printBuff), getCol(tpl,i));
+        if (i == tpl->columnCount - 1) continue;
+        strcpy(printBuff + strlen(printBuff), DELIMITERSTR);
+    }
+
+    printf("%s\n", printBuff);
+
+    free(printBuff);
+}
+
 int main(int argc, char* argv[]) {
 
     if (argc == 1) {
@@ -50,7 +67,7 @@ int main(int argc, char* argv[]) {
         queryplan = planQuery(parsetree->next);
 
         /* Execute the query */
-        execute(queryplan);
+        execute(queryplan, true, printTuple);
 
     } else {
         executeStatement(parsetree->next);

@@ -32,8 +32,11 @@ typedef struct TDB {
     char lengths[ARRAYMAXSIZE];
     Datatype datatypes[ARRAYMAXSIZE];
     char colNames[ARRAYMAXSIZE][CHARMAXSIZE];
+    char path[CHARMAXSIZE];
 } TDB;
 
-void writeTdb(char* path, TDB tbldef);
+size_t writeTdbMetadata(char* path, TDB tbldef);
+size_t writeTdbMetadataToFD(FILE* f, TDB tbldef);
 TDB readTdbMetadata(char* path);
+TDB readTdbMetadaFromFD(FILE* f);
 void buildPathToTDBtable(char* ptr_target, char* tblName);

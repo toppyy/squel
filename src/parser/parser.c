@@ -423,6 +423,16 @@ void create() {
     expectChar(')');
 }
 
+void insert() {
+    keyword("INSERT", STMTINSERT);
+    skipWhite();
+    expectWord("INTO");
+    skipWhite();
+    ident(IDENT_TBL);
+    skipWhite();
+    query();
+}
+
 
 size_t parse(char* input, Node* p_root) {
 
@@ -432,11 +442,20 @@ size_t parse(char* input, Node* p_root) {
     strcpy(rawSql,input);
     qsize = strlen(rawSql);
     getNextChar();
+
     if (peekWordMatches("CREATE")) {
         create();
-    } else {
-        query();
+        return nodeCount;
     }
+
+    if (peekWordMatches("INSERT")) {
+        insert();
+        return nodeCount;
+    }
+    
+
+    query();
+
 
     return nodeCount;   
 }

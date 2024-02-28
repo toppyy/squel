@@ -1,18 +1,17 @@
 #include "../include/io/tdb.h"
 
-void writeTdb(char* path, TDB tbldef) {
 
-    FILE* f = fopen(path, "w+");
-    if (f == NULL) {
-        printf("Unable to open the file at path '%s'\n", path);
-        exit(1);
-    }
 
+size_t writeTdbMetadataToFD(FILE* f, TDB tbldef) {
+
+        
     // Number of records
     fwrite(&tbldef.records, 1, sizeof(tbldef.records), f);
+    size_t bytesWritten = sizeof(tbldef.records);
 
     // Number of columns
     fwrite(&tbldef.colCount, 1, sizeof(tbldef.colCount), f);
+    bytesWritten += sizeof(tbldef.records);
 
     // Columns: Datatype and length (in bytes)
     for (size_t i = 0; i < tbldef.colCount; i++) {
@@ -21,10 +20,29 @@ void writeTdb(char* path, TDB tbldef) {
         fwrite(&tbldef.colNames[i], nameLength, sizeof(char), f);
         fwrite(&tbldef.datatypes[i], 1, sizeof(Datatype), f);
         fwrite(&tbldef.lengths[i], 1, sizeof(char), f);
+
+        bytesWritten += sizeof(char) + (nameLength * sizeof(char)) + sizeof(Datatype) + sizeof(char); // :(
     }
 
-    fclose(f);
+    return  bytesWritten;
 }
+
+size_t writeTdbMetadata(char* path, TDB tbldef) {
+
+    FILE* f = fopen(path, "w+");
+    if (f == NULL) {
+        printf("Unable to open the file at path '%s'\n", path);
+        exit(1);
+    }
+
+    size_t bytesWritten = writeTdbMetadataToFD(f, tbldef);
+
+    fclose(f);
+
+    return bytesWritten;
+}
+
+
 
 TDB readTdbMetadata(char* path) {
 
@@ -33,6 +51,13 @@ TDB readTdbMetadata(char* path) {
         printf("Unable to open the file at path '%s'\n", path);
         exit(1);
     }
+    TDB tbldef = readTdbMetadaFromFD(f);
+    strcpy(tbldef.path, path);
+    return tbldef;
+}
+
+TDB readTdbMetadaFromFD(FILE* f) {
+
 
     TDB tbldef;
 
