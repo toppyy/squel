@@ -1,3 +1,5 @@
+![Tests](https://github.com/toppyy/squel/actions/workflows/c.yml/badge.svg)
+
 # squel (sic)
 
 A useless SQL query engine written for practice.
