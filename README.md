@@ -1,4 +1,4 @@
-![Tests](https://github.com/toppyy/squel/actions/workflows/c.yml/badge.svg)
+![Tests](https://github.com/toppyy/squel/actions/workflows/tests.yml/badge.svg)
 
 # squel (sic)
 
