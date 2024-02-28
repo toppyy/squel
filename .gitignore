@@ -1,5 +1,7 @@
 *.o
 build/
 .vscode
-data
+data/
 perf/data
+
+!test/data
