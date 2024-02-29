@@ -22,7 +22,8 @@ typedef struct Tuple {
     size_t  columnCount;
     size_t  size;
     size_t  idx;
-    char    data[TUPLEDATAMAXSIZE]; 
+    size_t  poolOffset;
+    void*   data;
     size_t  pCols[ARRAYMAXSIZE];
 } Tuple;
 
@@ -32,9 +33,18 @@ typedef struct {
     size_t bufferSize;
 } TupleBuffer;
 
+typedef struct {
+    void* pool;
+    long capacity;
+    long used;
+} Bufferpool;
+
 extern TupleBuffer* tplbuffer;
+extern Bufferpool* buffpool;
 
 
 Tuple* addTuple();
-char* getCol(Tuple* tpl, size_t colIdx);
+void* getNextFreeSlot();
+void* getCol(Tuple* tpl, size_t colIdx);
 Tuple* getTuple(int idx);
+void getColAsChar(char* target, Tuple* tpl,size_t colIdx, Datatype type);

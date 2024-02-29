@@ -16,9 +16,9 @@
 
 extern char *buffercache;
 extern char *bufferscan;
-extern size_t buffercacheSize;
 
 extern TupleBuffer* tplbuffer;
+extern Bufferpool* buffpool;
 
 void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl));
 void executeStatement(Node* node);

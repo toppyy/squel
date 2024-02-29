@@ -65,7 +65,7 @@ typedef struct {
 
 typedef struct FilterInfo {
     char                charConstants[ARRAYMAXSIZE][CHARMAXSIZE];
-    int                 intConstants[ARRAYMAXSIZE];
+    long                numConstants[ARRAYMAXSIZE];
     enum nodeType       exprTypes[ARRAYMAXSIZE];
     int                 boolExprList[ARRAYMAXSIZE];
     size_t              boolExprListSize;

@@ -1,17 +1,22 @@
 #include "../include/operators/aggregate.h"
 
-char* doCount(Operator* opToIterate, char* resultBuffer) {
+long doCount(Operator* opToIterate) {
     Tuple* tpl = getTuple(opToIterate->getTuple(opToIterate));
-    long result = 0;
+    int result = 0;
     while (tpl != NULL) {
         tpl = getTuple(opToIterate->getTuple(opToIterate));
         result++;
     };
-    sprintf(resultBuffer, "%ld", result);
-    return resultBuffer;
+    
+    return result;
 }
 
-char* doAverage(Operator* opToIterate, int colIdx, char* resultBuffer) {
+long doAverage(Operator* opToIterate, int colIdx) {
+
+    if (opToIterate->resultDescription.columns[colIdx].type != DTYPE_LONG) {
+        printf("AVG not implement for other datatypes besides long\n");
+        exit(1);
+    }
     Tuple* tpl = NULL;
     long sum = 0;
     long count = 0;
@@ -21,26 +26,22 @@ char* doAverage(Operator* opToIterate, int colIdx, char* resultBuffer) {
         if (tpl == NULL) {
             break;
         }
-        if (opToIterate->resultDescription.columns[colIdx].type == DTYPE_INT) {
-            sum += atol(getCol(tpl,colIdx));
-            count++;
-        } else {
-            printf("Sum not implement for non-integers\n");
-            exit(1);
-        }
+        sum += *(long*) getCol(tpl,colIdx);
+        count++;
     };
-    double result = 0.0; 
+    long result = 0.0; 
     if (count > 0) {
         result = sum / (double) count;
     }
-    sprintf(resultBuffer, "%.2f", result);
-    return resultBuffer;
+    return result;
 }
 
+long doSum(Operator* opToIterate, int colIdx) {
 
-
-
-char* doSum(Operator* opToIterate, int colIdx, char* resultBuffer) {
+    if (opToIterate->resultDescription.columns[colIdx].type != DTYPE_LONG) {
+        printf("Sum not implement for other datatypes besides long\n");
+        exit(1);
+    }
 
     Tuple* tpl = NULL;
     long result = 0;
@@ -50,15 +51,10 @@ char* doSum(Operator* opToIterate, int colIdx, char* resultBuffer) {
         if (tpl == NULL) {
             break;
         }
-        if (opToIterate->resultDescription.columns[colIdx].type == DTYPE_INT) {
-            result += atol(getCol(tpl,colIdx));
-        } else {
-            printf("Sum not implement for non-integers\n");
-            exit(1);
-        }
+        result += *(long*) getCol(tpl,colIdx);
     };
-    sprintf(resultBuffer, "%ld", result);
-    return resultBuffer;
+
+    return result;
 }
 
 
@@ -73,18 +69,17 @@ int aggregateGetTuple(Operator* op) {
 
     // Build new tuple to store result
 
-    char* resultBuffer = (char*) malloc(CHARMAXSIZE);
-    char* resultLocation = NULL;
+    int result = 0;
 
     switch(op->info.aggregate.aggtype) {
         case COUNT:
-            resultLocation = doCount(op->child, resultBuffer);
+            result = doCount(op->child);
             break;
         case SUM:
-            resultLocation = doSum(op->child, op->info.aggregate.colToAggregate, resultBuffer);
+            result = doSum(op->child, op->info.aggregate.colToAggregate);
             break;
         case AVG:
-            resultLocation = doAverage(op->child, op->info.aggregate.colToAggregate, resultBuffer);
+            result = doAverage(op->child, op->info.aggregate.colToAggregate);
             break;
         default:
             printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
@@ -92,14 +87,13 @@ int aggregateGetTuple(Operator* op) {
     }
  
     Tuple* tpl = addTuple();
-    strcpy(tpl->data, resultBuffer);    
+    memcpy(tpl->data, &result, sizeof(result));
+
     tpl->columnCount = 1;
     tpl->pCols[0] = 0;
-    tpl->size = strlen(resultLocation) + 1;
     
     op->info.aggregate.aggregationDone = true;
     
-    free(resultBuffer);
     return tpl->idx;
 
 }

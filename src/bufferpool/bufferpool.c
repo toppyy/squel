@@ -14,11 +14,16 @@ Tuple* addTuple() {
     size_t idx = tplbuffer->tupleCount;
     tplbuffer->tuples[idx].pCols[0] = 0;
     tplbuffer->tuples[idx].idx = idx;
+    tplbuffer->tuples[idx].poolOffset = buffpool->used;
+    // Not reliable. May change if the buffer pool needs to be reallocated
+    tplbuffer->tuples[idx].data = getNextFreeSlot();
     return &tplbuffer->tuples[idx];
 }
 
 
-char* getCol(Tuple* tpl, size_t colIdx) {
+
+
+void* getCol(Tuple* tpl, size_t colIdx) {
     return tpl->data + tpl->pCols[colIdx];
 }
 
@@ -26,5 +31,33 @@ Tuple* getTuple(int idx) {
     if (idx < 0) {
         return NULL;
     }
-    return &tplbuffer->tuples[idx];
+    Tuple* tpl = &tplbuffer->tuples[idx];
+    tpl->data = buffpool->pool + tpl->poolOffset;
+    return tpl;
+}
+
+void* getNextFreeSlot() {
+    return buffpool->pool + buffpool->used;
+}
+
+
+void getColAsChar(char* target, Tuple* tpl,size_t colIdx, Datatype type) {
+    if (type == DTYPE_STR) {
+        strcpy(target, getCol(tpl, colIdx));
+        return;
+    }
+    if (type == DTYPE_INT) {
+        char tmp[CHARMAXSIZE];
+        sprintf(tmp, "%d", *(int*) getCol(tpl, colIdx));
+        memcpy(target, tmp, strlen(tmp));
+        return;
+    }
+    if (type == DTYPE_LONG) {
+        char tmp[CHARMAXSIZE];
+        sprintf(tmp, "%ld", *(long*) getCol(tpl, colIdx));
+        memcpy(target, tmp, strlen(tmp));
+        return;
+    }
+    printf("Don't know how to represent type %d as char\n", type);
+    exit(1);
 }

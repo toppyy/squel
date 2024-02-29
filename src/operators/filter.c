@@ -4,7 +4,7 @@
 Datatype mapNodeTypeToDataType(enum nodeType type) {
     switch (type) {
         case NUMBER:
-            return DTYPE_INT;
+            return DTYPE_LONG;
             break;
         case STRING:
             return DTYPE_STR;
@@ -71,9 +71,14 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
                 cmpRes = strcmp(getCol(tpl,idx1),getCol(tpl,idx2));
                 break;
             case DTYPE_INT:
-                int number1 = atoi(getCol(tpl,idx1));
-                int number2 = atoi(getCol(tpl,idx2));
+                int number1 = *(int*) getCol(tpl,idx1);
+                int number2 = *(int*) getCol(tpl,idx2);
                 cmpRes = number1 - number2;
+                break;
+            case DTYPE_LONG:
+                long lnumber1 = *(long*) getCol(tpl,idx1);
+                long lnumber2 = *(long*) getCol(tpl,idx2);
+                cmpRes = lnumber1 - lnumber2;
                 break;
             default:
                 printf("FILTER_OP: Don't know how to compare datatype %d\n", dtype1);
@@ -91,7 +96,8 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
                 cmpRes = strcmp(op->info.filter.charConstants[0], op->info.filter.charConstants[2]);
                 break;
             case DTYPE_INT:
-                cmpRes = op->info.filter.intConstants[0] - op->info.filter.intConstants[2];
+            case DTYPE_LONG:
+                cmpRes = op->info.filter.numConstants[0] - op->info.filter.numConstants[2];
                 break;
             default:
                 printf("FILTER_OP: Don't know how to compare datatype %d\n", nodeDtype1);
@@ -116,7 +122,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
             colIdx          = idx2;
         }
         if (constDatatype != colDatatype) {
-            printf("FILTER_OP: Don't know how to compare datatypes %d vs %d\n", constDatatype, colDatatype);
+            printf("FILTER_OP: 3. Don't know how to compare datatypes %d vs %d\n", constDatatype, colDatatype);
             exit(1);
         }
         // Now we have to only deal with correct combinations of all the eight possible
@@ -129,9 +135,9 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
             case DTYPE_STR:
                 cmpRes = strcmp(op->info.filter.charConstants[constIdx], getCol(tpl,colIdx));
                 break;
-            case DTYPE_INT:
-                int colNumber = atoi(getCol(tpl,colIdx));
-                int constNumber = op->info.filter.intConstants[constIdx];
+            case DTYPE_LONG:
+                long colNumber = *(long*) getCol(tpl,colIdx);
+                long constNumber = (long) op->info.filter.numConstants[constIdx];
                 // Order matters here
                 if (constIdx == 0) {
                     cmpRes = constNumber - colNumber;

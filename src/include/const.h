@@ -8,7 +8,11 @@
 #define DATAPATH "./data"
 #define TDBFILEXT "tdb"
 
+// TDB
+#define TDBMAXSTRINGSIZE 25
+
 // Bufferpool
+#define BUFFERPOOLSIZE      100000
 #define TUPLEBUFFSIZE       1000
 #define TUPLEDATAMAXSIZE    500
 #define JOINPTRBUFFER       1000

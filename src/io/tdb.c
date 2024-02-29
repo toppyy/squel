@@ -81,4 +81,3 @@ TDB readTdbMetadaFromFD(FILE* f) {
 void buildPathToTDBtable(char* ptr_target, char* tblName) {
     sprintf(ptr_target, "%s/%s.%s", DATAPATH, tblName, TDBFILEXT);
 }
-

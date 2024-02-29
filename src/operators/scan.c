@@ -16,46 +16,108 @@ int scanGetTuple(Operator* op) {
     }
 
 
-    Tuple* tpl = addTuple();
-    char* line = readLineToBuffer(f, tpl->data, TUPLEDATAMAXSIZE);
+    
+
+    char* lineBuffer = malloc(LINEBUFF);
+    char* line = readLineToBuffer(f, lineBuffer, LINEBUFF);
 
      if (line == NULL) {
-        // TODO: free tuple
+        free(lineBuffer);
         fclose(op->info.scan.tablefile);
         return -1;
     }
+    Tuple* tpl = addTuple();
+
     size_t len = strlen(line);
 
     tpl->columnCount = op->resultDescription.columnCount;
-    tpl->size        = len;
 
     // Calculate offsets to each column
-    char* dlmtr = NULL;
+    
 
     size_t cursor = 0;
-    size_t i = 1;
+    size_t i = 0, strLen = 0;
 
-    char* ptrData = tpl->data;
-    tpl->pCols[0] = 0;
+    char* ptrData = lineBuffer;
+    char* dlmtr = ptrData;
 
+    // Table metadata
+    TableMetadata tbldef = op->info.scan.table;
+
+    // Location in the bufferpool to store tuple data
+    void* diskBufferCursor = getNextFreeSlot();
+
+    // Find pointers to each column
     for (;;) {
+
+   
         
         dlmtr = strchr(ptrData + cursor, DELIMITER);
         
+    
+        if (dlmtr != NULL)  {
+            (*dlmtr) = '\0'; // Replace delimiter with NULL so each column is a NULL-terminated string
+        }
+    
+        // Create TDB representation:
+        //  strings as is + strlen
+        //  integers as atoi
+
+        size_t longSize = sizeof(long);
+        size_t intSize  = sizeof(int);
+        
+        switch (tbldef.columns[i].type) {
+            case DTYPE_STR:
+                strLen = strlen(ptrData + cursor) + 1;
+                if (strLen > TDBMAXSTRINGSIZE) {
+                    printf("String data is truncated due to column size\n");
+                    strLen = TDBMAXSTRINGSIZE;
+                }
+                memcpy(diskBufferCursor, ptrData + cursor, strLen);
+                diskBufferCursor += strLen;
+                // Pad the string with '\0'
+                memset(diskBufferCursor, 0, TDBMAXSTRINGSIZE - strLen);
+                diskBufferCursor += TDBMAXSTRINGSIZE - strLen;
+                tpl->pCols[i] = tpl->size;
+                tpl->size += TDBMAXSTRINGSIZE;
+                
+                break;
+
+            case DTYPE_INT:
+                int tmp = atoi(ptrData + cursor);
+                memcpy(diskBufferCursor, &tmp, intSize);
+                diskBufferCursor += intSize;
+                tpl->pCols[i] = tpl->size;
+                tpl->size += intSize;
+                
+                break;
+
+            case DTYPE_LONG:
+                long ltmp = atol(ptrData + cursor);
+                memcpy(diskBufferCursor, &ltmp, longSize);
+                diskBufferCursor += longSize;
+                tpl->pCols[i] = tpl->size;
+                tpl->size += longSize;                
+                break;
+
+            default:
+                printf("Don't know how to represent type %d in TDB-format\n", tbldef.columns[i].type);
+                exit(1);
+
+        }
+
         if (dlmtr == NULL) {
-            tpl->pCols[i] =  cursor;
             break;
         }
-        cursor += dlmtr - (ptrData + cursor) + 1;
-        
-        tpl->pCols[i] = cursor;
-        
-        (*dlmtr) = '\0'; // Replace delimiter with NULL so each column is a NULL-terminated string
-        i++;
     
+        cursor += dlmtr - (ptrData + cursor) + 1;
+
+        i++;
     };
     
     op->info.scan.cursor += len;
+
+    free(lineBuffer);
 
     return tpl->idx;
 }

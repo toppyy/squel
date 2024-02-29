@@ -40,3 +40,4 @@ size_t writeTdbMetadataToFD(FILE* f, TDB tbldef);
 TDB readTdbMetadata(char* path);
 TDB readTdbMetadaFromFD(FILE* f);
 void buildPathToTDBtable(char* ptr_target, char* tblName);
+void TDBtoChar(char* buff, void* data, TDB tbldef);

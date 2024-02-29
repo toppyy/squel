@@ -2,6 +2,9 @@
 
 
 TupleBuffer* tplbuffer;
+Bufferpool* buffpool;
+
+
 
 
 void assignGetTupleFunction(Operator *op) {
@@ -64,6 +67,10 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl))
         return;
     }
 
+    buffpool            = calloc(1, sizeof(Bufferpool));
+    buffpool->pool      = calloc(BUFFERPOOLSIZE, 1);
+    buffpool->capacity  = BUFFERPOOLSIZE;
+    buffpool->used      = 0;
  
     tplbuffer = calloc(1, sizeof(TupleBuffer));
     tplbuffer->tuples = calloc(TUPLEBUFFSIZE, sizeof(Tuple));
@@ -100,4 +107,6 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl))
 
     free(tplbuffer->tuples);
     free(tplbuffer);
+    free(buffpool->pool);
+    free(buffpool);
 }
