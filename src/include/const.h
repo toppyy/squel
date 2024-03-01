@@ -13,7 +13,7 @@
 #define JOINTUPLESIZE    1000
 
 // Bufferpool
-#define BUFFERPOOLSIZE      500000
+#define BUFFERPOOLSIZE      50000000
 #define TUPLEBUFFSIZE       1000
 #define TUPLEDATAMAXSIZE    500
 #define JOINPTRBUFFER       1000

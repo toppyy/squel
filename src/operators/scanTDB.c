@@ -6,15 +6,17 @@ int scanTDBGetTuple(Operator* op) {
 
 
     int fd = op->info.scan.fd;
+
     if (fd == 0) {
         fd = open(op->info.scan.tbldef.path, O_RDONLY);
-        lseek(fd, op->info.scan.cursor, SEEK_SET);
+        op->info.scan.fd = fd;
+        lseek(fd, op->info.scan.cursor, SEEK_SET);        
     }
     
-    ssize_t bytesRead = read(fd , op->info.scan.buffer, op->info.scan.recordSize);
+    ssize_t bytesRead = read(fd, op->info.scan.buffer, op->info.scan.recordSize);
 
     if (bytesRead < 0) {
-        printf("Error reading the file at '%s'\n", op->info.scan.tbldef.path);
+        printf("ScanTDB - Error reading the file at '%s': %s\n", op->info.scan.tbldef.path, strerror(errno));
         exit(1);
     }
 
@@ -24,6 +26,7 @@ int scanTDBGetTuple(Operator* op) {
         close(fd);
         return -1;
     }
+
 
 
     op->info.scan.cursor += op->info.scan.recordSize;
