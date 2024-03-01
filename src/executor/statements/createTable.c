@@ -4,7 +4,8 @@ Datatype mapParsedDatatypeToEnumDatatype(char* parsed) {
 
 
     if (strcmp(parsed, "CHAR") == 0) return DTYPE_STR;
-    if (strcmp(parsed, "INT") == 0) return DTYPE_INT;
+    if (strcmp(parsed, "INT") == 0)  return DTYPE_LONG;
+    if (strcmp(parsed, "LONG") == 0) return DTYPE_LONG;
 
 
     printf("Don't know how map nodetype %s to datatype\n", parsed);
@@ -29,7 +30,7 @@ TDB constructTDB(Node* node) {
 
         strcpy(tbl.colNames[colIdx], ptr_col->content);
         tbl.datatypes[colIdx] = dtype;
-        tbl.lengths[colIdx] = sizeof(int);
+        tbl.lengths[colIdx] = sizeof(long);
         if (dtype == DTYPE_STR) {
             checkPtrNotNull(ptr_col->child->child, "STRING needs length\n");
             tbl.lengths[colIdx] = atoi(ptr_col->child->child->content);

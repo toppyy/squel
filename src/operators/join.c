@@ -1,13 +1,13 @@
 #include "../include/operators/join.h"
 
 
-Tuple* concat_tuples(Tuple* tpl, Tuple* left, Tuple* right) {
+Tuple* concatTuples(Tuple* tpl, Tuple* left, Tuple* right) {
 
     if (
         left == NULL ||
         right == NULL
     ) {
-        printf("Passed a NULL pointer to concat_tuples\n");
+        printf("Passed a NULL pointer to concatTuples\n");
         exit(1);
     }
     
@@ -15,9 +15,15 @@ Tuple* concat_tuples(Tuple* tpl, Tuple* left, Tuple* right) {
     tpl->size        = left->size + right->size;
 
     // Copy data
-    memset(tpl->data, 0, TUPLEDATAMAXSIZE);
+    if (
+        (left->size + right->size) > JOINTUPLESIZE
+    ) {
+        printf("Tried to concat tuples from join but their size (%ld) exceeds %d\n", left->size + right->size, JOINTUPLESIZE);
+        exit(1);
+    }
+    memset(tpl->data, 0, left->size + right->size);
     memcpy(tpl->data, left->data, left->size);
-    memcpy(tpl->data +  left->size + 1, right->data, right->size);
+    memcpy(tpl->data + left->size, right->data, right->size);
 
     // Add pointers to start of each column
     // Reuse the data in the original tuples
@@ -26,15 +32,19 @@ Tuple* concat_tuples(Tuple* tpl, Tuple* left, Tuple* right) {
     size_t i = 0;
     for (size_t j = 0; j < left->columnCount; j++) {
         tpl->pCols[i] = left->pCols[j];
+        // printf("Pcol %ld is '%ld'\n", i, tpl->pCols[i]);
         i++;
     }
 
-    size_t offset = tpl->pCols[i-1] + strlen(getCol(left, i-1)) + 1;
+    size_t offset = left->size;
+
     for (size_t j = 0; j < right->columnCount; j++) {
         tpl->pCols[i] = offset + right->pCols[j];
+        // printf("Pcol %ld is %ld\n", i, tpl->pCols[i]);
         i++;
     }
 
+    // printf("Tuple-size is %ld\n", tpl->size);
 
     return tpl;
 }
@@ -69,6 +79,9 @@ int joinGetTuple(Operator* op) {
     Tuple* rightTuple = NULL;
     Tuple* tpl = NULL;
     Tuple* filterTuple = addTuple(); // Reuse this and only create a new tuple if it passes the filter
+    
+    // Reserve space from the buffer pool so that we can concatenate tuples
+    reserveSpaceBufferpool(filterTuple->data, JOINTUPLESIZE);
 
     // This is only entered first time the operator is called
     while (!op->info.join.rightTuplesCollected) {
@@ -93,7 +106,6 @@ int joinGetTuple(Operator* op) {
             op->info.join.rightTupleIdx = 0;
             op->info.join.lastTuple = NULL;
         }
-        rightTuple = getTuple(op->info.join.rightTuples[op->info.join.rightTupleIdx++]);
         
         if (op->info.join.lastTuple == NULL) {
             op->info.join.lastTuple   = getTuple(op->info.join.left->getTuple(op->info.join.left));
@@ -101,7 +113,14 @@ int joinGetTuple(Operator* op) {
                 return -1;
             }
         }
-        tpl = concat_tuples(filterTuple, op->info.join.lastTuple, rightTuple);
+
+        rightTuple = getTuple(op->info.join.rightTuples[op->info.join.rightTupleIdx++]);
+
+        /*
+            We must get the tuples again 'cause the data-pointers might be corrupted. 
+            Getting them from the buffer pool updates the pointers.
+        */
+        tpl = concatTuples(getTuple(filterTuple->idx), getTuple(op->info.join.lastTuple->idx), rightTuple);
 
         if (evaluateTupleAgainstFilterOps(tpl, op->info.join.filter)) {
             Tuple* newTuple = addTuple();

@@ -28,6 +28,7 @@ int scanGetTuple(Operator* op) {
     }
     Tuple* tpl = addTuple();
 
+
     size_t len = strlen(line);
 
     tpl->columnCount = op->resultDescription.columnCount;
@@ -73,7 +74,7 @@ int scanGetTuple(Operator* op) {
                     printf("String data is truncated due to column size\n");
                     strLen = TDBMAXSTRINGSIZE;
                 }
-                memcpy(diskBufferCursor, ptrData + cursor, strLen);
+                copyToBufferPool(diskBufferCursor, ptrData + cursor, TDBMAXSTRINGSIZE);
                 diskBufferCursor += strLen;
                 // Pad the string with '\0'
                 memset(diskBufferCursor, 0, TDBMAXSTRINGSIZE - strLen);
@@ -85,7 +86,7 @@ int scanGetTuple(Operator* op) {
 
             case DTYPE_INT:
                 int tmp = atoi(ptrData + cursor);
-                memcpy(diskBufferCursor, &tmp, intSize);
+                copyToBufferPool(diskBufferCursor, &tmp, intSize);
                 diskBufferCursor += intSize;
                 tpl->pCols[i] = tpl->size;
                 tpl->size += intSize;
@@ -94,7 +95,7 @@ int scanGetTuple(Operator* op) {
 
             case DTYPE_LONG:
                 long ltmp = atol(ptrData + cursor);
-                memcpy(diskBufferCursor, &ltmp, longSize);
+                copyToBufferPool(diskBufferCursor, &ltmp, longSize);
                 diskBufferCursor += longSize;
                 tpl->pCols[i] = tpl->size;
                 tpl->size += longSize;                

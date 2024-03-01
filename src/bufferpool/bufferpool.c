@@ -21,6 +21,15 @@ Tuple* addTuple() {
 }
 
 
+void copyToBufferPool(void* destination, void* source, size_t size) {
+    memcpy(destination, source, size);
+    buffpool->used += size;
+}
+
+void reserveSpaceBufferpool(void* from, size_t size) {
+    memset(from, 0, size);
+    buffpool->used += size;
+}
 
 
 void* getCol(Tuple* tpl, size_t colIdx) {

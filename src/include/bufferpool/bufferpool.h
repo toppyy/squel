@@ -48,3 +48,5 @@ void* getNextFreeSlot();
 void* getCol(Tuple* tpl, size_t colIdx);
 Tuple* getTuple(int idx);
 void getColAsChar(char* target, Tuple* tpl,size_t colIdx, Datatype type);
+void copyToBufferPool(void* destination, void* source, size_t size);
+void reserveSpaceBufferpool(void* from, size_t size);

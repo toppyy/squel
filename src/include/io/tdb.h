@@ -19,7 +19,7 @@
         For each column:
             Byte representing column name length
             x bytes for column name
-            Byte for column datatype
+            Four bytes for column datatype
             Byte for column datalength
         Records..        
 
@@ -33,6 +33,7 @@ typedef struct TDB {
     Datatype datatypes[ARRAYMAXSIZE];
     char colNames[ARRAYMAXSIZE][CHARMAXSIZE];
     char path[CHARMAXSIZE];
+    size_t metadataSize;
 } TDB;
 
 size_t writeTdbMetadata(char* path, TDB tbldef);

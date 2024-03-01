@@ -9,10 +9,11 @@
 #define TDBFILEXT "tdb"
 
 // TDB
-#define TDBMAXSTRINGSIZE 25
+#define TDBMAXSTRINGSIZE 50
+#define JOINTUPLESIZE    1000
 
 // Bufferpool
-#define BUFFERPOOLSIZE      100000
+#define BUFFERPOOLSIZE      500000
 #define TUPLEBUFFSIZE       1000
 #define TUPLEDATAMAXSIZE    500
 #define JOINPTRBUFFER       1000

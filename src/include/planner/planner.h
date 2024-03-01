@@ -57,9 +57,12 @@ typedef struct {
 typedef struct {
     TableMetadata table;
     FILE* tablefile;
+    int fd;
+    void*  buffer;
     size_t cursor;
     struct TDB tbldef;
     size_t recordSize;
+    size_t columnOffsets[ARRAYMAXSIZE];
 } ScanInfo;
 
 
