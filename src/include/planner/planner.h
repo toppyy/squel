@@ -83,7 +83,7 @@ typedef struct {
     struct Operator* left;
     struct Operator* right;
     struct Operator* filter;
-    struct Tuple* lastTuple;
+    int lastTupleIdx;
     size_t rightTuples[JOINPTRBUFFER];
     size_t rightTupleIdx;
     size_t rightTupleCount;
