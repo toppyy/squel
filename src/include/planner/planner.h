@@ -59,6 +59,9 @@ typedef struct {
     FILE* tablefile;
     int fd;
     void*  buffer;
+    size_t recordsInBuffer;
+    size_t bufferSize;
+    bool   fileRead;
     size_t cursor;
     struct TDB tbldef;
     size_t recordSize;
