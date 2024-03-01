@@ -3,7 +3,7 @@
 
 Tuple* addTuple() {
     if (tplbuffer->tupleCount + 1 >= tplbuffer->bufferSize) {
-        printf("Increasing bufferpool size to %ld from %ld\n", tplbuffer->bufferSize * 2,tplbuffer->bufferSize);
+        // printf("Increasing bufferpool size to %ld from %ld\n", tplbuffer->bufferSize * 2,tplbuffer->bufferSize);
         tplbuffer->tuples = realloc(tplbuffer->tuples, tplbuffer->bufferSize * 2 * sizeof(Tuple));
         memset(tplbuffer->tuples + tplbuffer->bufferSize, 0, tplbuffer->bufferSize * sizeof(Tuple));
         tplbuffer->bufferSize *= 2;

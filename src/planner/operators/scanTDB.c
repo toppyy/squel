@@ -50,7 +50,7 @@ Operator* makeScanTDBOp(Node* node) {
     op->resultDescription.columnCount = tbldef.colCount;
 
 
-    op->info.scan.bufferSize        = op->info.scan.recordSize * 100;
+    op->info.scan.bufferSize        = op->info.scan.recordSize * TDBSCANBUFFRECORDS;
     op->info.scan.buffer = malloc(op->info.scan.bufferSize);
 
     if (op->info.scan.buffer == NULL) {
