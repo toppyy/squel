@@ -5,6 +5,7 @@ Operator* makeStarProjection(Operator* op, Operator* child_op) {
 
     for (size_t i = 0; i < child_op->resultDescription.columnCount; i++) {
         op->info.project.colRefs[i] = i;
+        op->resultDescription.pCols[i] = child_op->resultDescription.pCols[i];
         op->resultDescription.columns[i].type = child_op->resultDescription.columns[i].type;
         strcpy(op->resultDescription.columns[i].name, child_op->resultDescription.columns[i].name); 
         strcpy(op->info.project.columnsToProject[i], child_op->resultDescription.columns[i].name);
@@ -48,6 +49,7 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
         strcpy(op->info.project.columnsToProject[i], node->content);
         strcpy(op->resultDescription.columns[i].name, node->content);
 
+        
         op->resultDescription.columns[i].type = node->dtype;
         op->resultDescription.columns[i].identifier = node->identifier;
         
@@ -56,7 +58,7 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
         int j = findColIdxInResDesc(&child_op->resultDescription, node->content, node->tblref);
         op->info.project.colRefs[i] = j;
         op->resultDescription.columns[i].type = child_op->resultDescription.columns[j].type;
-
+        op->resultDescription.pCols[i] = child_op->resultDescription.pCols[j];
         i++;
         node = node->next;        
         if (node == NULL) {

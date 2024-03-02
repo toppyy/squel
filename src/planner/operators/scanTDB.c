@@ -37,18 +37,22 @@ Operator* makeScanTDBOp(Node* node) {
     op->info.scan.fd            = 0;
     op->info.scan.fileRead      = false;
     op->info.scan.recordsInBuffer   = 0;
+    
 
 
     op->info.scan.columnOffsets[0] = 0;
+    op->resultDescription.pCols[0] = 0;
     for (size_t i = 0; i < tbldef.colCount; i++) {
         op->resultDescription.columns[i].type = tbldef.datatypes[i];
         strcpy(op->resultDescription.columns[i].name, tbldef.colNames[i]);
         strcpy(op->resultDescription.columns[i].resultSetAlias, node->alias);
         op->info.scan.recordSize += tbldef.lengths[i];
+
+        if (i > 0)  op->resultDescription.pCols[i] = op->resultDescription.pCols[i-1] + tbldef.lengths[i - 1];
         if (i > 0)  op->info.scan.columnOffsets[i] = op->info.scan.columnOffsets[i-1] + tbldef.lengths[i - 1];
     }
     op->resultDescription.columnCount = tbldef.colCount;
-
+    op->resultDescription.size = op->info.scan.recordSize;
 
     op->info.scan.bufferSize        = op->info.scan.recordSize * TDBSCANBUFFRECORDS;
     op->info.scan.buffer = malloc(op->info.scan.bufferSize);

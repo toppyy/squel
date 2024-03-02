@@ -1,32 +1,29 @@
 #include "../include/operators/aggregate.h"
 
 long doCount(Operator* opToIterate) {
-    Tuple* tpl = getTuple(opToIterate->getTuple(opToIterate));
+    int offset = opToIterate->getTuple(opToIterate);
     int result = 0;
-    while (tpl != NULL) {
-        tpl = getTuple(opToIterate->getTuple(opToIterate));
+    while (offset >= 0) {
+        offset = opToIterate->getTuple(opToIterate);
         result++;
     };
     
     return result;
 }
 
-long doAverage(Operator* opToIterate, int colIdx) {
+long doAverage(Operator* opToIterate, size_t colOffset) {
 
-    if (opToIterate->resultDescription.columns[colIdx].type != DTYPE_LONG) {
-        printf("AVG not implement for other datatypes besides long\n");
-        exit(1);
-    }
-    Tuple* tpl = NULL;
+
+    int offset = 0;
     long sum = 0;
     long count = 0;
 
     for (;;) {
-        tpl = getTuple(opToIterate->getTuple(opToIterate));
-        if (tpl == NULL) {
+        offset = opToIterate->getTuple(opToIterate);
+        if (offset == -1) {
             break;
         }
-        sum += *(long*) getCol(tpl,colIdx);
+        sum += *(long*) getCol(offset,colOffset);
         count++;
     };
     long result = 0.0; 
@@ -36,22 +33,19 @@ long doAverage(Operator* opToIterate, int colIdx) {
     return result;
 }
 
-long doSum(Operator* opToIterate, int colIdx) {
+long doSum(Operator* opToIterate, size_t colOffset) {
 
-    if (opToIterate->resultDescription.columns[colIdx].type != DTYPE_LONG) {
-        printf("Sum not implement for other datatypes besides long\n");
-        exit(1);
-    }
 
-    Tuple* tpl = NULL;
+    int offset = 0;
     long result = 0;
 
     for (;;) {
-        tpl = getTuple(opToIterate->getTuple(opToIterate));
-        if (tpl == NULL) {
+        offset = opToIterate->getTuple(opToIterate);
+        if (offset == -1) {
             break;
         }
-        result += *(long*) getCol(tpl,colIdx);
+        result += *(long*) getCol(offset,colOffset);
+
     };
 
     return result;
@@ -67,6 +61,13 @@ int aggregateGetTuple(Operator* op) {
         return -1;
     }
 
+    // TODO:
+    //     if (opToIterate->resultDescription.columns[colIdx].type != DTYPE_LONG) {
+    //     printf("Sum not implement for other datatypes besides long\n");
+    //     exit(1);
+    // }
+
+
     // Build new tuple to store result
 
     int result = 0;
@@ -76,24 +77,20 @@ int aggregateGetTuple(Operator* op) {
             result = doCount(op->child);
             break;
         case SUM:
-            result = doSum(op->child, op->info.aggregate.colToAggregate);
+            result = doSum(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
             break;
         case AVG:
-            result = doAverage(op->child, op->info.aggregate.colToAggregate);
+            result = doAverage(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
             break;
         default:
             printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
             exit(1);
     }
- 
-    Tuple* tpl = addTuple();
-    memcpy(tpl->data, &result, sizeof(result));
 
-    tpl->columnCount = 1;
-    tpl->pCols[0] = 0;
-    
+    op->resultDescription.columnCount = 1;
+    op->resultDescription.pCols[0] = 0;
     op->info.aggregate.aggregationDone = true;
     
-    return tpl->idx;
 
+    return addToBufferPool(&result, sizeof(result));
 }

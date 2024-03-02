@@ -43,16 +43,9 @@ int scanTDBGetTuple(Operator* op) {
         return scanTDBGetTuple(op);
     }
 
-    
-    size_t bufferDataOffset = (op->info.scan.recordsInBuffer - 1) * op->info.scan.recordSize;
-    
-
-    Tuple* tpl = addTuple();
-
-    memcpy(tpl->pCols, op->info.scan.columnOffsets, ARRAYMAXSIZE);
-    copyToBufferPool(tpl->data, op->info.scan.buffer + bufferDataOffset, op->info.scan.recordSize);
-
-
+    size_t bufferDataOffset = (op->info.scan.recordsInBuffer - 1) * op->info.scan.recordSize;    
     op->info.scan.recordsInBuffer--;
-    return tpl->idx;
+
+    return addToBufferPool(op->info.scan.buffer + bufferDataOffset, op->info.scan.recordSize);
+
 }

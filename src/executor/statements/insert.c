@@ -5,14 +5,14 @@ size_t tupleSize = 0;
 FILE* f = NULL;
 
 
-void handleTupleInsert(Tuple* tpl) {
+void handleTupleInsert(int offset) {
 
     if (f == NULL) {
         printf("No file to insert to\n");
         exit(1);
     }
 
-    size_t bytesWritten = fwrite(tpl->data, tpl->size, 1, f);
+    size_t bytesWritten = fwrite(getTuple(offset), tupleSize, 1, f);
     assert(bytesWritten > 0);
 }
 

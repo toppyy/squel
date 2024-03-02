@@ -28,8 +28,7 @@ void printTree(Node *node) {
     }
 }
 
-void printTuple(Tuple* tpl) {
-
+void printTuple(int offset) {
 
     if (resultDescToPrint == NULL) {
         printf("No result set to print?\n");
@@ -39,15 +38,15 @@ void printTuple(Tuple* tpl) {
     char buff[CHARMAXSIZE];
 
     for (size_t i = 0; i < resultDescToPrint->columnCount; i++) {
-        memset(buff, 0, CHARMAXSIZE);
-        getColAsChar(buff,tpl,i, resultDescToPrint->columns[i].type);
+        memset(buff, 0, CHARMAXSIZE);        
+        getColAsChar(buff, offset ,resultDescToPrint->pCols[i], resultDescToPrint->columns[i].type);
+
         if (i == 0) printf("%s",buff);
         else printf(";%s",buff);
         
 
     }
     printf("\n");
-
 
 }
 

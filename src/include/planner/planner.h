@@ -46,6 +46,8 @@ typedef struct {
 typedef struct {
     size_t columnCount;
     ColumnMetadata columns[ARRAYMAXSIZE];
+    size_t pCols[ARRAYMAXSIZE];
+    size_t size;
 } ResultSet;
 
 typedef struct {
@@ -83,17 +85,17 @@ typedef struct {
     struct Operator* left;
     struct Operator* right;
     struct Operator* filter;
-    int lastTupleIdx;
-    size_t rightTuples[JOINPTRBUFFER];
-    size_t rightTupleIdx;
-    size_t rightTupleCount;
+    int lastTupleOffset;
+    int rightTuples[JOINPTRBUFFER];
+    int rightTupleIdx;
+    int rightTupleCount;
     bool rightTuplesCollected;
 } JoinInfo;
 
 typedef struct {
     bool aggregationDone;
     AggregationType aggtype;
-    int colToAggregate;
+    size_t colToAggregate;
 } AggInfo;
 
 
