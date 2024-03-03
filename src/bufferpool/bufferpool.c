@@ -20,6 +20,16 @@ void copyToBufferPool(int destinationoffset, void* source, size_t size) {
     buffpool->used += size;
 }
 
+int addToBufferPoolFromOffset(int originOffset, size_t size) {
+    growBufferpoolIfNeedBe(size);
+    void* target = getNextFreeSlot();
+    memcpy(target, getTuple(originOffset), size);
+    int offset = buffpool->used;
+    buffpool->used += size;
+    return offset;
+}
+
+
 int addToBufferPool(void* source, size_t size) {
     growBufferpoolIfNeedBe(size);
     void* target = getNextFreeSlot();

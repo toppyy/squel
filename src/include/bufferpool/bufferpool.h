@@ -31,7 +31,7 @@ void* getNextFreeSlot();
 void getColAsChar(char* target, int pooloffset, size_t colIdx, Datatype type);
 void copyToBufferPool(int destinationoffset, void* source, size_t size);
 int addToBufferPool(void* source, size_t size);
-
+int addToBufferPoolFromOffset(int offset, size_t size);
 void reserveSpaceBufferpool(int offset, size_t size);
 
 int getCurrentOffset();

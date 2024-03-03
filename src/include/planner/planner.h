@@ -111,6 +111,7 @@ typedef struct Operator {
     OperatorType type;
     OperatorInfo info;
     ResultSet resultDescription;
+    int iteratorTupleOffset;
     struct Operator* child;
     int (*getTuple) (struct Operator* op);
 } Operator;

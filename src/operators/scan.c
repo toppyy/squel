@@ -118,7 +118,11 @@ int scanGetTuple(Operator* op) {
     };
 
     // Write to bufferpool
-    int offset = addToBufferPool(diskBuffer, tplSize);
+    if (op->iteratorTupleOffset == -1) {
+        op->iteratorTupleOffset = addToBufferPool(diskBuffer, tplSize);
+    } else {
+        copyToBufferPool(op->iteratorTupleOffset, diskBuffer, tplSize);
+    }
 
 
     // // ---------------- Useful for debuggin. Leave it be for a while ------------------
@@ -145,6 +149,6 @@ int scanGetTuple(Operator* op) {
     free(lineBuffer);
     free(diskBuffer);
 
-    return offset;
+    return op->iteratorTupleOffset;
 }
 

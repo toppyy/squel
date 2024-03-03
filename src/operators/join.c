@@ -45,10 +45,17 @@ int joinGetTuple(Operator* op) {
         in the right table/subquery into an array.
         The array is reused when iterating over values in
         the left table/subquery.
+
+        We store one of the tables in the join in memory.
+        Which is why the tuples from the right table are copied 
+        to the buffer pool. Their original location will be
+        rewritten by child operators iterating over tuples.
+        
+
     */
 
 
-    int rightTupleOffset = 0;
+    int rightTupleOffset = 0, originalOffset;
     // Reuse this and only create a new tuple if it passes the filter
     int offset = 0;
      
@@ -59,17 +66,19 @@ int joinGetTuple(Operator* op) {
     // This is only entered first time the operator is called
     while (!op->info.join.rightTuplesCollected) {
         
-        rightTupleOffset = op->info.join.right->getTuple(op->info.join.right);
-
-        if (rightTupleOffset == -1) {
+        originalOffset = op->info.join.right->getTuple(op->info.join.right);
+    
+        if (originalOffset == -1) {
             op->info.join.rightTuplesCollected = true;
             op->info.join.lastTupleOffset = -1;
             op->info.join.rightTupleIdx = 0;            
-            
-        } else {
-            op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTupleOffset;
-            op->info.join.rightTupleCount++;
-        }
+            continue;  
+        } 
+
+        rightTupleOffset = addToBufferPoolFromOffset(originalOffset, op->info.join.right->resultDescription.size);
+
+        op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTupleOffset;
+        op->info.join.rightTupleCount++;
     }
 
     // Join loop

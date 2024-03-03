@@ -36,6 +36,7 @@ Operator* makeScanOp(Node* node) {
     op->info.scan.cursor        = 0;
     op->getTuple                = NULL;
     op->resultDescription.size  = 0;
+    op->iteratorTupleOffset     = -1;
 
     op->resultDescription.pCols[0] = 0;
     for (size_t i = 0; i < tbl.columnCount; i++) {        
