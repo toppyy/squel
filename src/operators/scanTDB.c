@@ -1,81 +1,51 @@
 #include "../include/operators/scanTDB.h"
 
+
+void fillBuffer(Operator* op) {
+
+    int fd = op->info.scan.fd;
+
+    if (fd == 0) {
+        fd = open(op->info.scan.tbldef.path, O_RDONLY);
+        op->info.scan.fd = fd;
+        lseek(fd, op->info.scan.cursor, SEEK_SET);        
+    }
+
+    ssize_t bytesRead = read(fd, op->info.scan.buffer, op->info.scan.bufferSize);
+
+    if (bytesRead < 0) {
+        printf("ScanTDB - Error reading the file at '%s': %s\n", op->info.scan.tbldef.path, strerror(errno));
+        exit(1);
+    }
+
+    op->info.scan.cursor += bytesRead;
+    op->info.scan.recordsInBuffer = ( bytesRead / op->info.scan.recordSize );
+
+
+    if (bytesRead < (ssize_t) op->info.scan.bufferSize) {
+        op->info.scan.fileRead = true;
+        close(fd);
+    }
+
+}
+
 int scanTDBGetTuple(Operator* op) {
 
     checkPtrNotNull(op, "NULL pointer passed to scanTDBGetTuple");
 
-    // Read metadata to forward cursor by length of metadata
-    FILE* f = op->info.scan.tablefile;
-    if (f == NULL) {
-        f = fopen(op->info.scan.tbldef.path, "r");
-        readTdbMetadaFromFD(f);
-    }
-
-    void* data = malloc(op->info.scan.recordSize);
-
-    if (data == NULL) {
-        printf("Failed to allocate memory\n");
-        exit(1);
-    }
-
-    int fd = open(op->info.scan.tbldef.path, O_RDONLY);
-    lseek(fd, op->info.scan.cursor, SEEK_SET);
-    size_t bytesRead = read(fd , data, op->info.scan.recordSize);
-    close(fd);
-
-    op->info.scan.cursor += op->info.scan.recordSize;
-
-
-    if (bytesRead == 0) {
-        free(data);
+    if (op->info.scan.fileRead && op->info.scan.recordsInBuffer == 0) {
+        free(op->info.scan.buffer);
         return -1;
     }
 
-    Tuple* tpl = addTuple();
-
-    /*
-    
-        typedef struct Tuple {
-            size_t  columnCount;
-            size_t  size;
-            size_t  idx;
-            char    data[TUPLEDATAMAXSIZE]; 
-            size_t  pCols[ARRAYMAXSIZE];
-        } Tuple;
-
-    */
-    
-    TDB tbldef = op->info.scan.tbldef;
-    char tmp[CHARMAXSIZE];
-    memset(&tmp, '\0', CHARMAXSIZE);
-    void* ptr_data = data;
-    for (size_t i = 0; i < tbldef.colCount; i++) {
-
-        tpl->columnCount++;
-        if (tbldef.datatypes[i] == DTYPE_STR) {
-            tpl->pCols[i] = tpl->size;
-            memcpy(getCol(tpl, i), ptr_data, tbldef.lengths[i]);
-            tpl->size += tbldef.lengths[i];
-            ptr_data += tbldef.lengths[i];
-            
-            continue;
-        }
-
-        if (tbldef.datatypes[i] == DTYPE_INT) {
-            sprintf(tmp, "%d", *(int*) ptr_data);
-            tpl->pCols[i] = tpl->size;
-            memcpy(getCol(tpl, i), tmp, tbldef.lengths[i]);
-            
-            tpl->size += tbldef.lengths[i];
-            ptr_data += tbldef.lengths[i];
-            continue;
-        }
-
-        printf("Don't know how to turn type %d into tuple\n", tbldef.datatypes[i]);
-        exit(1);
-
+    if (op->info.scan.recordsInBuffer == 0) {
+        fillBuffer(op);
+        return scanTDBGetTuple(op);
     }
 
-    free(data);
-    return tpl->idx;
+    size_t bufferDataOffset = (op->info.scan.recordsInBuffer - 1) * op->info.scan.recordSize;    
+    op->info.scan.recordsInBuffer--;
+
+    return addToBufferPool(op->info.scan.buffer + bufferDataOffset, op->info.scan.recordSize);
+
 }

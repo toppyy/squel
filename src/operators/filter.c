@@ -4,7 +4,7 @@
 Datatype mapNodeTypeToDataType(enum nodeType type) {
     switch (type) {
         case NUMBER:
-            return DTYPE_INT;
+            return DTYPE_LONG;
             break;
         case STRING:
             return DTYPE_STR;
@@ -15,10 +15,10 @@ Datatype mapNodeTypeToDataType(enum nodeType type) {
     }
 }
 
-bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
+bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
 
-    if (tpl == NULL) {
-        return NULL;
+    if (poolOffset == -1) {
+        return false;
     }
 
     
@@ -29,14 +29,15 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
     enum nodeType type1 = op->info.filter.exprTypes[0];
     enum nodeType type2 = op->info.filter.exprTypes[2];
     
-
+    int idx1Offset = op->resultDescription.pCols[idx1];
+    int idx2Offset = op->resultDescription.pCols[idx2];
 
     if (
-        idx1 > (int) tpl->columnCount
+        idx1 > (int) op->resultDescription.columnCount
         ||
-        idx2 > (int) tpl->columnCount 
+        idx2 > (int) op->resultDescription.columnCount
     ) {
-        printf("FILTER_OP: Filter column references out of bounds\n");
+        printf("FILTER_OP: Filter column references (%d | %d  > %ld) out of bounds\n", idx1, idx2, op->resultDescription.columnCount);
         exit(1);
     }
 
@@ -68,12 +69,21 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
 
         switch (dtype1)   {
             case DTYPE_STR:
-                cmpRes = strcmp(getCol(tpl,idx1),getCol(tpl,idx2));
+                cmpRes = strcmp(
+                    (char*) getCol(poolOffset,idx1Offset),
+                    (char*) getCol(poolOffset,idx2Offset)
+                );
                 break;
             case DTYPE_INT:
-                int number1 = atoi(getCol(tpl,idx1));
-                int number2 = atoi(getCol(tpl,idx2));
+                int number1 = *(int*) getCol(poolOffset,idx1Offset);
+                int number2 = *(int*) getCol(poolOffset,idx2Offset);
                 cmpRes = number1 - number2;
+                break;
+            case DTYPE_LONG:
+            
+                long lnumber1 = *(long*) getCol(poolOffset,idx1Offset);
+                long lnumber2 = *(long*) getCol(poolOffset,idx2Offset);
+                cmpRes = lnumber1 - lnumber2;
                 break;
             default:
                 printf("FILTER_OP: Don't know how to compare datatype %d\n", dtype1);
@@ -91,7 +101,8 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
                 cmpRes = strcmp(op->info.filter.charConstants[0], op->info.filter.charConstants[2]);
                 break;
             case DTYPE_INT:
-                cmpRes = op->info.filter.intConstants[0] - op->info.filter.intConstants[2];
+            case DTYPE_LONG:
+                cmpRes = op->info.filter.numConstants[0] - op->info.filter.numConstants[2];
                 break;
             default:
                 printf("FILTER_OP: Don't know how to compare datatype %d\n", nodeDtype1);
@@ -105,7 +116,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
         
         Datatype colDatatype    = dtype1;
         Datatype constDatatype  = nodeDtype2;
-        size_t colIdx   = idx1;
+        size_t colOffset   = idx1Offset;
         size_t constIdx = 2;
         
         if (type2 == IDENT_COL) {
@@ -113,10 +124,10 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
             constDatatype   = nodeDtype1;
             colDatatype     = dtype2;
             constIdx        = 0;
-            colIdx          = idx2;
+            colOffset          = idx2Offset;
         }
         if (constDatatype != colDatatype) {
-            printf("FILTER_OP: Don't know how to compare datatypes %d vs %d\n", constDatatype, colDatatype);
+            printf("FILTER_OP: 3. Don't know how to compare datatypes %d vs %d\n", constDatatype, colDatatype);
             exit(1);
         }
         // Now we have to only deal with correct combinations of all the eight possible
@@ -127,11 +138,11 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
         //      DTYPE_INT vs. IDENT_COL + NUMBER
         switch (constDatatype) {
             case DTYPE_STR:
-                cmpRes = strcmp(op->info.filter.charConstants[constIdx], getCol(tpl,colIdx));
+                cmpRes = strcmp(op->info.filter.charConstants[constIdx], getCol(poolOffset,colOffset));
                 break;
-            case DTYPE_INT:
-                int colNumber = atoi(getCol(tpl,colIdx));
-                int constNumber = op->info.filter.intConstants[constIdx];
+            case DTYPE_LONG:
+                long colNumber = *(long*) getCol(poolOffset,colOffset);
+                long constNumber = (long) op->info.filter.numConstants[constIdx];
                 // Order matters here
                 if (constIdx == 0) {
                     cmpRes = constNumber - colNumber;
@@ -167,7 +178,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl, Operator* op) {
     return matches;
 }
 
-bool evaluateTupleAgainstFilterOps(Tuple* tpl, Operator* op) {
+bool evaluateTupleAgainstFilterOps(int poolOffset, Operator* op) {
 
     bool rtrnValue = true,
          result = true;
@@ -177,7 +188,7 @@ bool evaluateTupleAgainstFilterOps(Tuple* tpl, Operator* op) {
 
     while (p_op != NULL) {
         
-        result = evaluateTupleAgainstFilterOp(tpl, p_op);
+        result = evaluateTupleAgainstFilterOp(poolOffset, p_op);
 
         switch (boolOp) {
             case AND:
@@ -219,20 +230,21 @@ int filterGetTuple(Operator* op) {
         exit(1);
     }
 
-    Tuple* tpl = NULL;
+
+    int poolOffset = 0;
 
     while (true) {
         /* Get new tuples until found something that passes the filter */
 
-        tpl = getTuple(op->child->getTuple(op->child));
+        poolOffset = op->child->getTuple(op->child);
 
-        if (tpl == NULL) {
+        if (poolOffset == -1) {
             return -1;
         }
 
-        if (evaluateTupleAgainstFilterOps(tpl, op)) break;
+        if (evaluateTupleAgainstFilterOps(poolOffset, op)) break;
 
 
     }
-    return tpl->idx;
+    return poolOffset;
 }

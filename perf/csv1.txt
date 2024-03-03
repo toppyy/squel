@@ -1,1 +1,1 @@
-Operation took: 0:00.74
+Operation with 10000000 elements took: 0:06.84

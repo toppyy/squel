@@ -1,8 +1,7 @@
 #include "../include/executor/executor.h"
 
 
-TupleBuffer* tplbuffer;
-
+Bufferpool* buffpool;
 
 void assignGetTupleFunction(Operator *op) {
 
@@ -58,23 +57,19 @@ void doAssignGetTupleFunction(Operator* p_op) {
 }
 
 
-void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl)) {
+void execute(Operator* op, bool printColNames, void (*tupleHandler)(int pooloffset)) {
 
     if (op == NULL) {
         return;
     }
 
+    buffpool            = calloc(1, sizeof(Bufferpool));
+    buffpool->pool      = calloc(BUFFERPOOLSIZE, 1);
+    buffpool->capacity  = BUFFERPOOLSIZE;
+    buffpool->used      = 0;
  
-    tplbuffer = calloc(1, sizeof(TupleBuffer));
-    tplbuffer->tuples = calloc(TUPLEBUFFSIZE, sizeof(Tuple));
-    tplbuffer->bufferSize = TUPLEBUFFSIZE;
-
-    tplbuffer->tupleCount = 0;
-
     doAssignGetTupleFunction(op);
 
-    struct Tuple* tpl;
-    
     if (op->resultDescription.columnCount == 0) {
         printf("No columns selected.");
         exit(1);
@@ -91,13 +86,14 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl))
     }
 
     // Get tuples one by one
+    int offset;
     for (;;) {
-        tpl = getTuple(op->getTuple(op));
-        if (tpl == NULL) break;
+        offset = op->getTuple(op);
+        if (offset == -1) break;
 
-        tupleHandler(tpl);
+        tupleHandler(offset);
     };
 
-    free(tplbuffer->tuples);
-    free(tplbuffer);
+    free(buffpool->pool);
+    free(buffpool);
 }

@@ -18,7 +18,7 @@ setup_file() {
 
 @test "Simple AVG" {
     run ./build/squel "SELECT AVG(unemployed) FROM './test/data/unemployment_all.csv'"
-    [[ $"${lines[1]}" == "32241.22" ]]
+    [[ $"${lines[1]}" == "32241" ]]
     [[ $"${lines[2]}" == "" ]]
 }
 

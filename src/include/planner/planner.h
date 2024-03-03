@@ -46,6 +46,8 @@ typedef struct {
 typedef struct {
     size_t columnCount;
     ColumnMetadata columns[ARRAYMAXSIZE];
+    size_t pCols[ARRAYMAXSIZE];
+    size_t size;
 } ResultSet;
 
 typedef struct {
@@ -57,15 +59,21 @@ typedef struct {
 typedef struct {
     TableMetadata table;
     FILE* tablefile;
+    int fd;
+    void*  buffer;
+    size_t recordsInBuffer;
+    size_t bufferSize;
+    bool   fileRead;
     size_t cursor;
     struct TDB tbldef;
     size_t recordSize;
+    size_t columnOffsets[ARRAYMAXSIZE];
 } ScanInfo;
 
 
 typedef struct FilterInfo {
     char                charConstants[ARRAYMAXSIZE][CHARMAXSIZE];
-    int                 intConstants[ARRAYMAXSIZE];
+    long                numConstants[ARRAYMAXSIZE];
     enum nodeType       exprTypes[ARRAYMAXSIZE];
     int                 boolExprList[ARRAYMAXSIZE];
     size_t              boolExprListSize;
@@ -77,17 +85,17 @@ typedef struct {
     struct Operator* left;
     struct Operator* right;
     struct Operator* filter;
-    struct Tuple* lastTuple;
-    size_t rightTuples[JOINPTRBUFFER];
-    size_t rightTupleIdx;
-    size_t rightTupleCount;
+    int lastTupleOffset;
+    int rightTuples[JOINPTRBUFFER];
+    int rightTupleIdx;
+    int rightTupleCount;
     bool rightTuplesCollected;
 } JoinInfo;
 
 typedef struct {
     bool aggregationDone;
     AggregationType aggtype;
-    int colToAggregate;
+    size_t colToAggregate;
 } AggInfo;
 
 

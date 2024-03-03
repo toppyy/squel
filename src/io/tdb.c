@@ -64,13 +64,18 @@ TDB readTdbMetadaFromFD(FILE* f) {
     fread(&tbldef.records,  1, sizeof(tbldef.records),  f);
     fread(&tbldef.colCount, 1, sizeof(tbldef.colCount), f);
 
+    tbldef.metadataSize = sizeof(tbldef.records) + sizeof(tbldef.colCount);
+
 
     char nameLength = 0;
+
     for (size_t i = 0; i < tbldef.colCount; i++) {
         fread(&nameLength, 1, sizeof(char), f);
         fread(&tbldef.colNames[i],  sizeof(char),       nameLength, f);
         fread(&tbldef.datatypes[i], sizeof(Datatype),   1,          f);
         fread(&tbldef.lengths[i],   sizeof(char),       1,          f);
+
+        tbldef.metadataSize += sizeof(char) + (nameLength * sizeof(char)) + sizeof(Datatype) + sizeof(char); // :(
     }
 
     fclose(f);
@@ -81,4 +86,3 @@ TDB readTdbMetadaFromFD(FILE* f) {
 void buildPathToTDBtable(char* ptr_target, char* tblName) {
     sprintf(ptr_target, "%s/%s.%s", DATAPATH, tblName, TDBFILEXT);
 }
-

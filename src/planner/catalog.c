@@ -8,7 +8,7 @@ Datatype inferDatatype(char* item) {
     while (item[i] != '\0') {
         if (!isNumeric(item[i++])) return DTYPE_STR;
     }
-    return DTYPE_INT;
+    return DTYPE_LONG;
 }
 
 void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimiter) {

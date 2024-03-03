@@ -1,10 +1,13 @@
 #include "./include/executor/executor.h"
 #include "./include/parser/parser.h"
 #include "./include/planner/planner.h"
-
+#include "./include/io/tdb.h"
+#include "./include/bufferpool/bufferpool.h"
 
 #define METADATABUFFSIZE 10
 
+
+ResultSet* resultDescToPrint = NULL;
 
 void printTree(Node *node) {
 
@@ -25,21 +28,26 @@ void printTree(Node *node) {
     }
 }
 
-void printTuple(Tuple* tpl) {
+void printTuple(int offset) {
 
-
-
-    char* printBuff = calloc(tpl->size, sizeof(char));
-
-    for (size_t i = 0; i < tpl->columnCount; i++) {
-        strcpy(printBuff + strlen(printBuff), getCol(tpl,i));
-        if (i == tpl->columnCount - 1) continue;
-        strcpy(printBuff + strlen(printBuff), DELIMITERSTR);
+    if (resultDescToPrint == NULL) {
+        printf("No result set to print?\n");
+        exit(1);
     }
 
-    printf("%s\n", printBuff);
+    char buff[CHARMAXSIZE];
 
-    free(printBuff);
+    for (size_t i = 0; i < resultDescToPrint->columnCount; i++) {
+        memset(buff, 0, CHARMAXSIZE);        
+        getColAsChar(buff, offset ,resultDescToPrint->pCols[i], resultDescToPrint->columns[i].type);
+
+        if (i == 0) printf("%s",buff);
+        else printf(";%s",buff);
+        
+
+    }
+    printf("\n");
+
 }
 
 int main(int argc, char* argv[]) {
@@ -65,6 +73,8 @@ int main(int argc, char* argv[]) {
     if (parsetree->next->type == SELECT) {
         /* Plan the query */
         queryplan = planQuery(parsetree->next);
+
+        resultDescToPrint = &queryplan->resultDescription;
 
         /* Execute the query */
         execute(queryplan, true, printTuple);

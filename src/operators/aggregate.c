@@ -1,64 +1,54 @@
 #include "../include/operators/aggregate.h"
 
-char* doCount(Operator* opToIterate, char* resultBuffer) {
-    Tuple* tpl = getTuple(opToIterate->getTuple(opToIterate));
-    long result = 0;
-    while (tpl != NULL) {
-        tpl = getTuple(opToIterate->getTuple(opToIterate));
+long doCount(Operator* opToIterate) {
+    int offset = opToIterate->getTuple(opToIterate);
+    int result = 0;
+    while (offset >= 0) {
+        offset = opToIterate->getTuple(opToIterate);
         result++;
     };
-    sprintf(resultBuffer, "%ld", result);
-    return resultBuffer;
+    
+    return result;
 }
 
-char* doAverage(Operator* opToIterate, int colIdx, char* resultBuffer) {
-    Tuple* tpl = NULL;
+long doAverage(Operator* opToIterate, size_t colOffset) {
+
+
+    int offset = 0;
     long sum = 0;
     long count = 0;
 
     for (;;) {
-        tpl = getTuple(opToIterate->getTuple(opToIterate));
-        if (tpl == NULL) {
+        offset = opToIterate->getTuple(opToIterate);
+        if (offset == -1) {
             break;
         }
-        if (opToIterate->resultDescription.columns[colIdx].type == DTYPE_INT) {
-            sum += atol(getCol(tpl,colIdx));
-            count++;
-        } else {
-            printf("Sum not implement for non-integers\n");
-            exit(1);
-        }
+        sum += *(long*) getCol(offset,colOffset);
+        count++;
     };
-    double result = 0.0; 
+    long result = 0.0; 
     if (count > 0) {
         result = sum / (double) count;
     }
-    sprintf(resultBuffer, "%.2f", result);
-    return resultBuffer;
+    return result;
 }
 
+long doSum(Operator* opToIterate, size_t colOffset) {
 
 
-
-char* doSum(Operator* opToIterate, int colIdx, char* resultBuffer) {
-
-    Tuple* tpl = NULL;
+    int offset = 0;
     long result = 0;
 
     for (;;) {
-        tpl = getTuple(opToIterate->getTuple(opToIterate));
-        if (tpl == NULL) {
+        offset = opToIterate->getTuple(opToIterate);
+        if (offset == -1) {
             break;
         }
-        if (opToIterate->resultDescription.columns[colIdx].type == DTYPE_INT) {
-            result += atol(getCol(tpl,colIdx));
-        } else {
-            printf("Sum not implement for non-integers\n");
-            exit(1);
-        }
+        result += *(long*) getCol(offset,colOffset);
+
     };
-    sprintf(resultBuffer, "%ld", result);
-    return resultBuffer;
+
+    return result;
 }
 
 
@@ -71,35 +61,36 @@ int aggregateGetTuple(Operator* op) {
         return -1;
     }
 
+    // TODO:
+    //     if (opToIterate->resultDescription.columns[colIdx].type != DTYPE_LONG) {
+    //     printf("Sum not implement for other datatypes besides long\n");
+    //     exit(1);
+    // }
+
+
     // Build new tuple to store result
 
-    char* resultBuffer = (char*) malloc(CHARMAXSIZE);
-    char* resultLocation = NULL;
+    int result = 0;
 
     switch(op->info.aggregate.aggtype) {
         case COUNT:
-            resultLocation = doCount(op->child, resultBuffer);
+            result = doCount(op->child);
             break;
         case SUM:
-            resultLocation = doSum(op->child, op->info.aggregate.colToAggregate, resultBuffer);
+            result = doSum(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
             break;
         case AVG:
-            resultLocation = doAverage(op->child, op->info.aggregate.colToAggregate, resultBuffer);
+            result = doAverage(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
             break;
         default:
             printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
             exit(1);
     }
- 
-    Tuple* tpl = addTuple();
-    strcpy(tpl->data, resultBuffer);    
-    tpl->columnCount = 1;
-    tpl->pCols[0] = 0;
-    tpl->size = strlen(resultLocation) + 1;
-    
+
+    op->resultDescription.columnCount = 1;
+    op->resultDescription.pCols[0] = 0;
     op->info.aggregate.aggregationDone = true;
     
-    free(resultBuffer);
-    return tpl->idx;
 
+    return addToBufferPool(&result, sizeof(result));
 }

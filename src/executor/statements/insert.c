@@ -5,50 +5,15 @@ size_t tupleSize = 0;
 FILE* f = NULL;
 
 
-void handleTupleInsert(Tuple* tpl) {
+void handleTupleInsert(int offset) {
 
     if (f == NULL) {
         printf("No file to insert to\n");
         exit(1);
     }
 
-    char* ptr = NULL;
-    void* diskBuffer = calloc(1, tupleSize);
-    void* diskBufferCursor = diskBuffer;
-    int tmp = 0;
-    size_t strLen = 0;
-    for (size_t i = 0; i < tbldef->colCount; i++) {
-
-        ptr = getCol(tpl,i);
-
-        if (tbldef->datatypes[i] == DTYPE_INT) {
-            tmp = atoi(ptr);
-            memcpy(diskBufferCursor, &tmp, sizeof(tmp));
-            diskBufferCursor += sizeof(tmp);
-            continue;
-        }
-
-        if (tbldef->datatypes[i] == DTYPE_STR) {
-            strLen = strlen(ptr) + 1;
-            if (strLen > (size_t) tbldef->lengths[i]) {
-                printf("String data is truncated due to column size\n");
-                strLen = tbldef->lengths[i];
-            }
-            memcpy(diskBufferCursor, ptr, strLen);
-            diskBufferCursor += strLen;
-            // A string has a specific size. Pad the string with '\0' if necessary
-            memset(diskBufferCursor, 0, tbldef->lengths[i] - strLen);
-            diskBufferCursor += tbldef->lengths[i] - strLen;
-            continue;
-        }
-
-        printf("Don't know how to write type %d to disk\n", tbldef->datatypes[i]);
-        exit(1);
-
-    }
-    size_t bytesWritten = fwrite(diskBuffer, tupleSize, 1, f);
+    size_t bytesWritten = fwrite(getTuple(offset), tupleSize, 1, f);
     assert(bytesWritten > 0);
-    free(diskBuffer);
 }
 
 

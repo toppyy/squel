@@ -5,15 +5,22 @@ int projectGetTuple(Operator* op) {
     checkPtrNotNull(op->child, "OP_PROJECT has no child");
     checkPtrNotNull(op->child->getTuple, "Child of OP_PROJECT has no getTuple-method");
     
-    Tuple* tpl = getTuple(op->child->getTuple(op->child));
+    int pooloffset = op->child->getTuple(op->child);
 
-    if (tpl == NULL) {
+    if (pooloffset == -1) {
         return -1;
     }
-    
+
+    size_t sizes[ARRAYMAXSIZE];
     size_t  newcolumnCount = 0;
+    size_t  newpCols[ARRAYMAXSIZE];
     size_t  newSize = 0;
-    size_t   newpCols[ARRAYMAXSIZE];
+
+    sizes[0] = op->child->resultDescription.pCols[0];
+    for (size_t i = 1; i < op->child->resultDescription.columnCount; i++) {
+        sizes[i] = op->child->resultDescription.pCols[0] - sizes[i-1];
+    }
+
     
     size_t  j = 0;
 
@@ -21,19 +28,19 @@ int projectGetTuple(Operator* op) {
 
         j = op->info.project.colRefs[i];
 
-        newSize += strlen(getCol(tpl,j)) + 1;
-        
-        newpCols[newcolumnCount] = tpl->pCols[j];
+        newpCols[newcolumnCount] = op->child->resultDescription.pCols[j];
         newcolumnCount++;
+        newSize += sizes[j];
 
     }
 
     for (size_t i = 0; i < newcolumnCount; i++) {
-        tpl->pCols[i] = newpCols[i];
+        op->child->resultDescription.pCols[i] = newpCols[i];
     }
 
-    tpl->columnCount = newcolumnCount;
-    tpl->size = newSize;
+    op->resultDescription.columnCount = newcolumnCount;
+    op->resultDescription.size = newSize;
 
-    return tpl->idx;
+
+    return pooloffset;
 }
