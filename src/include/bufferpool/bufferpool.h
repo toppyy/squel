@@ -29,10 +29,10 @@ extern Bufferpool* buffpool;
 
 void* getNextFreeSlot();
 void getColAsChar(char* target, int pooloffset, size_t colIdx, Datatype type);
-void copyToBufferPool(void* destination, void* source, size_t size);
+void copyToBufferPool(int destinationoffset, void* source, size_t size);
 int addToBufferPool(void* source, size_t size);
 
-void reserveSpaceBufferpool(void* from, size_t size);
+void reserveSpaceBufferpool(int offset, size_t size);
 
 int getCurrentOffset();
 

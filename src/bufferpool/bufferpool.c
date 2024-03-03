@@ -2,12 +2,26 @@
 #include "../include/planner/planner.h"
 
 
-void copyToBufferPool(void* destination, void* source, size_t size) {
+void growBufferpoolIfNeedBe(size_t size) {
+    
+    if (buffpool->used + (long) size < buffpool->capacity) return;
+    long oldCapacity = buffpool->capacity;
+    buffpool->capacity *= 2;
+    buffpool->pool = realloc(buffpool->pool, buffpool->capacity);
+    checkPtrNotNull(buffpool->pool, "Could not allocate memory for bufferpool");
+    memset(buffpool->pool + oldCapacity, 0, oldCapacity);
+    
+}
+
+void copyToBufferPool(int destinationoffset, void* source, size_t size) {
+    growBufferpoolIfNeedBe(size);
+    void* destination = getTuple(destinationoffset);
     memcpy(destination, source, size);
     buffpool->used += size;
 }
 
 int addToBufferPool(void* source, size_t size) {
+    growBufferpoolIfNeedBe(size);
     void* target = getNextFreeSlot();
     memcpy(target, source, size);
     int offset = buffpool->used;
@@ -15,7 +29,9 @@ int addToBufferPool(void* source, size_t size) {
     return offset;
 }
 
-void reserveSpaceBufferpool(void* from, size_t size) {
+void reserveSpaceBufferpool(int offset, size_t size) {
+    growBufferpoolIfNeedBe(size);
+    void* from = getTuple(offset);
     memset(from, 0, size);
     buffpool->used += size;
 }

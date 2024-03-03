@@ -42,12 +42,11 @@ int scanGetTuple(Operator* op) {
     // Table metadata
     TableMetadata tbldef = op->info.scan.table;
 
-    // Location in the bufferpool to store tuple data
-    void* diskBufferCursor = getNextFreeSlot();
-    int offset = getCurrentOffset();
-
     size_t tplSize = 0;
 
+    void* diskBuffer = calloc(1, SCANTUPLESIZE);
+    void* diskBufferCursor = diskBuffer;
+    checkPtrNotNull(diskBuffer, "could not allocate buffer for scan");
 
     // Find pointers to each column
     for (;;) {
@@ -77,9 +76,8 @@ int scanGetTuple(Operator* op) {
                     printf("String data is truncated due to column size\n");
                     strLen = TDBMAXSTRINGSIZE;
                 }
-                copyToBufferPool(diskBufferCursor, ptrData + cursor, TDBMAXSTRINGSIZE);
+                memcpy(diskBufferCursor, ptrData + cursor, TDBMAXSTRINGSIZE);
                 diskBufferCursor += strLen;
-                // Pad the string with '\0'
                 memset(diskBufferCursor, 0, TDBMAXSTRINGSIZE - strLen);
                 diskBufferCursor += TDBMAXSTRINGSIZE - strLen;
                 op->resultDescription.pCols[i] = tplSize;
@@ -89,7 +87,7 @@ int scanGetTuple(Operator* op) {
 
             case DTYPE_INT:
                 int tmp = atoi(ptrData + cursor);
-                copyToBufferPool(diskBufferCursor, &tmp, intSize);
+                memcpy(diskBufferCursor, &tmp, intSize);
                 diskBufferCursor += intSize;
                 op->resultDescription.pCols[i] = tplSize;
                 tplSize += intSize;
@@ -98,7 +96,7 @@ int scanGetTuple(Operator* op) {
 
             case DTYPE_LONG:
                 long ltmp = atol(ptrData + cursor);
-                copyToBufferPool(diskBufferCursor, &ltmp, longSize);
+                memcpy(diskBufferCursor, &ltmp, longSize);
                 diskBufferCursor += longSize;
                 op->resultDescription.pCols[i] = tplSize;
                 tplSize += longSize;
@@ -119,10 +117,13 @@ int scanGetTuple(Operator* op) {
         i++;
     };
 
-    op->resultDescription.size = tplSize;
+    // Write to bufferpool
+    int offset = addToBufferPool(diskBuffer, tplSize);
 
-    // void* tpldata = getTuple(offset);
-    // printf("tpldata: ");
+
+    // // ---------------- Useful for debuggin. Leave it be for a while ------------------
+    // tpldata = diskBuffer;
+    // printf("tpldata at: ", diskBuffer);
     // for (size_t i = 0; i < op->resultDescription.size; i++) {
     //     printf("%d, ", *(char*) (tpldata + i));
     // }
@@ -139,8 +140,10 @@ int scanGetTuple(Operator* op) {
     // printf("\n");
 
     op->info.scan.cursor += len;
+    op->resultDescription.size = tplSize;
 
     free(lineBuffer);
+    free(diskBuffer);
 
     return offset;
 }

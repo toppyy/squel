@@ -17,62 +17,6 @@ int concatTuples(int tupleOffset,int leftOffset,int rightOffset, ResultSet* left
     memcpy(address, getTuple(leftOffset), left->size);
     memcpy(address + left->size, getTuple(rightOffset), right->size);
 
-
-    // memset(tpl->data, 0, left->size + right->size);
-    // memcpy(tpl->data, left->data, left->size);
-    // memcpy(tpl->data + left->size, right->data, right->size);
-
-    // Add pointers to start of each column
-    // Reuse the data in the original tuples
-    // Move only pointers to two columns; do not copy data
-
-    // size_t i = 0;
-    // for (size_t j = 0; j < left->columnCount; j++) {
-    //     joinOp->pCols[i] = left->pCols[j];
-    //     i++;
-    // }
-
-    // size_t offset = left->size;
-
-    // for (size_t j = 0; j < right->columnCount; j++) {
-    //     joinOp->pCols[i] = offset + right->pCols[j];
-    //     i++;
-    // }
-
-    // void* tpldata = getTuple(leftOffset);
-    // printf("leftdata: ");
-    // for (size_t i = 0; i < left->size; i++) {
-    //     printf("%d, ", *(char*) (tpldata + i));
-    // }
-    // printf("\n");
-
-    // tpldata = getTuple(rightOffset);
-    // printf("tpldata: ");
-    // for (size_t i = 0; i < right->size; i++) {
-    //     printf("%d, ", *(char*) (tpldata + i));
-    // }
-    // printf("\n");
-
-
-    // tpldata = getTuple(tupleOffset);
-    // printf("tpldata: ");
-    // for (size_t i = 0; i < joinOp->size; i++) {
-    //     printf("%d, ", *(char*) (tpldata + i));
-    // }
-    // printf("\n");
-
-    // printf("tpldata-cols:\n");
-    // char testi[CHARMAXSIZE];
-    // char* ptr = testi;
-    // for (size_t i = 0; i < joinOp->columnCount; i++) {
-    //     memset(testi,0,CHARMAXSIZE);
-    //     getColAsChar(ptr, tupleOffset, joinOp->pCols[i], joinOp->columns[i].type);
-    //     printf("\t%s (%ld)\n",testi, joinOp->pCols[i]);
-    // }
-    // printf("\n");
-
-    // exit(1);
-
     return tupleOffset;
 }
 
@@ -110,7 +54,7 @@ int joinGetTuple(Operator* op) {
      
     // Reserve space from the buffer pool so that we can concatenate tuples
     int filterTupleOffset = getCurrentOffset();
-    reserveSpaceBufferpool(getNextFreeSlot(), JOINTUPLESIZE);
+    reserveSpaceBufferpool(filterTupleOffset, JOINTUPLESIZE);
 
     // This is only entered first time the operator is called
     while (!op->info.join.rightTuplesCollected) {
