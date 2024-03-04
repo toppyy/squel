@@ -66,6 +66,6 @@ void executeInsert(Node* node) {
 
     /* Clean up */
     fclose(f);
-    free(queryplan);
+    freeQueryplan(queryplan);
 }
 
