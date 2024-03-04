@@ -58,11 +58,7 @@ See [test/test_tdb.bats](./test/test_tdb.bats) for an example of how to create a
 
 ## Building
 
-If building for the first time, start with:
-
-    make dirs
-
-After which simply:
+Simply run make to build under `./build`:
 
     make
 

@@ -12,7 +12,8 @@ OBJ = $(patsubst src/%, $(ODIR)/%, $(_OBJ))
 CC = gcc
 CFLAGS = -Wall -Wextra #-Werror
 
-
+# Define a target to compile all source files
+all: dirs squel
 
 squel: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(ODIR)/$@
@@ -21,15 +22,7 @@ $(ODIR)/%.o: $(SRC)%.c
 	$(CC) -g -c $< -o $@  $(CFLAGS)
 
 dirs:
-	mkdir -p data
-	mkdir -p build/parser
-	mkdir -p build/planner/operators
-	mkdir -p build/binder
-	mkdir -p build/io
-	mkdir -p build/executor
-	mkdir -p build/executor/statements
-	mkdir -p build/bufferpool
-	mkdir -p build/operators
+	mkdir -p data build/parser build/planner/operators build/binder build/io build/executor build/executor/statements build/bufferpool build/operators
 
 clean:
 	rm -f ./build/squel $(OBJ)
