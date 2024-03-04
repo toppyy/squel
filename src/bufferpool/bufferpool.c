@@ -7,7 +7,6 @@ void growBufferpoolIfNeedBe(size_t size) {
     if (buffpool->used + (long) size < buffpool->capacity) return;
     long oldCapacity = buffpool->capacity;
     buffpool->capacity *= 2;
-    printf("Growin pool from %ld to %ld\n", oldCapacity, buffpool->capacity);
     buffpool->pool = realloc(buffpool->pool, buffpool->capacity);
     checkPtrNotNull(buffpool->pool, "Could not allocate memory for bufferpool");
     memset(buffpool->pool + oldCapacity, 0, oldCapacity);
