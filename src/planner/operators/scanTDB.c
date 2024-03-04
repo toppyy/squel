@@ -37,6 +37,7 @@ Operator* makeScanTDBOp(Node* node) {
     op->info.scan.fd            = 0;
     op->info.scan.fileRead      = false;
     op->info.scan.recordsInBuffer   = 0;
+    op->iteratorTupleOffset = -1;
     
 
 

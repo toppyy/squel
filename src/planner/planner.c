@@ -64,6 +64,20 @@ int findColIdxInResDesc(ResultSet* resultDesc, char* name, char* tblref) {
 
 }
 
+Operator* chooseScanOp(Node* node) {
+    switch(node->type) {
+        case FILEPATH:
+            return makeScanOp(node);
+        case IDENT_TBL:
+            return makeScanTDBOp(node);
+        default:
+            printf("Don't know how to scan node of type %d\n", node->type);
+            exit(1);
+    }
+    return NULL;
+}
+
+
 Operator* buildFrom(Node* node) {
     /* Node is the first child of FROM-type node */
     if (node->next != NULL && node->next->type == JOIN) {
@@ -71,21 +85,13 @@ Operator* buildFrom(Node* node) {
         Node* ON = node->next->next->next;
         // TODO: Support sub-query
         return makeJoinOp(
-            makeScanOp(node),
-            makeScanOp(node->next->next),
+            chooseScanOp(node),
+            chooseScanOp(node->next->next),
             ON
         );
     }
 
-    if (node->type == FILEPATH) {
-        return makeScanOp(node);
-    }
-
-    if (node->type == IDENT_TBL) {
-        return makeScanTDBOp(node);
-    }
-
-    return NULL;
+    return chooseScanOp(node);
 }
 
 Operator* buildSelect(Node* node, Operator* child) {

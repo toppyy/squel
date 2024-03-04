@@ -1,7 +1,7 @@
 #include "../include/operators/join.h"
 
 
-int concatTuples(int tupleOffset,int leftOffset,int rightOffset, ResultSet* left, ResultSet* right) {
+void concatTuples(int tupleOffset,int leftOffset,int rightOffset, ResultSet* left, ResultSet* right) {
 
     if (
         left == NULL ||
@@ -17,7 +17,6 @@ int concatTuples(int tupleOffset,int leftOffset,int rightOffset, ResultSet* left
     memcpy(address, getTuple(leftOffset), left->size);
     memcpy(address + left->size, getTuple(rightOffset), right->size);
 
-    return tupleOffset;
 }
 
 int joinGetTuple(Operator* op) {
@@ -30,16 +29,6 @@ int joinGetTuple(Operator* op) {
         exit(1);
     }
     
-
-    if (
-        op->info.join.left->type != OP_SCAN ||
-        op->info.join.right->type != OP_SCAN
-        ) {
-        printf("Join left or right operator not of type OP_SCAN\n");
-        printf("Left type: %d. Right type: %d.\n", op->info.join.left->type, op->info.join.right->type );
-        exit(1);
-    }
-
     /*
         This monstrosity collects the pointers to tuples
         in the right table/subquery into an array.
@@ -99,13 +88,8 @@ int joinGetTuple(Operator* op) {
 
         rightTupleOffset = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
 
-        /*
-            We must get the tuples again 'cause the data-pointers might be corrupted. 
-            Getting them from the buffer pool updates the pointers.
-        */
-
-
-        offset = concatTuples(
+        // Concat the tuples so we can pass to the filter-ops
+        concatTuples(
             filterTupleOffset,
             op->info.join.lastTupleOffset,
             rightTupleOffset,
@@ -113,9 +97,8 @@ int joinGetTuple(Operator* op) {
             &op->info.join.right->resultDescription
         );
 
-        if (evaluateTupleAgainstFilterOps(offset, op->info.join.filter)) {
-            
-            int newTupleOffset = addToBufferPool(getTuple(offset), op->resultDescription.size);
+        if (evaluateTupleAgainstFilterOps(filterTupleOffset, op->info.join.filter)) {            
+            int newTupleOffset = addToBufferPool(getTuple(filterTupleOffset), op->resultDescription.size);
             return newTupleOffset;
         }
     } while(true);
