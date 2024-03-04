@@ -30,3 +30,10 @@ clean:
 # Run tests
 tests:
 	./test/bats-core/bin/bats ./test
+
+perf-prep:
+	. ./perf/prep_perf.sh
+
+perf-test:
+	mkdir -p perf/results
+	. ./perf/measure_perf_count.sh  2> ./perf/results/count.csv && cat ./perf/results/count.csv
