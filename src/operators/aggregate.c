@@ -37,7 +37,7 @@ long doSum(Operator* opToIterate, size_t colOffset) {
 
 
     int offset = 0;
-    long result = 0;
+    long long result = 0;
 
     for (;;) {
         offset = opToIterate->getTuple(opToIterate);
@@ -70,7 +70,7 @@ int aggregateGetTuple(Operator* op) {
 
     // Build new tuple to store result
 
-    int result = 0;
+    long result = 0;
 
     switch(op->info.aggregate.aggtype) {
         case COUNT:
