@@ -71,6 +71,11 @@ int joinGetTuple(Operator* op) {
 
         op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTupleOffset;
         op->info.join.rightTupleCount++;
+
+        if (op->info.join.rightTupleCount >= JOINPTRBUFFER) {
+            printf("Can't fit the right table in the query into joinbuffer. Increase JOINPTRBUFFER\n");
+            exit(1);
+        }
     }
 
     // Join loop
