@@ -39,17 +39,12 @@ void readMetadata(FILE* f) {
 
         metadataSize += sizeof(char) + (nameLength * sizeof(char)) + sizeof(Datatype) + sizeof(char); // :(
     }
-
-    printf("MD: %d\n", metadataSize);
-
 }
 
 long buffer[BUFFSIZE];
 
 
 int main(int argc, char** argv) {
-
-    // 204669335
 
     FILE* f = fopen(argv[1], "r");
     if (f == NULL) {
@@ -63,20 +58,12 @@ int main(int argc, char** argv) {
 
     do {
         bytesRead = fread(&buffer, sizeof(long), BUFFSIZE, f);
-        printf("Bytes read %ld\n", bytesRead);
         for (size_t i = 0; i < bytesRead; i+=2) {
-            printf("%ld\n", buffer[i]);
-            sum += buffer[i];
+            sum += buffer[i] < 500000 ? 1 : 0;
         }
     } while(bytesRead == BUFFSIZE);
     
-    printf("Sum: %ld\n", sum);
-
-
-
-    
-
-
+    printf("sum: %ld\n", sum);
     fclose(f);
 
 }
