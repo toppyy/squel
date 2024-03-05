@@ -373,6 +373,14 @@ void source() {
     }
 
     ident(IDENT_TBL);
+    skipWhite();
+    if (peekWordMatches("AS")) {
+        getNextChar();
+        getNextChar();
+        skipWhite();
+        addAlias(currentNode);
+    }
+
 }
 
 void getDatatype() {

@@ -16,21 +16,21 @@ setup_file() {
 }
 
 @test "Simple JOIN on column unequality" {
-    run ./build/squel "SELECT col1,col3,int FROM './test/data/small.csv' JOIN './test/data/small2.csv' ON col3>int"
-    [[ $"${lines[1]}" == "UU;999;32" ]]
-    [[ $"${lines[2]}" == "UU;100;32" ]]
-    [[ $"${lines[3]}" == "UU;300;32" ]]
-    [[ $"${lines[4]}" == "DEFG;400;32" ]]
+    run ./build/squel "SELECT col1,col3,int FROM test_small JOIN test_small2 ON col3>int"
+    [[ $"${lines[4]}" == "UU;999;32" ]]
+    [[ $"${lines[3]}" == "UU;100;32" ]]
+    [[ $"${lines[2]}" == "UU;300;32" ]]
+    [[ $"${lines[1]}" == "DEFG;400;32" ]]
     [[ $"${lines[5]}" == "" ]]
 }
 
 
 @test "Simple JOIN on column unequality using aliases" {
-    run ./build/squel "SELECT a.col3 FROM './test/data/small.csv' AS a JOIN './test/data/small2.csv' AS b ON a.col3>b.int"
-    [[ $"${lines[1]}" == "999" ]]
-    [[ $"${lines[2]}" == "100" ]]
-    [[ $"${lines[3]}" == "300" ]]
-    [[ $"${lines[4]}" == "400" ]]
+    run ./build/squel "SELECT a.col3 FROM test_small AS a JOIN test_small2 AS b ON a.col3>b.int"
+    [[ $"${lines[4]}" == "999" ]]
+    [[ $"${lines[3]}" == "100" ]]
+    [[ $"${lines[2]}" == "300" ]]
+    [[ $"${lines[1]}" == "400" ]]
     [[ $"${lines[5]}" == "" ]]
 }
 
