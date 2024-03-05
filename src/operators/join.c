@@ -49,8 +49,11 @@ int joinGetTuple(Operator* op) {
     int offset = 0;
      
     // Reserve space from the buffer pool so that we can concatenate tuples
-    int filterTupleOffset = getCurrentOffset();
-    reserveSpaceBufferpool(filterTupleOffset, JOINTUPLESIZE);
+    if (op->info.join.filterTupleOffset == -1) {
+        op->info.join.filterTupleOffset = getCurrentOffset();
+        reserveSpaceBufferpool(op->info.join.filterTupleOffset, JOINTUPLESIZE);
+    }
+    
 
     // This is only entered first time the operator is called
     while (!op->info.join.rightTuplesCollected) {
@@ -90,16 +93,21 @@ int joinGetTuple(Operator* op) {
 
         // Concat the tuples so we can pass to the filter-ops
         concatTuples(
-            filterTupleOffset,
+            op->info.join.filterTupleOffset,
             op->info.join.lastTupleOffset,
             rightTupleOffset,
             &op->info.join.left->resultDescription,
             &op->info.join.right->resultDescription
         );
 
-        if (evaluateTupleAgainstFilterOps(filterTupleOffset, op->info.join.filter)) {            
-            int newTupleOffset = addToBufferPool(getTuple(filterTupleOffset), op->resultDescription.size);
-            return newTupleOffset;
+        if (evaluateTupleAgainstFilterOps(op->info.join.filterTupleOffset, op->info.join.filter)) {
+            if (op->iteratorTupleOffset == -1) {
+                op->iteratorTupleOffset = addToBufferPool(getTuple(op->info.join.filterTupleOffset), op->resultDescription.size);
+            } else {
+                copyToBufferPool(op->iteratorTupleOffset, getTuple(op->info.join.filterTupleOffset),  op->resultDescription.size);
+
+            }
+            return op->iteratorTupleOffset;
         }
     } while(true);
 

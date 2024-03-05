@@ -86,6 +86,7 @@ typedef struct {
     struct Operator* right;
     struct Operator* filter;
     int lastTupleOffset;
+    int filterTupleOffset;
     int rightTuples[JOINPTRBUFFER];
     int rightTupleIdx;
     int rightTupleCount;

@@ -17,6 +17,8 @@ Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
         opJoin->info.join.rightTupleCount = 0;
         opJoin->info.join.rightTupleIdx = 0;
         opJoin->info.join.rightTuplesCollected = false;
+        opJoin->iteratorTupleOffset = -1;
+        opJoin->info.join.filterTupleOffset = -1;
 
 
         copyResultDescription(opJoin->info.join.left, opJoin,     0);
