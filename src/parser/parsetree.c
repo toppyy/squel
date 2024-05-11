@@ -46,3 +46,17 @@ void freeTree(Node *node) {
 
     free(node);
 }
+
+Datatype mapNodeTypeToDataType(enum nodeType type) {
+    switch (type) {
+        case NUMBER:
+            return DTYPE_LONG;
+            break;
+        case STRING:
+            return DTYPE_STR;
+            break;
+        default:
+            return DTYPE_UNDEFINED;
+            break;
+    }
+}

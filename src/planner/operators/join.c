@@ -59,8 +59,9 @@ Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
         }
 
 
+        /* Filter function list */
+        Operator* tmp = makeFilterFunction(ON->child, opJoin);
+        free(tmp);
 
         return opJoin;
-
-
 }

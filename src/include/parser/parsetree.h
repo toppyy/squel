@@ -60,4 +60,6 @@ Node* createNode(enum nodeType type, char* content);
 Node* addChild(Node *parent, enum nodeType type, char* content);
 Node* addNext(Node *parent, enum nodeType type, char* content);
 
+Datatype mapNodeTypeToDataType(enum nodeType type);
+
 void freeTree(Node *node);

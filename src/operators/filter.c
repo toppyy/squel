@@ -1,20 +1,6 @@
 #include "../include/operators/filter.h"
 
 
-Datatype mapNodeTypeToDataType(enum nodeType type) {
-    switch (type) {
-        case NUMBER:
-            return DTYPE_LONG;
-            break;
-        case STRING:
-            return DTYPE_STR;
-            break;
-        default:
-            return DTYPE_UNDEFINED;
-            break;
-    }
-}
-
 bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
 
     if (poolOffset == -1) {

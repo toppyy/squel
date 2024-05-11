@@ -160,3 +160,45 @@ Operator* makeFilterOps(Node* where_node, Operator* child) {
 
     return op_filt;
 }
+
+
+Operator* makeFilterFunction(Node* node, Operator* child) {
+
+    
+    Operator* op = (Operator*) calloc(1, sizeof(Operator));
+    op->type = OP_FILTER;
+    op->child                   = NULL;
+    op->getTuple                = NULL;
+
+    op->info.filter.boolExprListSize = 0;
+
+    memcpy(&op->resultDescription, &child->resultDescription, sizeof(child->resultDescription));
+
+
+
+    /* Find out types of expressions to evaluate and boolean operator */
+    checkPtrNotNull(node, "Passed NULL-pointer to makeFilterFunction.");
+    checkPtrNotNull(node->next, "Making of filter function failed. Node has no next.");
+    checkPtrNotNull(node->next->next, "Making of filter function failed. Node's next has no next.");
+
+    Node* value1    = node;
+    Node* boolop    = node->next;
+    Node* value2    = node->next->next;
+
+    if (boolop->type != BOOLOP) {
+        printf("Should've been a bool operator, but was %d (content %s)\n", boolop->type, boolop->content);
+        exit(1);
+    }
+
+
+
+    int value1Loc = value1->type == IDENT_COL ? findColIdxInResDesc(&child->resultDescription, value1->content, value1->tblref) : -1;
+    int value2Loc = value2->type == IDENT_COL ? findColIdxInResDesc(&child->resultDescription, value2->content, value2->tblref) : -1;
+
+    printf("Value1: %s %d and dtype %d\n", value1->content, value1Loc, mapNodeTypeToDataType(value1->type));
+    printf("Value2: %s %d and dtype %d\n", value2->content, value2Loc, mapNodeTypeToDataType(value2->type));
+
+
+    return op;
+}
+
