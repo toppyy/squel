@@ -91,11 +91,7 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
             constDatatype   = dtype1;
             colDatatype     = dtype2;
             constIdx        = 0;
-            colOffset          = idx2Offset;
-        }
-        if (constDatatype != colDatatype) {
-            printf("FILTER_OP: 3. Don't know how to compare datatypes %d vs %d\n", constDatatype, colDatatype);
-            exit(1);
+            colOffset       = idx2Offset;
         }
         // Now we have to only deal with 4 combinations of all the eight possible
         // 'cause datatypes must match
