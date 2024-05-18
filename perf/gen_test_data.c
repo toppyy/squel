@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-
+#include <time.h>
 
 #define ROWMAX 50
 
@@ -27,13 +27,16 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    write(fd, "col1;col2",9 );
+    time_t t = time(0);
+    srand(t);
+    write(fd, "col1;col2", 9);
+
 
     char row[ROWMAX];
     char* ptr_row = row;
     for (long i = 0; i < records; i++) {
         memset(ptr_row,0,ROWMAX);
-        sprintf(ptr_row, "\n%d;%d", rand(), rand());
+        sprintf(ptr_row, "\n%d;%d", (rand() / 2), rand());
         write(fd, ptr_row, strlen(row));
     }
 
