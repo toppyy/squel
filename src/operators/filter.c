@@ -1,20 +1,6 @@
 #include "../include/operators/filter.h"
 
 
-Datatype mapNodeTypeToDataType(enum nodeType type) {
-    switch (type) {
-        case NUMBER:
-            return DTYPE_LONG;
-            break;
-        case STRING:
-            return DTYPE_STR;
-            break;
-        default:
-            return DTYPE_UNDEFINED;
-            break;
-    }
-}
-
 bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
 
     if (poolOffset == -1) {
@@ -41,16 +27,16 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
         exit(1);
     }
 
-
     int cmpRes = 0;
 
-    /* Node datatype is inferred from nodetype. Applies to constants only. */
-    Datatype nodeDtype1 = mapNodeTypeToDataType(type1);
-    Datatype nodeDtype2 = mapNodeTypeToDataType(type2);
+    Datatype dtype1 = op->info.filter.exprDatatypes[0];
+    Datatype dtype2 = op->info.filter.exprDatatypes[1];
 
-    /* Column datatype is inferred from data. */
-    Datatype dtype1 = op->resultDescription.columns[idx1].type;
-    Datatype dtype2 = op->resultDescription.columns[idx2].type;
+    if (dtype1 != dtype2) {
+        printf("FILTER_OP: Can't compare different datatypes\n");
+        exit(1);
+    }
+
 
     /*
         Three cases:
@@ -61,11 +47,6 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
 
     // 1. Both are columns. They must be of the same datatype
     if (type1 == IDENT_COL && type2 == IDENT_COL)   {
-
-        if (dtype1 != dtype2) {
-            printf("FILTER_OP: Can't compare different datatypes\n");
-            exit(1);
-        }
 
         switch (dtype1)   {
             case DTYPE_STR:
@@ -92,11 +73,8 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
     }
     // 2. Both are constants
     else if (type1 != IDENT_COL && type2 != IDENT_COL) {
-        if (nodeDtype1 != nodeDtype2) {
-            printf("FILTER_OP: Can't compare different datatypes\n");
-            exit(1);
-        }
-        switch (nodeDtype1)   {
+
+        switch (dtype1)   {
             case DTYPE_STR:
                 cmpRes = strcmp(op->info.filter.charConstants[0], op->info.filter.charConstants[2]);
                 break;
@@ -105,7 +83,7 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
                 cmpRes = op->info.filter.numConstants[0] - op->info.filter.numConstants[2];
                 break;
             default:
-                printf("FILTER_OP: Don't know how to compare datatype %d\n", nodeDtype1);
+                printf("FILTER_OP: Don't know how to compare datatype %d\n", dtype1);
                 exit(1);
         }
     }
@@ -115,13 +93,13 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
         // and fix if it's not
         
         Datatype colDatatype    = dtype1;
-        Datatype constDatatype  = nodeDtype2;
+        Datatype constDatatype  = dtype2;
         size_t colOffset   = idx1Offset;
         size_t constIdx = 2;
         
         if (type2 == IDENT_COL) {
             // Guess was wrong, fix it
-            constDatatype   = nodeDtype1;
+            constDatatype   = dtype1;
             colDatatype     = dtype2;
             constIdx        = 0;
             colOffset          = idx2Offset;

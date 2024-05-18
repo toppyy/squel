@@ -105,6 +105,7 @@ int joinGetTuple(Operator* op) {
             &op->info.join.right->resultDescription
         );
 
+
         if (evaluateTupleAgainstFilterOps(op->info.join.filterTupleOffset, op->info.join.filter)) {
             if (op->iteratorTupleOffset == -1) {
                 op->iteratorTupleOffset = addToBufferPool(getTuple(op->info.join.filterTupleOffset), op->resultDescription.size);

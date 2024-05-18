@@ -48,10 +48,6 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
         
         strcpy(op->info.project.columnsToProject[i], node->content);
         strcpy(op->resultDescription.columns[i].name, node->content);
-
-        
-        // op->resultDescription.columns[i].type = node->dtype;
-        // op->resultDescription.columns[i].identifier = node->identifier;
         
         // Find the index of the projected column in the result description
         // of the child

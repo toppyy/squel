@@ -1,5 +1,19 @@
 #include "../../include/planner/planner.h"
 
+Datatype mapNodeTypeToDataType(enum nodeType type) {
+    switch (type) {
+        case NUMBER:
+            return DTYPE_LONG;
+            break;
+        case STRING:
+            return DTYPE_STR;
+            break;
+        default:
+            return DTYPE_UNDEFINED;
+            break;
+    }
+}
+
 int mapBoolOpToInt(char* boolOp) {
     if (strcmp(boolOp, "=") == 0) {
         return -1;
@@ -69,6 +83,25 @@ void boolExprAddTypes(Node* node, enum nodeType* types) {
 
 }
 
+void boolExprAddDatatypes(Operator *op, Node* node) {
+
+    int idx1    = op->info.filter.boolExprList[0];
+    int idx2    = op->info.filter.boolExprList[2];
+
+    if (idx1 >= 0) {
+        op->info.filter.exprDatatypes[0] = op->resultDescription.columns[idx1].type;
+    } else {
+        op->info.filter.exprDatatypes[0] = mapNodeTypeToDataType(node->type);
+    }
+
+    if (idx2 >= 0) {
+        op->info.filter.exprDatatypes[1] = op->resultDescription.columns[idx2].type;
+    } else {
+        op->info.filter.exprDatatypes[1] = mapNodeTypeToDataType(node->next->next->type);
+    }
+
+}
+
 void boolExprAddConstants(Node* node, char (*charConstants)[CHARMAXSIZE], long* numConstants) {
 
     size_t i = 0;
@@ -122,6 +155,13 @@ Operator* makeFilterOp(Node* node, Operator* child) {
         op->info.filter.charConstants,
         op->info.filter.numConstants
     );
+
+
+    boolExprAddDatatypes(
+        op,
+        node
+    );
+
 
     return op;
 }

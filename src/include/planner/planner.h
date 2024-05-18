@@ -18,6 +18,13 @@ typedef enum {
 } OperatorType;
 
 typedef enum {
+    CMP_COL_COL,
+    CMP_CONST_CONST,
+    CMP_CONST_COL,
+    CMP_COL_CONST
+} ComparisonType;
+
+typedef enum {
     COUNT,
     AVG,
     SUM
@@ -71,14 +78,27 @@ typedef struct {
 } ScanInfo;
 
 
+typedef struct Expr {
+    char    str[CHARMAXSIZE];
+    size_t  str_size;
+    long    l;
+    int     i;
+} Expr;
+
+
+
+
 typedef struct FilterInfo {
     char                charConstants[ARRAYMAXSIZE][CHARMAXSIZE];
     long                numConstants[ARRAYMAXSIZE];
+    enum Datatype       exprDatatypes[ARRAYMAXSIZE];
     enum nodeType       exprTypes[ARRAYMAXSIZE];
     int                 boolExprList[ARRAYMAXSIZE];
     size_t              boolExprListSize;
     struct Operator*    next;
     enum nodeType       operatorNext;
+    ComparisonType      compType;
+    int (*filter) (struct Expr* expr1, struct Expr* expr2);
 } FilterInfo;
 
 typedef struct {
