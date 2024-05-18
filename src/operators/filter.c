@@ -1,9 +1,13 @@
 #include "../include/operators/filter.h"
 
 
-bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
+bool evaluateTupleAgainstFilterOp(int poolOffset1, int poolOffset2, Operator* op) {
 
-    if (poolOffset == -1) {
+    if (poolOffset1 == -1) {
+        return false;
+    }
+
+    if (poolOffset2 == -1) {
         return false;
     }
 
@@ -40,19 +44,18 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
         switch (dtype1)   {
             case DTYPE_STR:
                 cmpRes = strcmp(
-                    (char*) getCol(poolOffset,idx1Offset),
-                    (char*) getCol(poolOffset,idx2Offset)
+                    (char*) getCol(poolOffset1,idx1Offset),
+                    (char*) getCol(poolOffset2,idx2Offset)
                 );
                 break;
             case DTYPE_INT:
-                int number1 = *(int*) getCol(poolOffset,idx1Offset);
-                int number2 = *(int*) getCol(poolOffset,idx2Offset);
+                int number1 = *(int*) getCol(poolOffset1,idx1Offset);
+                int number2 = *(int*) getCol(poolOffset2,idx2Offset);
                 cmpRes = number1 - number2;
                 break;
             case DTYPE_LONG:
-            
-                long lnumber1 = *(long*) getCol(poolOffset,idx1Offset);
-                long lnumber2 = *(long*) getCol(poolOffset,idx2Offset);
+                long lnumber1 = *(long*) getCol(poolOffset1,idx1Offset);
+                long lnumber2 = *(long*) getCol(poolOffset2,idx2Offset);
                 cmpRes = lnumber1 - lnumber2;
                 break;
             default:
@@ -81,17 +84,17 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
         // Guess 1st is a column and 2nd is constant
         // and fix if it's not
         
-        Datatype colDatatype    = dtype1;
         Datatype constDatatype  = dtype2;
         size_t colOffset   = idx1Offset;
         size_t constIdx = 2;
+        int poolOffset = poolOffset1;
         
         if (compType == CMP_CONST_COL) {
             // Guess was wrong, fix it
             constDatatype   = dtype1;
-            colDatatype     = dtype2;
             constIdx        = 0;
             colOffset       = idx2Offset;
+            poolOffset      = poolOffset2;
         }
         // Now we have to only deal with 4 combinations of all the eight possible
         // 'cause datatypes must match
@@ -142,7 +145,7 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
     return matches;
 }
 
-bool evaluateTupleAgainstFilterOps(int poolOffset, Operator* op) {
+bool evaluateTuplesAgainstFilterOps(int poolOffset1, int poolOffset2, Operator* op) {
 
     bool rtrnValue = true,
          result = true;
@@ -152,7 +155,7 @@ bool evaluateTupleAgainstFilterOps(int poolOffset, Operator* op) {
 
     while (p_op != NULL) {
         
-        result = evaluateTupleAgainstFilterOp(poolOffset, p_op);
+        result = evaluateTupleAgainstFilterOp(poolOffset1, poolOffset2, p_op);
 
         switch (boolOp) {
             case AND:
@@ -206,7 +209,7 @@ int filterGetTuple(Operator* op) {
             return -1;
         }
 
-        if (evaluateTupleAgainstFilterOps(poolOffset, op)) break;
+        if (evaluateTuplesAgainstFilterOps(poolOffset, poolOffset, op)) break;
 
 
     }

@@ -32,7 +32,12 @@ int mapBoolOpToInt(char* boolOp) {
 }
 
 
-Node* mapBoolExpr(Node* node, ResultSet* childResultDesc, int* boolExprList, size_t* boolExprListSize) {
+Node* mapBoolExpr(
+    Node* node,
+    ResultSet* childResultDesc,
+    int* boolExprList,
+    size_t* boolExprListSize
+) {
     checkPtrNotNull(node, "Passed NULL-pointer to mapBoolExpr.");
     checkPtrNotNull(node->next, "Making bool expr failed. Node has no next.");
     checkPtrNotNull(node->next->next, "Making bool expr failed. Node's next has no next.");

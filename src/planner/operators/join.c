@@ -1,5 +1,46 @@
 #include "../../include/planner/planner.h"
 
+
+Operator* makeJoinFilterOps(
+    Node* where_node,
+    Operator* join_op,
+    ResultSet leftResult,
+    ResultSet rightResult
+) {
+    // Make regular filter ops (ie. where agains one table)
+    Operator* filterOps = makeFilterOps(where_node, join_op);
+
+    // makeFilterOps uses the result description of join_op
+    // However, when filtering we want to use the original pointers to columns
+    // so we must restore them from result descriptors
+
+    size_t offset = 0;
+ 
+    for (size_t i = 0; i < leftResult.columnCount; i++) {
+        filterOps->resultDescription.pCols[i] = leftResult.pCols[i];
+        offset++;
+    }
+    for (size_t i = 0; i < rightResult.columnCount; i++) {
+        filterOps->resultDescription.pCols[i + offset] = rightResult.pCols[i];
+    }
+
+
+    // Alter so that indexes point to offsets in left and right tables
+    // Otherwise would have to create a new tuple that has both columns
+
+    Operator* curOp = filterOps;
+    while (curOp != NULL) {
+        if ((size_t) curOp->info.filter.boolExprList[2] > leftResult.columnCount) {
+            curOp->info.filter.boolExprList[2] -= leftResult.columnCount;
+        }
+
+        curOp = curOp->info.filter.next;    
+    }
+
+    return filterOps;
+}
+
+
 Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
     
         /*
@@ -51,16 +92,8 @@ Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
         }
 
         /* ON-clause */
-        Operator* opFilter = makeFilterOps(ON, opJoin);
+        Operator* opFilter = makeJoinFilterOps(ON, opJoin, left->resultDescription, right->resultDescription);
         opJoin->info.join.filter = opFilter;
 
-        for (size_t i = 0; i < opJoin->resultDescription.columnCount; i++) {
-                opFilter->resultDescription.pCols[i] = opJoin->resultDescription.pCols[i];
-        }
-
-
-
         return opJoin;
-
-
 }

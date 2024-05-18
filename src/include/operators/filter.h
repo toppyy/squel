@@ -4,4 +4,4 @@
 #include "../planner/planner.h"
 
 int filterGetTuple(Operator* op);
-bool evaluateTupleAgainstFilterOps(int poolOffset, Operator* op);
+bool evaluateTuplesAgainstFilterOps(int poolOffset1, int poolOffset2, Operator* op);

@@ -78,15 +78,6 @@ typedef struct {
 } ScanInfo;
 
 
-typedef struct Expr {
-    char    str[CHARMAXSIZE];
-    size_t  str_size;
-    long    l;
-    int     i;
-} Expr;
-
-
-
 
 typedef struct FilterInfo {
     char                charConstants[ARRAYMAXSIZE][CHARMAXSIZE];
@@ -98,7 +89,7 @@ typedef struct FilterInfo {
     struct Operator*    next;
     enum nodeType       operatorNext;
     ComparisonType      compType;
-    int (*filter) (struct Expr* expr1, struct Expr* expr2);
+    int (*filter) (void* expr1, void* expr2);
 } FilterInfo;
 
 typedef struct {

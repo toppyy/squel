@@ -96,17 +96,16 @@ int joinGetTuple(Operator* op) {
 
         rightTupleOffset = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
 
-        // Concat the tuples so we can pass to the filter-ops
-        concatTuples(
-            op->info.join.filterTupleOffset,
-            op->info.join.lastTupleOffset,
-            rightTupleOffset,
-            &op->info.join.left->resultDescription,
-            &op->info.join.right->resultDescription
-        );
-
-
-        if (evaluateTupleAgainstFilterOps(op->info.join.filterTupleOffset, op->info.join.filter)) {
+        
+        if (evaluateTuplesAgainstFilterOps(op->info.join.lastTupleOffset, rightTupleOffset, op->info.join.filter)) {
+            // Create a new tuple by concating the tuples
+            concatTuples(
+                op->info.join.filterTupleOffset,
+                op->info.join.lastTupleOffset,
+                rightTupleOffset,
+                &op->info.join.left->resultDescription,
+                &op->info.join.right->resultDescription
+            );
             if (op->iteratorTupleOffset == -1) {
                 op->iteratorTupleOffset = addToBufferPool(getTuple(op->info.join.filterTupleOffset), op->resultDescription.size);
             } else {
