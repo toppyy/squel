@@ -17,7 +17,7 @@ typedef enum {
     OP_AGGREGATE
 } OperatorType;
 
-typedef enum {
+typedef enum ComparisonType {
     CMP_COL_COL,
     CMP_CONST_CONST,
     CMP_CONST_COL,

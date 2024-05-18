@@ -8,24 +8,13 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
     }
 
     
-    int idx1    = op->info.filter.boolExprList[0];
-    int boolOp  = op->info.filter.boolExprList[1];
-    int idx2    = op->info.filter.boolExprList[2];
+    int idx1        = op->info.filter.boolExprList[0];
+    int boolOp      = op->info.filter.boolExprList[1];
+    int idx2        = op->info.filter.boolExprList[2];    
+    int idx1Offset  = op->resultDescription.pCols[idx1];
+    int idx2Offset  = op->resultDescription.pCols[idx2];
+    ComparisonType compType = op->info.filter.compType;
 
-    enum nodeType type1 = op->info.filter.exprTypes[0];
-    enum nodeType type2 = op->info.filter.exprTypes[2];
-    
-    int idx1Offset = op->resultDescription.pCols[idx1];
-    int idx2Offset = op->resultDescription.pCols[idx2];
-
-    if (
-        idx1 > (int) op->resultDescription.columnCount
-        ||
-        idx2 > (int) op->resultDescription.columnCount
-    ) {
-        printf("FILTER_OP: Filter column references (%d | %d  > %ld) out of bounds\n", idx1, idx2, op->resultDescription.columnCount);
-        exit(1);
-    }
 
     int cmpRes = 0;
 
@@ -40,13 +29,13 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
 
     /*
         Three cases:
-            1. Both are columns
-            2. Neither is a column
-            3. 1 is column, 1 is constant
+            1. Both are columns (CMP_COL_COL)
+            2. Neither is a column (CMP_CONST_CONST)
+            3. 1 is column, 1 is constant (CMP_CONST_COL | CMP_COL_CONST)
     */
 
-    // 1. Both are columns. They must be of the same datatype
-    if (type1 == IDENT_COL && type2 == IDENT_COL)   {
+    // 1. Both are columns
+    if (compType == CMP_COL_COL)   {
 
         switch (dtype1)   {
             case DTYPE_STR:
@@ -72,7 +61,7 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
         }
     }
     // 2. Both are constants
-    else if (type1 != IDENT_COL && type2 != IDENT_COL) {
+    else if (compType == CMP_CONST_CONST) {
 
         switch (dtype1)   {
             case DTYPE_STR:
@@ -97,7 +86,7 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
         size_t colOffset   = idx1Offset;
         size_t constIdx = 2;
         
-        if (type2 == IDENT_COL) {
+        if (compType == CMP_CONST_COL) {
             // Guess was wrong, fix it
             constDatatype   = dtype1;
             colDatatype     = dtype2;
@@ -108,7 +97,8 @@ bool evaluateTupleAgainstFilterOp(int poolOffset, Operator* op) {
             printf("FILTER_OP: 3. Don't know how to compare datatypes %d vs %d\n", constDatatype, colDatatype);
             exit(1);
         }
-        // Now we have to only deal with correct combinations of all the eight possible
+        // Now we have to only deal with 4 combinations of all the eight possible
+        // 'cause datatypes must match
         // That is:
         //      IDENT_COL + STRING vs. DTYPE_STR
         //      IDENT_COL + NUMBER vs. DTYPE_INT

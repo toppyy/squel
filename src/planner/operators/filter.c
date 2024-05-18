@@ -125,6 +125,19 @@ void boolExprAddConstants(Node* node, char (*charConstants)[CHARMAXSIZE], long* 
 
 }
 
+ComparisonType deduceComparisonType(enum nodeType type1, enum nodeType type2) {
+    if (type1 == IDENT_COL && type2 == IDENT_COL)   {
+        return CMP_COL_COL;
+    }
+    if (type1 == IDENT_COL && type2 != IDENT_COL)   {
+        return CMP_COL_CONST;
+    }
+    if (type1 != IDENT_COL && type2 == IDENT_COL)   {
+        return CMP_CONST_COL;
+    }
+    return CMP_CONST_CONST;
+}
+
 
 Operator* makeFilterOp(Node* node, Operator* child) {
 
@@ -162,6 +175,8 @@ Operator* makeFilterOp(Node* node, Operator* child) {
         node
     );
 
+    
+    op->info.filter.compType = deduceComparisonType(op->info.filter.exprTypes[0],op->info.filter.exprTypes[2]);
 
     return op;
 }
