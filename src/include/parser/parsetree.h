@@ -44,11 +44,6 @@ typedef struct Node {
     
     char alias[CHARMAXSIZE];
     char tblref[CHARMAXSIZE];
-
-    /* These are used by the binder */
-    int tableRef;
-    int colRef;
-    Datatype dtype;
     size_t identifier;
 
 } Node;
