@@ -34,7 +34,12 @@ tests:
 perf-prep:
 	. ./perf/prep_perf.sh
 
-perf-test:
+perf-test:	perf-test-count perf-test-join
+
+perf-test-count:
 	mkdir -p perf/results
 	. ./perf/measure_perf_count.sh  2> ./perf/results/count.csv && cat ./perf/results/count.csv
+
+perf-test-join:
+	mkdir -p perf/results
 	. ./perf/measure_perf_join.sh  2> ./perf/results/join.csv && cat ./perf/results/join.csv
