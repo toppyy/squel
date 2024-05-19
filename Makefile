@@ -10,7 +10,7 @@ OBJ = $(patsubst src/%, $(ODIR)/%, $(_OBJ))
 
 
 CC = gcc
-CFLAGS = -Wall -Wextra #-Werror
+CFLAGS = -Wall -Wextra -Werror
 
 # Define a target to compile all source files
 all: dirs squel
