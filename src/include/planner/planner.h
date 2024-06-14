@@ -27,7 +27,9 @@ typedef enum ComparisonType {
 typedef enum {
     COUNT,
     AVG,
-    SUM
+    SUM,
+    MAX,
+    MIN
 } AggregationType;
 
 

@@ -11,6 +11,12 @@ AggregationType mapFunctionNameToAggregation(char* name) {
     if (strcmp(name, "SUM") == 0) {
         return SUM;
     }
+    if (strcmp(name, "MAX") == 0) {
+        return MAX;
+    }
+    if (strcmp(name, "MIN") == 0) {
+        return MIN;
+    }
 
     printf("Unknown aggregation function '%s'\n", name);
     exit(1);

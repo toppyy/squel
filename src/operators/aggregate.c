@@ -51,6 +51,45 @@ long doSum(Operator* opToIterate, size_t colOffset) {
     return result;
 }
 
+long doMax(Operator* opToIterate, size_t colOffset) {
+
+
+    int offset = 0;
+    long result = 0, tmp = 0;
+
+    for (;;) {
+        offset = opToIterate->getTuple(opToIterate);
+        if (offset == -1) {
+            break;
+        }
+        tmp = *(long*) getCol(offset,colOffset);
+        result = tmp > result ? tmp : result;
+
+    };
+
+    return result;
+}
+
+long doMin(Operator* opToIterate, size_t colOffset) {
+
+
+    int offset = 0;
+    long result = __LONG_MAX__, tmp = 0;
+
+    for (;;) {
+        offset = opToIterate->getTuple(opToIterate);
+        if (offset == -1) {
+            break;
+        }
+        tmp = *(long*) getCol(offset,colOffset);
+        result = tmp < result ? tmp : result;
+
+    };
+
+    return result;
+}
+
+
 
 int aggregateGetTuple(Operator* op) {
     
@@ -81,6 +120,12 @@ int aggregateGetTuple(Operator* op) {
             break;
         case AVG:
             result = doAverage(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
+            break;
+        case MAX:
+            result = doMax(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
+            break;
+        case MIN:
+            result = doMin(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
             break;
         default:
             printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
