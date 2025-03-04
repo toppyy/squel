@@ -1,5 +1,6 @@
 #pragma once
 #include "../bufferpool/bufferpool.h"
 #include "../planner/planner.h"
+#include "../executor/tuple.h"
 
-int projectGetTuple(Operator* op);
+Tuple* projectGetTuple(Operator* op);

@@ -2,5 +2,6 @@
 #include "../bufferpool/bufferpool.h"
 #include "../planner/planner.h"
 #include "../executor/executor.h"
+#include "../executor/tuple.h"
 
-int joinGetTuple(Operator* op);
+Tuple* joinGetTuple(Operator* op);

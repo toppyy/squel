@@ -1,10 +1,10 @@
 #include "../include/operators/aggregate.h"
 
 long doCount(Operator* opToIterate) {
-    int offset = opToIterate->getTuple(opToIterate);
+    Tuple* tpl = opToIterate->getTuple(opToIterate);
     int result = 0;
-    while (offset >= 0) {
-        offset = opToIterate->getTuple(opToIterate);
+    while (tpl != NULL) {
+        tpl = opToIterate->getTuple(opToIterate);
         result++;
     };
     
@@ -14,16 +14,16 @@ long doCount(Operator* opToIterate) {
 long doAverage(Operator* opToIterate, size_t colOffset) {
 
 
-    int offset = 0;
+    Tuple* tpl;
     long sum = 0;
     long count = 0;
 
     for (;;) {
-        offset = opToIterate->getTuple(opToIterate);
-        if (offset == -1) {
+        tpl = opToIterate->getTuple(opToIterate);
+        if (tpl == NULL) {
             break;
         }
-        sum += *(long*) getCol(offset,colOffset);
+        sum += *(long*) tpl->data + colOffset;
         count++;
     };
     long result = 0.0; 
@@ -36,15 +36,15 @@ long doAverage(Operator* opToIterate, size_t colOffset) {
 long doSum(Operator* opToIterate, size_t colOffset) {
 
 
-    int offset = 0;
+    Tuple* tpl ;
     long long result = 0;
 
     for (;;) {
-        offset = opToIterate->getTuple(opToIterate);
-        if (offset == -1) {
+        tpl = opToIterate->getTuple(opToIterate);
+        if (tpl == NULL) {
             break;
         }
-        result += *(long*) getCol(offset,colOffset);
+        result += *(long*) tpl->data + colOffset;
 
     };
 
@@ -54,15 +54,15 @@ long doSum(Operator* opToIterate, size_t colOffset) {
 long doMax(Operator* opToIterate, size_t colOffset) {
 
 
-    int offset = 0;
+    Tuple* tpl;
     long result = 0, tmp = 0;
 
     for (;;) {
-        offset = opToIterate->getTuple(opToIterate);
-        if (offset == -1) {
+        tpl = opToIterate->getTuple(opToIterate);
+        if (tpl == NULL) {
             break;
         }
-        tmp = *(long*) getCol(offset,colOffset);
+        tmp = *(long*) tpl->data + colOffset;
         result = tmp > result ? tmp : result;
 
     };
@@ -73,15 +73,15 @@ long doMax(Operator* opToIterate, size_t colOffset) {
 long doMin(Operator* opToIterate, size_t colOffset) {
 
 
-    int offset = 0;
+    Tuple* tpl;
     long result = __LONG_MAX__, tmp = 0;
 
     for (;;) {
-        offset = opToIterate->getTuple(opToIterate);
-        if (offset == -1) {
+        tpl = opToIterate->getTuple(opToIterate);
+        if (tpl == NULL) {
             break;
         }
-        tmp = *(long*) getCol(offset,colOffset);
+        tmp = *(long*) tpl->data + colOffset;
         result = tmp < result ? tmp : result;
 
     };
@@ -91,13 +91,13 @@ long doMin(Operator* opToIterate, size_t colOffset) {
 
 
 
-int aggregateGetTuple(Operator* op) {
+Tuple* aggregateGetTuple(Operator* op) {
     
     checkPtrNotNull(op->child, "OP_AGGREGATE has no child.");
     checkPtrNotNull(op->child->getTuple, "Child of OP_AGGREGATE has no getTuple-method.");
 
     if (op->info.aggregate.aggregationDone) {
-        return -1;
+        return NULL;
     }
 
     // TODO:
@@ -137,5 +137,11 @@ int aggregateGetTuple(Operator* op) {
     op->info.aggregate.aggregationDone = true;
     
 
-    return addToBufferPool(&result, sizeof(result));
+    Tuple* tpl = initTuple(sizeof(result));
+
+    long* res_ptr = malloc(sizeof(result));
+    
+    *res_ptr = result;
+
+    return tpl;
 }

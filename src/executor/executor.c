@@ -57,7 +57,7 @@ void doAssignGetTupleFunction(Operator* p_op) {
 }
 
 
-void execute(Operator* op, bool printColNames, void (*tupleHandler)(int pooloffset)) {
+void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl)) {
 
     if (op == NULL) {
         return;
@@ -86,12 +86,12 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(int pooloffs
     }
 
     // Get tuples one by one
-    int offset;
+    Tuple* tpl;
     for (;;) {
-        offset = op->getTuple(op);
-        if (offset == -1) break;
+        tpl = op->getTuple(op);
+        if (tpl == NULL) break;
 
-        tupleHandler(offset);
+        tupleHandler(tpl);
     };
 
     free(buffpool->pool);

@@ -19,7 +19,7 @@ void concatTuples(int tupleOffset,int leftOffset,int rightOffset, ResultSet* lef
 
 }
 
-int joinGetTuple(Operator* op) {
+Tuple* joinGetTuple(Operator* op) {
 
     if (
         op->info.join.left == NULL ||
@@ -42,8 +42,9 @@ int joinGetTuple(Operator* op) {
         
 
     */
-
-
+    return NULL;
+    
+    /*
     int rightTupleOffset = 0, originalOffset;
     // Reuse this and only create a new tuple if it passes the filter
     int offset = 0;
@@ -115,5 +116,6 @@ int joinGetTuple(Operator* op) {
             return op->iteratorTupleOffset;
         }
     } while(true);
+    */
 
 }

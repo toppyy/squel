@@ -28,7 +28,31 @@ void printTree(Node *node) {
     }
 }
 
-void printTuple(int offset) {
+void valueToChar(char* target, Tuple* tpl, size_t colOffset, Datatype type) {
+    if (type == DTYPE_STR) {
+        strcpy(target, tpl->data + colOffset);
+        return;
+    }
+    if (type == DTYPE_INT) {
+        char tmp[CHARMAXSIZE];
+        sprintf(tmp, "%d", *(int*) (tpl->data + colOffset));
+        memcpy(target, tmp, strlen(tmp));
+        return;
+    }
+    if (type == DTYPE_LONG) {
+        char tmp[CHARMAXSIZE];
+        sprintf(tmp, "%ld", *(long*) (tpl->data + colOffset));
+        memcpy(target, tmp, strlen(tmp));
+        return;
+    }
+    printf("Don't know how to represent type %d as char\n", type);
+    exit(1);
+}
+
+
+
+
+void printTuple(Tuple* tpl) {
 
     if (resultDescToPrint == NULL) {
         printf("No result set to print?\n");
@@ -39,7 +63,7 @@ void printTuple(int offset) {
 
     for (size_t i = 0; i < resultDescToPrint->columnCount; i++) {
         memset(buff, 0, CHARMAXSIZE);        
-        getColAsChar(buff, offset ,resultDescToPrint->pCols[i], resultDescToPrint->columns[i].type);
+        valueToChar(buff, tpl ,resultDescToPrint->pCols[i], resultDescToPrint->columns[i].type);
 
         if (i == 0) printf("%s",buff);
         else printf(";%s",buff);

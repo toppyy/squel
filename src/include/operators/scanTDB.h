@@ -2,6 +2,7 @@
 #include "../bufferpool/bufferpool.h"
 #include "../planner/planner.h"
 #include "../executor/executor.h"
+#include "../executor/tuple.h"
 #include <errno.h>
 
-int scanTDBGetTuple(Operator* op);
+Tuple* scanTDBGetTuple(Operator* op);

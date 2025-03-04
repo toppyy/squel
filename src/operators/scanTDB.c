@@ -29,13 +29,13 @@ void fillBuffer(Operator* op) {
 
 }
 
-int scanTDBGetTuple(Operator* op) {
+Tuple* scanTDBGetTuple(Operator* op) {
 
     checkPtrNotNull(op, "NULL pointer passed to scanTDBGetTuple");
 
     if (op->info.scan.fileRead && op->info.scan.recordsInBuffer == 0) {
         free(op->info.scan.buffer);
-        return -1;
+        return NULL;
     }
 
     if (op->info.scan.recordsInBuffer == 0) {
@@ -52,5 +52,10 @@ int scanTDBGetTuple(Operator* op) {
     } else {
         copyToBufferPool(op->iteratorTupleOffset, op->info.scan.buffer + bufferDataOffset, op->info.scan.recordSize);
     }
-    return op->iteratorTupleOffset;
+
+
+    Tuple* tpl = initTuple(op->info.scan.recordSize);
+    tpl->data = op->info.scan.buffer + bufferDataOffset;
+
+    return tpl;
 }

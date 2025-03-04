@@ -1,6 +1,6 @@
 #include "../include/operators/project.h"
 
-int projectGetTuple(Operator* op) {
+Tuple* projectGetTuple(Operator* op) {
 
     checkPtrNotNull(op->child, "OP_PROJECT has no child");
     checkPtrNotNull(op->child->getTuple, "Child of OP_PROJECT has no getTuple-method");
@@ -13,11 +13,5 @@ int projectGetTuple(Operator* op) {
         This is an unfortunate extra function call :(
     */
     
-    int pooloffset = op->child->getTuple(op->child);
-
-    if (pooloffset == -1) {
-        return -1;
-    }
-
-    return pooloffset;
+    return op->child->getTuple(op->child);
 }

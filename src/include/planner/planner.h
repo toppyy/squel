@@ -6,6 +6,7 @@
 #include "../io/tdb.h"
 #include "../parser/utils.h"
 #include "../parser/parsetree.h"
+#include "../executor/tuple.h"
 
 
 typedef enum {
@@ -127,7 +128,7 @@ typedef struct Operator {
     ResultSet resultDescription;
     int iteratorTupleOffset;
     struct Operator* child;
-    int (*getTuple) (struct Operator* op);
+    Tuple* (*getTuple) (struct Operator* op);
 } Operator;
 
 void freeQueryplan(Operator *node);

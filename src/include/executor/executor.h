@@ -19,7 +19,7 @@ extern char *bufferscan;
 
 extern Bufferpool* buffpool;
 
-void execute(Operator* op, bool printColNames, void (*tupleHandler)(int pooloffset));
+void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl));
 void executeStatement(Node* node);
 void executeCreateTable(Node* node);
 void executeInsert(Node* node);
