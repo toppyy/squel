@@ -9,3 +9,5 @@ typedef struct  {
 
 
 Tuple* initTuple(size_t size);
+
+void* getTupleCol(Tuple* tpl, size_t colOffset);

@@ -6,3 +6,7 @@ Tuple* initTuple(size_t size) {
     tpl->size = size;
     return tpl;
 }
+
+void* getTupleCol(Tuple* tpl, size_t colOffset) {
+    return tpl->data + colOffset;
+}
