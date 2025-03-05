@@ -10,3 +10,10 @@ Tuple* initTuple(size_t size) {
 void* getTupleCol(Tuple* tpl, size_t colOffset) {
     return tpl->data + colOffset;
 }
+
+void freeTuple(Tuple* tpl) {
+    if (tpl->data) {
+        free(tpl->data);
+    }
+    free(tpl);
+}

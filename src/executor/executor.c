@@ -1,5 +1,5 @@
 #include "../include/executor/executor.h"
-
+#include "../include/executor/tuple.h"
 
 Bufferpool* buffpool;
 
@@ -92,6 +92,8 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl))
         if (tpl == NULL) break;
 
         tupleHandler(tpl);
+
+        freeTuple(tpl);
     };
 
     free(buffpool->pool);
