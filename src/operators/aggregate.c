@@ -136,7 +136,7 @@ Tuple* aggregateGetTuple(Operator* op) {
     op->resultDescription.pCols[0] = 0;
     op->info.aggregate.aggregationDone = true;
     
-    Tuple* tpl = initTuple(sizeof(result));
+    Tuple* tpl = initTuple();
     long* res_ptr = malloc(sizeof(result));
     *res_ptr = result;
     tpl->data = res_ptr;

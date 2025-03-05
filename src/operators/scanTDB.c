@@ -54,7 +54,7 @@ Tuple* scanTDBGetTuple(Operator* op) {
     }
 
 
-    Tuple* tpl = initTuple(op->info.scan.recordSize);
+    Tuple* tpl = initTuple();
     tpl->data = op->info.scan.buffer + bufferDataOffset;
 
     return tpl;

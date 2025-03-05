@@ -140,7 +140,7 @@ Tuple* scanGetTuple(Operator* op) {
 
     free(lineBuffer);
 
-    Tuple* tpl = initTuple(tplSize);
+    Tuple* tpl = initTuple();
     tpl->data = diskBuffer;
 
     return tpl;

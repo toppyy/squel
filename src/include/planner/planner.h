@@ -7,6 +7,7 @@
 #include "../parser/utils.h"
 #include "../parser/parsetree.h"
 #include "../executor/tuple.h"
+#include "../executor/tuplebuffer.h"
 
 
 typedef enum {
@@ -99,11 +100,9 @@ typedef struct {
     struct Operator* left;
     struct Operator* right;
     struct Operator* filter;
-    int lastTupleOffset;
-    int filterTupleOffset;
-    int rightTuples[JOINPTRBUFFER];
-    int rightTupleIdx;
-    int rightTupleCount;
+    TupleBuffer* rightTuples;
+    size_t rightTupleIdx;
+    size_t rightTupleCount;
     bool rightTuplesCollected;
 } JoinInfo;
 

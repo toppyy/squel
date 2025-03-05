@@ -1,7 +1,7 @@
 #include "../include/operators/join.h"
 
 
-void concatTuples(int tupleOffset,int leftOffset,int rightOffset, ResultSet* left, ResultSet* right) {
+void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* left, ResultSet* right) {
 
     if (
         left == NULL ||
@@ -11,12 +11,10 @@ void concatTuples(int tupleOffset,int leftOffset,int rightOffset, ResultSet* lef
         exit(1);
     }
 
-    void* address = getTuple(tupleOffset);
-
-    memset(address, 0, left->size + right->size);
-    memcpy(address, getTuple(leftOffset), left->size);
-    memcpy(address + left->size, getTuple(rightOffset), right->size);
-
+    void* address = calloc(1, left->size + right->size);
+    memcpy(address, leftTpl->data, left->size);
+    memcpy(address + left->size, rightTpl->data, right->size);
+    returnTpl->data = address;
 }
 
 Tuple* joinGetTuple(Operator* op) {
@@ -42,35 +40,23 @@ Tuple* joinGetTuple(Operator* op) {
         
 
     */
-    return NULL;
     
-    /*
-    int rightTupleOffset = 0, originalOffset;
-    // Reuse this and only create a new tuple if it passes the filter
-    int offset = 0;
-     
-    // Reserve space from the buffer pool so that we can concatenate tuples
-    if (op->info.join.filterTupleOffset == -1) {
-        op->info.join.filterTupleOffset = getCurrentOffset();
-        reserveSpaceBufferpool(op->info.join.filterTupleOffset, JOINTUPLESIZE);
+    if (!op->info.join.rightTuples) {
+        op->info.join.rightTuples = initTupleBuffer(100); // TODO NO MAGIC NUMBERS 
     }
-    
 
+    Tuple* rightTuple;
     // This is only entered first time the operator is called
     while (!op->info.join.rightTuplesCollected) {
         
-        originalOffset = op->info.join.right->getTuple(op->info.join.right);
+        rightTuple = op->info.join.right->getTuple(op->info.join.right);
     
-        if (originalOffset == -1) {
+        if (rightTuple == NULL) {
             op->info.join.rightTuplesCollected = true;
-            op->info.join.lastTupleOffset = -1;
-            op->info.join.rightTupleIdx = 0;            
-            continue;  
+            continue; 
         } 
 
-        rightTupleOffset = addToBufferPoolFromOffset(originalOffset, op->info.join.right->resultDescription.size);
-
-        op->info.join.rightTuples[op->info.join.rightTupleIdx++] = rightTupleOffset;
+        addTupleToBuffer(rightTuple, op->info.join.rightTuples);
         op->info.join.rightTupleCount++;
 
         if (op->info.join.rightTupleCount >= JOINPTRBUFFER) {
@@ -79,43 +65,38 @@ Tuple* joinGetTuple(Operator* op) {
         }
     }
 
-    // Join loop
+    // Nested join loop
+    // For each tuple if left relation
+    //      For each tuple in right relation
+    //          if join_predicates(left,right) return tuple(left,right)
+    op->info.join.rightTupleIdx = 0;
+    Tuple* leftTuple = op->info.join.left->getTuple(op->info.join.left);
     do {
         
         if (op->info.join.rightTupleIdx >= op->info.join.rightTupleCount) {
-            op->info.join.rightTupleIdx = 0;
-            op->info.join.lastTupleOffset = -1;
-        }
-        
-        if (op->info.join.lastTupleOffset == -1) {
-            offset = op->info.join.left->getTuple(op->info.join.left);
-            if (offset == -1) {
-                return -1;
+            op->info.join.rightTupleIdx = 0;        
+            leftTuple = op->info.join.left->getTuple(op->info.join.left);
+            if (leftTuple == NULL) {
+                return NULL;
             }
-            op->info.join.lastTupleOffset = offset;
         }
 
-        rightTupleOffset = op->info.join.rightTuples[op->info.join.rightTupleIdx++];
+        rightTuple = getTupleByIndex(op->info.join.rightTuples,op->info.join.rightTupleIdx++);
 
         
-        if (evaluateTuplesAgainstFilterOps(op->info.join.lastTupleOffset, rightTupleOffset, op->info.join.filter)) {
+        if (evaluateTuplesAgainstFilterOps(leftTuple, rightTuple, op->info.join.filter)) {
+
+            Tuple* newTuple = initTuple();
             // Create a new tuple by concating the tuples
             concatTuples(
-                op->info.join.filterTupleOffset,
-                op->info.join.lastTupleOffset,
-                rightTupleOffset,
+                newTuple,
+                leftTuple,
+                rightTuple,
                 &op->info.join.left->resultDescription,
                 &op->info.join.right->resultDescription
             );
-            if (op->iteratorTupleOffset == -1) {
-                op->iteratorTupleOffset = addToBufferPool(getTuple(op->info.join.filterTupleOffset), op->resultDescription.size);
-            } else {
-                copyToBufferPool(op->iteratorTupleOffset, getTuple(op->info.join.filterTupleOffset),  op->resultDescription.size);
-
-            }
-            return op->iteratorTupleOffset;
+            return newTuple;
         }
     } while(true);
-    */
-
 }
+

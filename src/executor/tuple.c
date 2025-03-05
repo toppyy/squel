@@ -1,9 +1,9 @@
 #include "../include/executor/tuple.h"
 
 
-Tuple* initTuple(size_t size) {
+Tuple* initTuple() {
     Tuple* tpl = malloc(sizeof(Tuple)); // Heap allocation
-    tpl->size = size;
+    tpl->size = 0;
     return tpl;
 }
 
