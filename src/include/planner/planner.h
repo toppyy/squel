@@ -101,6 +101,7 @@ typedef struct {
     struct Operator* right;
     struct Operator* filter;
     TupleBuffer* rightTuples;
+    Tuple* leftTuple;
     size_t rightTupleIdx;
     size_t rightTupleCount;
     bool rightTuplesCollected;

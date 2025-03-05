@@ -35,14 +35,11 @@ Tuple* joinGetTuple(Operator* op) {
 
         We store one of the tables in the join in memory.
         Which is why the tuples from the right table are copied 
-        to the buffer pool. Their original location will be
-        rewritten by child operators iterating over tuples.
-        
-
+        to a buffer.
     */
     
     if (!op->info.join.rightTuples) {
-        op->info.join.rightTuples = initTupleBuffer(100); // TODO NO MAGIC NUMBERS 
+        op->info.join.rightTuples = initTupleBuffer(JOINPTRBUFFER);
     }
 
     Tuple* rightTuple;
@@ -69,21 +66,25 @@ Tuple* joinGetTuple(Operator* op) {
     // For each tuple if left relation
     //      For each tuple in right relation
     //          if join_predicates(left,right) return tuple(left,right)
-    op->info.join.rightTupleIdx = 0;
-    Tuple* leftTuple = op->info.join.left->getTuple(op->info.join.left);
+
+    if (op->info.join.leftTuple == NULL) {
+        op->info.join.leftTuple = op->info.join.left->getTuple(op->info.join.left);
+    }
+
+    Tuple* leftTuple = op->info.join.leftTuple; 
+
     do {
         
         if (op->info.join.rightTupleIdx >= op->info.join.rightTupleCount) {
-            op->info.join.rightTupleIdx = 0;        
-            leftTuple = op->info.join.left->getTuple(op->info.join.left);
-            if (leftTuple == NULL) {
-                return NULL;
-            }
+            op->info.join.rightTupleIdx = 0;
+            freeTuple(leftTuple);
+            op->info.join.leftTuple = op->info.join.left->getTuple(op->info.join.left);
+            leftTuple = op->info.join.leftTuple;
+            continue;
         }
 
-        rightTuple = getTupleByIndex(op->info.join.rightTuples,op->info.join.rightTupleIdx++);
+        rightTuple = getTupleByIndex(op->info.join.rightTuples, op->info.join.rightTupleIdx++);
 
-        
         if (evaluateTuplesAgainstFilterOps(leftTuple, rightTuple, op->info.join.filter)) {
 
             Tuple* newTuple = initTuple();
@@ -97,6 +98,10 @@ Tuple* joinGetTuple(Operator* op) {
             );
             return newTuple;
         }
-    } while(true);
+    } while(leftTuple != NULL);
+    
+    // Join complete, we can free the buffer and the tuples associated
+    freeTupleBuffer(op->info.join.rightTuples);
+    return NULL;
 }
 

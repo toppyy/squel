@@ -24,6 +24,7 @@ void addTupleToBuffer(Tuple* tpl, TupleBuffer* buff) {
 }
 
 void freeTupleBuffer(TupleBuffer* buff) {
+    for (size_t i = 0; i < buff->size; i++) freeTuple(buff->tuples[i]);
     free(buff->tuples);
     free(buff);
 }
