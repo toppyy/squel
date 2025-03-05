@@ -117,14 +117,6 @@ Tuple* scanGetTuple(Operator* op) {
         i++;
     };
 
-    // Write to bufferpool
-    if (op->iteratorTupleOffset == -1) {
-        op->iteratorTupleOffset = addToBufferPool(diskBuffer, tplSize);
-    } else {
-        copyToBufferPool(op->iteratorTupleOffset, diskBuffer, tplSize);
-    }
-
-
     // // ---------------- Useful for debuggin. Leave it be for a while ------------------
     // tpldata = diskBuffer;
     // printf("tpldata at: ", diskBuffer);
