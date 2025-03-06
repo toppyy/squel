@@ -12,6 +12,8 @@ typedef struct  {
 
 Tuple* initTuple();
 
+Tuple* initTupleOfSize(size_t p_size);
+
 void* getTupleCol(Tuple* tpl, size_t colOffset);
 
 void freeTuple(Tuple* tpl);

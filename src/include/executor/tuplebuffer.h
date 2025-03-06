@@ -12,4 +12,4 @@ void resizeTupleBuffer(TupleBuffer* buff);
 void addTupleToBuffer(Tuple* tpl, TupleBuffer* buff);
 void freeTupleBuffer(TupleBuffer* buff);
 Tuple* getTupleByIndex(TupleBuffer* buff, size_t idx);
-
+size_t isTupleBufferEmpty(TupleBuffer* buff);

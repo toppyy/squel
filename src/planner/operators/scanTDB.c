@@ -38,7 +38,6 @@ Operator* makeScanTDBOp(Node* node) {
     op->info.scan.fileRead      = false;
     op->info.scan.recordsInBuffer   = 0;
     op->iteratorTupleOffset = -1;
-    
 
 
     op->info.scan.columnOffsets[0] = 0;
@@ -55,8 +54,8 @@ Operator* makeScanTDBOp(Node* node) {
     op->resultDescription.columnCount = tbldef.colCount;
     op->resultDescription.size = op->info.scan.recordSize;
 
-    op->info.scan.bufferSize        = op->info.scan.recordSize * TDBSCANBUFFRECORDS;
-    op->info.scan.buffer = malloc(op->info.scan.bufferSize);
+    op->info.scan.bufferSize    = op->info.scan.recordSize * TDBSCANBUFFRECORDS;
+    op->info.scan.buffer        = malloc(op->info.scan.bufferSize);
 
     if (op->info.scan.buffer == NULL) {
         printf("Failed to allocate memory for scanTDB\n");

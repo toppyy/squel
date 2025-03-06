@@ -23,7 +23,7 @@ long doAverage(Operator* opToIterate, size_t colOffset) {
         if (tpl == NULL) {
             break;
         }
-        sum += *(long*) tpl->data + colOffset;
+        sum += *(long*) (tpl->data + colOffset);
         count++;
     };
     long result = 0.0; 
@@ -44,7 +44,7 @@ long doSum(Operator* opToIterate, size_t colOffset) {
         if (tpl == NULL) {
             break;
         }
-        result += *(long*) tpl->data + colOffset;
+        result += *(long*) (tpl->data + colOffset);
 
     };
 
@@ -62,7 +62,7 @@ long doMax(Operator* opToIterate, size_t colOffset) {
         if (tpl == NULL) {
             break;
         }
-        tmp = *(long*) tpl->data + colOffset;
+        tmp = *(long*) (tpl->data + colOffset);
         result = tmp > result ? tmp : result;
 
     };
@@ -81,7 +81,7 @@ long doMin(Operator* opToIterate, size_t colOffset) {
         if (tpl == NULL) {
             break;
         }
-        tmp = *(long*) tpl->data + colOffset;
+        tmp = *(long*) (tpl->data + colOffset);
         result = tmp < result ? tmp : result;
 
     };

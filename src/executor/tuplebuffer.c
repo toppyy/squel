@@ -33,3 +33,10 @@ void freeTupleBuffer(TupleBuffer* buff) {
 Tuple* getTupleByIndex(TupleBuffer* buff, size_t idx) {
     return buff->tuples[idx];
 }
+
+size_t isTupleBufferEmpty(TupleBuffer* buff) {
+    if (buff->size > 0) {
+        return 0;
+    }
+    return 1;
+}
