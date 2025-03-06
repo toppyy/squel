@@ -1,11 +1,12 @@
 #include "../include/operators/aggregate.h"
 
 long doCount(Operator* opToIterate) {
-    Tuple* tpl = opToIterate->getTuple(opToIterate);
     int result = 0;
-    while (tpl != NULL) {
-        tpl = opToIterate->getTuple(opToIterate);
+    while (true) {
+        Tuple* tpl = opToIterate->getTuple(opToIterate);
+        if (tpl == NULL) break;
         result++;
+        freeTuple(tpl);
     };
     
     return result;
@@ -14,17 +15,17 @@ long doCount(Operator* opToIterate) {
 long doAverage(Operator* opToIterate, size_t colOffset) {
 
 
-    Tuple* tpl;
     long sum = 0;
     long count = 0;
 
     for (;;) {
-        tpl = opToIterate->getTuple(opToIterate);
+        Tuple* tpl = opToIterate->getTuple(opToIterate);
         if (tpl == NULL) {
             break;
         }
         sum += *(long*) (tpl->data + colOffset);
         count++;
+        freeTuple(tpl);
     };
     long result = 0.0; 
     if (count > 0) {
@@ -36,16 +37,15 @@ long doAverage(Operator* opToIterate, size_t colOffset) {
 long doSum(Operator* opToIterate, size_t colOffset) {
 
 
-    Tuple* tpl ;
     long long result = 0;
 
     for (;;) {
-        tpl = opToIterate->getTuple(opToIterate);
+        Tuple* tpl = opToIterate->getTuple(opToIterate);
         if (tpl == NULL) {
             break;
         }
         result += *(long*) (tpl->data + colOffset);
-
+        freeTuple(tpl);
     };
 
     return result;
@@ -54,16 +54,16 @@ long doSum(Operator* opToIterate, size_t colOffset) {
 long doMax(Operator* opToIterate, size_t colOffset) {
 
 
-    Tuple* tpl;
     long result = 0, tmp = 0;
 
     for (;;) {
-        tpl = opToIterate->getTuple(opToIterate);
+        Tuple* tpl = opToIterate->getTuple(opToIterate);
         if (tpl == NULL) {
             break;
         }
         tmp = *(long*) (tpl->data + colOffset);
         result = tmp > result ? tmp : result;
+        freeTuple(tpl);
 
     };
 
@@ -73,16 +73,16 @@ long doMax(Operator* opToIterate, size_t colOffset) {
 long doMin(Operator* opToIterate, size_t colOffset) {
 
 
-    Tuple* tpl;
     long result = __LONG_MAX__, tmp = 0;
 
     for (;;) {
-        tpl = opToIterate->getTuple(opToIterate);
+        Tuple* tpl = opToIterate->getTuple(opToIterate);
         if (tpl == NULL) {
             break;
         }
         tmp = *(long*) (tpl->data + colOffset);
         result = tmp < result ? tmp : result;
+        freeTuple(tpl);
 
     };
 
