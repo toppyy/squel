@@ -26,3 +26,11 @@ void freeTuple(Tuple* tpl) {
     }
     free(tpl);
 }
+
+size_t isTupleEmpty(Tuple* tpl) {
+    return tpl->size == 0 ? 1 : 0;
+}
+
+void markTupleAsEmpty(Tuple* tpl) {
+    tpl->size = 0;
+}

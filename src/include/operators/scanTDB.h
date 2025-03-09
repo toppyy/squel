@@ -6,4 +6,4 @@
 #include "../executor/tuplebuffer.h"
 #include <errno.h>
 
-Tuple* scanTDBGetTuple(Operator* op);
+void scanTDBGetTuple(Operator* op, Tuple* tpl);

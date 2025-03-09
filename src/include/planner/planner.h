@@ -128,7 +128,7 @@ typedef struct Operator {
     ResultSet resultDescription;
     int iteratorTupleOffset;
     struct Operator* child;
-    Tuple* (*getTuple) (struct Operator* op);
+    void (*getTuple) (struct Operator* op, Tuple* tpl);
 } Operator;
 
 void freeQueryplan(Operator *node);

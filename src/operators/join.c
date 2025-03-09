@@ -17,8 +17,7 @@ void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* 
     returnTpl->data = address;
 }
 
-Tuple* joinGetTuple(Operator* op) {
-
+void joinGetTuple(Operator* op, Tuple* tpl) {
     if (
         op->info.join.left == NULL ||
         op->info.join.right == NULL
@@ -45,10 +44,10 @@ Tuple* joinGetTuple(Operator* op) {
     Tuple* rightTuple;
     // This is only entered first time the operator is called
     while (!op->info.join.rightTuplesCollected) {
-        
-        rightTuple = op->info.join.right->getTuple(op->info.join.right);
+        rightTuple = initTupleOfSize(500); // TODO no magic
+        op->info.join.right->getTuple(op->info.join.right, rightTuple);
     
-        if (rightTuple == NULL) {
+        if (isTupleEmpty(rightTuple)) {
             op->info.join.rightTuplesCollected = true;
             continue; 
         } 
@@ -62,46 +61,53 @@ Tuple* joinGetTuple(Operator* op) {
         }
     }
 
+    
+
     // Nested join loop
     // For each tuple if left relation
     //      For each tuple in right relation
     //          if join_predicates(left,right) return tuple(left,right)
 
-    if (op->info.join.leftTuple == NULL) {
-        op->info.join.leftTuple = op->info.join.left->getTuple(op->info.join.left);
-    }
+    op->info.join.leftTuple = initTupleOfSize(500);
 
-    Tuple* leftTuple = op->info.join.leftTuple; 
+    if (isTupleEmpty(op->info.join.leftTuple)) {
+        op->info.join.left->getTuple(op->info.join.left, op->info.join.leftTuple);
+    }
 
     do {
         
         if (op->info.join.rightTupleIdx >= op->info.join.rightTupleCount) {
             op->info.join.rightTupleIdx = 0;
-            freeTuple(leftTuple);
-            op->info.join.leftTuple = op->info.join.left->getTuple(op->info.join.left);
-            leftTuple = op->info.join.leftTuple;
+            op->info.join.left->getTuple(op->info.join.left, op->info.join.leftTuple);
+            if (isTupleEmpty(op->info.join.leftTuple)) {
+                break;
+            }
+
             continue;
         }
 
         rightTuple = getTupleByIndex(op->info.join.rightTuples, op->info.join.rightTupleIdx++);
 
-        if (evaluateTuplesAgainstFilterOps(leftTuple, rightTuple, op->info.join.filter)) {
 
-            Tuple* newTuple = initTuple();
+        if (evaluateTuplesAgainstFilterOps(op->info.join.leftTuple, rightTuple, op->info.join.filter)) {
             // Create a new tuple by concating the tuples
             concatTuples(
-                newTuple,
-                leftTuple,
+                tpl,
+                op->info.join.leftTuple,
                 rightTuple,
                 &op->info.join.left->resultDescription,
                 &op->info.join.right->resultDescription
             );
-            return newTuple;
+            
+            return;
         }
-    } while(leftTuple != NULL);
+    } while(!isTupleEmpty(op->info.join.leftTuple));
     
     // Join complete, we can free the buffer and the tuples associated
     freeTupleBuffer(op->info.join.rightTuples);
-    return NULL;
+    // freeTuple(op->info.join.leftTuple);
+    // freeTuple(rightTuple);
+    markTupleAsEmpty(tpl);
+    
 }
 

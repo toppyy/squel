@@ -6,4 +6,4 @@
 #include "../executor/tuplebuffer.h"
 
 
-Tuple* joinGetTuple(Operator* op);
+void joinGetTuple(Operator* op, Tuple* tpl);

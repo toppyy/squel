@@ -3,4 +3,4 @@
 #include "../planner/planner.h"
 #include "../executor/tuple.h"
 
-Tuple* projectGetTuple(Operator* op);
+void projectGetTuple(Operator* op, Tuple* tpl);

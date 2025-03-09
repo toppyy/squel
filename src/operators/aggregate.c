@@ -18,13 +18,14 @@ long min(long result, long num) {
 
 
 
-Tuple* aggregateGetTuple(Operator* op) {
+void aggregateGetTuple(Operator* op, Tuple* tpl) {
     
     checkPtrNotNull(op->child, "OP_AGGREGATE has no child.");
     checkPtrNotNull(op->child->getTuple, "Child of OP_AGGREGATE has no getTuple-method.");
 
     if (op->info.aggregate.aggregationDone) {
-        return NULL;
+        markTupleAsEmpty(tpl);
+        return;
     }
 
     // TODO:
@@ -65,16 +66,22 @@ Tuple* aggregateGetTuple(Operator* op) {
 
 
     size_t observations = 0;
+    
+    Tuple* tmpTpl = initTupleOfSize(500); // TODO no magic
+
     for (;;) {
-        Tuple* tpl = op->child->getTuple(op->child);
-        if (tpl == NULL) {
+        
+        op->child->getTuple(op->child, tmpTpl);
+        if (isTupleEmpty(tmpTpl)) {
             break;
         }
-        tmp = *(long*) (tpl->data + colOffset);
+        tmp = *(long*) (tmpTpl->data + colOffset);
         result = agg_fun(result, tmp);
-        freeTuple(tpl);
         observations++;
     };
+
+    freeTuple(tmpTpl);
+
 
     if (op->info.aggregate.aggtype == AVG) {
         result = result / observations;
@@ -84,11 +91,8 @@ Tuple* aggregateGetTuple(Operator* op) {
     op->resultDescription.columnCount = 1;
     op->resultDescription.pCols[0] = 0;
     op->info.aggregate.aggregationDone = true;
-    
-    Tuple* tpl = initTuple();
-    long* res_ptr = malloc(sizeof(result));
-    *res_ptr = result;
-    tpl->data = res_ptr;
 
-    return tpl;
+    
+    *(long*)(tpl->data) = result; 
+
 }

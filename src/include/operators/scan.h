@@ -4,4 +4,4 @@
 #include "../executor/executor.h"
 #include "../executor/tuple.h"
 
-Tuple* scanGetTuple(Operator* op);
+void scanGetTuple(Operator* op, Tuple* tpl);

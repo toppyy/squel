@@ -6,4 +6,4 @@
 #include "../executor/tuple.h"
 
 
-Tuple* aggregateGetTuple(Operator* op);
+void aggregateGetTuple(Operator* op, Tuple* tpl);

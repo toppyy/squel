@@ -86,15 +86,16 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl))
     }
 
     // Get tuples one by one
-    Tuple* tpl;
+    Tuple* tpl = initTupleOfSize(500); // TODO no magic constants
     for (;;) {
-        tpl = op->getTuple(op);
-        if (tpl == NULL) break;
+        op->getTuple(op, tpl);
+        if (isTupleEmpty(tpl)) break;
 
         tupleHandler(tpl);
 
-        freeTuple(tpl);
     };
+    freeTuple(tpl);
+
 
     free(buffpool->pool);
     free(buffpool);
