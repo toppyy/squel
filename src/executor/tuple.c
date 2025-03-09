@@ -2,14 +2,14 @@
 
 
 Tuple* initTuple() {
-    Tuple* tpl = malloc(sizeof(Tuple)); // Heap allocation
+    Tuple* tpl = malloc(sizeof(Tuple));
     tpl->size = 0;
     return tpl;
 }
 
 
 Tuple* initTupleOfSize(size_t p_size) {
-    Tuple* tpl = malloc(sizeof(Tuple)); // Heap allocation
+    Tuple* tpl = malloc(sizeof(Tuple));
     tpl->data = calloc(1, p_size);
     tpl->size = p_size;
     return tpl;

@@ -23,3 +23,4 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl))
 void executeStatement(Node* node);
 void executeCreateTable(Node* node);
 void executeInsert(Node* node);
+void executeExplain(Node* node);

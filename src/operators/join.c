@@ -38,13 +38,15 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
     */
     
     if (!op->info.join.rightTuples) {
-        op->info.join.rightTuples = initTupleBuffer(JOINPTRBUFFER);
+        op->info.join.rightTuples = initTupleBuffer(JOINPTRBUFFER, 500); // TODO no magic
     }
 
     Tuple* rightTuple;
     // This is only entered first time the operator is called
     while (!op->info.join.rightTuplesCollected) {
-        rightTuple = initTupleOfSize(500); // TODO no magic
+
+        rightTuple = getTupleFromBuffer(op->info.join.rightTuples);
+
         op->info.join.right->getTuple(op->info.join.right, rightTuple);
     
         if (isTupleEmpty(rightTuple)) {
@@ -52,7 +54,6 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
             continue; 
         } 
 
-        addTupleToBuffer(rightTuple, op->info.join.rightTuples);
         op->info.join.rightTupleCount++;
 
         if (op->info.join.rightTupleCount >= JOINPTRBUFFER) {
@@ -61,7 +62,6 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
         }
     }
 
-    
 
     // Nested join loop
     // For each tuple if left relation
@@ -88,7 +88,6 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
 
         rightTuple = getTupleByIndex(op->info.join.rightTuples, op->info.join.rightTupleIdx++);
 
-
         if (evaluateTuplesAgainstFilterOps(op->info.join.leftTuple, rightTuple, op->info.join.filter)) {
             // Create a new tuple by concating the tuples
             concatTuples(
@@ -105,8 +104,7 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
     
     // Join complete, we can free the buffer and the tuples associated
     freeTupleBuffer(op->info.join.rightTuples);
-    // freeTuple(op->info.join.leftTuple);
-    // freeTuple(rightTuple);
+    freeTuple(op->info.join.leftTuple);
     markTupleAsEmpty(tpl);
     
 }
