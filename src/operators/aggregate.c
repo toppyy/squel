@@ -1,94 +1,5 @@
 #include "../include/operators/aggregate.h"
 
-long doCount(Operator* opToIterate) {
-    int result = 0;
-    while (true) {
-        Tuple* tpl = opToIterate->getTuple(opToIterate);
-        if (tpl == NULL) break;
-        result++;
-        freeTuple(tpl);
-    };
-    
-    return result;
-}
-
-long doAverage(Operator* opToIterate, size_t colOffset) {
-
-
-    long sum = 0;
-    long count = 0;
-
-    for (;;) {
-        Tuple* tpl = opToIterate->getTuple(opToIterate);
-        if (tpl == NULL) {
-            break;
-        }
-        sum += *(long*) (tpl->data + colOffset);
-        count++;
-        freeTuple(tpl);
-    };
-    long result = 0.0; 
-    if (count > 0) {
-        result = sum / (double) count;
-    }
-    return result;
-}
-
-long doSum(Operator* opToIterate, size_t colOffset) {
-
-
-    long long result = 0;
-
-    for (;;) {
-        Tuple* tpl = opToIterate->getTuple(opToIterate);
-        if (tpl == NULL) {
-            break;
-        }
-        result += *(long*) (tpl->data + colOffset);
-        freeTuple(tpl);
-    };
-
-    return result;
-}
-
-long doMax(Operator* opToIterate, size_t colOffset) {
-
-
-    long result = 0, tmp = 0;
-
-    for (;;) {
-        Tuple* tpl = opToIterate->getTuple(opToIterate);
-        if (tpl == NULL) {
-            break;
-        }
-        tmp = *(long*) (tpl->data + colOffset);
-        result = tmp > result ? tmp : result;
-        freeTuple(tpl);
-
-    };
-
-    return result;
-}
-
-long doMin(Operator* opToIterate, size_t colOffset) {
-
-
-    long result = __LONG_MAX__, tmp = 0;
-
-    for (;;) {
-        Tuple* tpl = opToIterate->getTuple(opToIterate);
-        if (tpl == NULL) {
-            break;
-        }
-        tmp = *(long*) (tpl->data + colOffset);
-        result = tmp < result ? tmp : result;
-        freeTuple(tpl);
-
-    };
-
-    return result;
-}
-
 long count(long result, long num __attribute__((unused))) {
     return result + 1;
 }
@@ -125,31 +36,7 @@ Tuple* aggregateGetTuple(Operator* op) {
 
     size_t colOffset = op->child->resultDescription.pCols[op->info.aggregate.colToAggregate];
 
-    // Build new tuple to store result
 
-
-    /*
-    switch(op->info.aggregate.aggtype) {
-        case COUNT:
-            result = doCount(op->child);
-            break;
-        case SUM:
-            result = doSum(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
-            break;
-        case AVG:
-            result = doAverage(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
-            break;
-        case MAX:
-            result = doMax(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
-            break;
-        case MIN:
-            result = doMin(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
-            break;
-        default:
-            printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
-            exit(1);
-    }
-    */
     long (*agg_fun)(long result, long num);
     long result = 0, tmp = 0;
 
@@ -162,7 +49,7 @@ Tuple* aggregateGetTuple(Operator* op) {
             agg_fun = sum;
             break;
         case AVG:
-            agg_fun = sum;
+            agg_fun = sum; // See below why
             break;
         case MAX:
             agg_fun = max;
