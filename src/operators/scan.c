@@ -45,7 +45,7 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
 
     size_t tplSize = 0;
 
-    void* diskBuffer = calloc(1, SCANTUPLESIZE);
+    void* diskBuffer = tpl->data;
     void* diskBufferCursor = diskBuffer;
     checkPtrNotNull(diskBuffer, "could not allocate buffer for scan");
 
@@ -140,8 +140,5 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
     op->resultDescription.size = tplSize;
 
     free(lineBuffer);
-
-    tpl->data = diskBuffer;
-
 }
 
