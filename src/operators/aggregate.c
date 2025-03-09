@@ -89,6 +89,22 @@ long doMin(Operator* opToIterate, size_t colOffset) {
     return result;
 }
 
+long count(long result, long num __attribute__((unused))) {
+    return result + 1;
+}
+
+long max(long result, long num) {
+    return num > result ? num : result;
+}
+
+long sum(long result, long num) {
+    return num + result;
+}
+
+long min(long result, long num) {
+    return num < result ? num : result;
+}
+
 
 
 Tuple* aggregateGetTuple(Operator* op) {
@@ -107,10 +123,12 @@ Tuple* aggregateGetTuple(Operator* op) {
     // }
 
 
+    size_t colOffset = op->child->resultDescription.pCols[op->info.aggregate.colToAggregate];
+
     // Build new tuple to store result
 
-    long result = 0;
 
+    /*
     switch(op->info.aggregate.aggtype) {
         case COUNT:
             result = doCount(op->child);
@@ -131,6 +149,50 @@ Tuple* aggregateGetTuple(Operator* op) {
             printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
             exit(1);
     }
+    */
+    long (*agg_fun)(long result, long num);
+    long result = 0, tmp = 0;
+
+
+    switch(op->info.aggregate.aggtype) {
+        case COUNT:
+            agg_fun = count;
+            break;
+        case SUM:
+            agg_fun = sum;
+            break;
+        case AVG:
+            agg_fun = sum;
+            break;
+        case MAX:
+            agg_fun = max;
+            break;
+        case MIN:
+            agg_fun = min;
+            result = __LONG_MAX__;
+            break;
+        default:
+            printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
+            exit(1);
+    }
+
+
+    size_t observations = 0;
+    for (;;) {
+        Tuple* tpl = op->child->getTuple(op->child);
+        if (tpl == NULL) {
+            break;
+        }
+        tmp = *(long*) (tpl->data + colOffset);
+        result = agg_fun(result, tmp);
+        freeTuple(tpl);
+        observations++;
+    };
+
+    if (op->info.aggregate.aggtype == AVG) {
+        result = result / observations;
+    }
+
 
     op->resultDescription.columnCount = 1;
     op->resultDescription.pCols[0] = 0;
