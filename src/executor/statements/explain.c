@@ -33,22 +33,21 @@ void explainOp(Operator* op) {
     if (!op) return;
 
     printOp(op);
-    printf(", size: %ld\n", op->resultDescription.size);
-    if (op->child) {
+    printf("\n");
 
-        if (op->type == OP_FILTER) {
-            explainOp(op->info.filter.next);
-        }
-
-        if (op->type == OP_JOIN) {
-            explainOp(op->info.join.filter);
-            explainOp(op->info.join.left);
-            explainOp(op->info.join.right);
-        }
-
-        explainOp(op->child);
+    if (op->type == OP_FILTER) {
+        explainOp(op->info.filter.next);
     }
 
+    if (op->type == OP_JOIN) {
+        explainOp(op->info.join.filter);
+        explainOp(op->info.join.left);
+        explainOp(op->info.join.right);
+    }
+
+    if (op->child) {
+        explainOp(op->child);
+    }
 }
 
 
@@ -61,7 +60,6 @@ void executeExplain(Node* node) {
     printf("******* EXPLAIN **********\n");
     explainOp(queryplan);
     printf("**************************\n");
-
 
     freeQueryplan(queryplan);
 }
