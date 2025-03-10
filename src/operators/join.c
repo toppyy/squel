@@ -38,7 +38,7 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
     */
     
     if (!op->info.join.rightTuples) {
-        op->info.join.rightTuples = initTupleBuffer(JOINPTRBUFFER, 500); // TODO no magic
+        op->info.join.rightTuples = initTupleBuffer(JOINBUFFSIZE, TUPLESIZE);
     }
 
     Tuple* rightTuple;
@@ -55,11 +55,6 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
         } 
 
         op->info.join.rightTupleCount++;
-
-        if (op->info.join.rightTupleCount >= JOINPTRBUFFER) {
-            printf("Can't fit the right table in the query into joinbuffer. Increase JOINPTRBUFFER\n");
-            exit(1);
-        }
     }
 
 
@@ -68,7 +63,7 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
     //      For each tuple in right relation
     //          if join_predicates(left,right) return tuple(left,right)
 
-    op->info.join.leftTuple = initTupleOfSize(500);
+    op->info.join.leftTuple = initTupleOfSize(TUPLESIZE);
 
     if (isTupleEmpty(op->info.join.leftTuple)) {
         op->info.join.left->getTuple(op->info.join.left, op->info.join.leftTuple);

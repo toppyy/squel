@@ -1,7 +1,7 @@
 #include "../include/executor/executor.h"
 #include "../include/executor/tuple.h"
 
-Bufferpool* buffpool;
+
 
 void assignGetTupleFunction(Operator *op) {
 
@@ -35,9 +35,6 @@ void assignGetTupleFunction(Operator *op) {
 }
 
 
-
-
-
 void doAssignGetTupleFunction(Operator* p_op) {
 
     if (p_op == NULL) {
@@ -63,10 +60,6 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl))
         return;
     }
 
-    buffpool            = calloc(1, sizeof(Bufferpool));
-    buffpool->pool      = calloc(BUFFERPOOLSIZE, 1);
-    buffpool->capacity  = BUFFERPOOLSIZE;
-    buffpool->used      = 0;
  
     doAssignGetTupleFunction(op);
 
@@ -86,7 +79,7 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl))
     }
 
     // Get tuples one by one
-    Tuple* tpl = initTupleOfSize(500); // TODO no magic constants
+    Tuple* tpl = initTupleOfSize(TUPLESIZE);
     for (;;) {
         op->getTuple(op, tpl);
         if (isTupleEmpty(tpl)) break;
@@ -97,6 +90,4 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl))
     freeTuple(tpl);
 
 
-    free(buffpool->pool);
-    free(buffpool);
 }

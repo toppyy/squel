@@ -2,7 +2,6 @@
 #include "./include/parser/parser.h"
 #include "./include/planner/planner.h"
 #include "./include/io/tdb.h"
-#include "./include/bufferpool/bufferpool.h"
 
 #define METADATABUFFSIZE 10
 

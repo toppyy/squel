@@ -14,9 +14,9 @@
 #define JOINTUPLESIZE    1000
 #define SCANTUPLESIZE    2000
 
-// Bufferpool
-#define BUFFERPOOLSIZE      100000
-#define JOINPTRBUFFER       100000
+// Query execution
+#define JOINBUFFSIZE    100000
+#define TUPLESIZE       500    
 
 // Define max size (in chars) of expressions and query
 #define MAXQUERYSIZE 1000

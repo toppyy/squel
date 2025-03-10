@@ -67,7 +67,7 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
 
     size_t observations = 0;
     
-    Tuple* tmpTpl = initTupleOfSize(500); // TODO no magic
+    Tuple* tmpTpl = initTupleOfSize(TUPLESIZE);
 
     for (;;) {
         
