@@ -12,7 +12,8 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
     }
 
     int joinColIdx     = op->info.join.filter->info.filter.boolExprList[2];
-    int joinColOffset  = op->info.join.right->resultDescription.pCols[joinColIdx];
+    int joinColOffset  = op->info.join.filter->resultDescription.pCols[joinColIdx];
+    // int joinColOffset  = op->info.join.right->resultDescription.pCols[joinColIdx];
     
     if (!op->info.join.hashmap) {
         op->info.join.hashmap = initHashmap(1000); // TODO magic
@@ -49,25 +50,33 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
     //      For each tuple in right relation
     //          if join_predicates(left,right) return tuple(left,right)
 
-    op->info.join.leftTuple = initTupleOfSize(TUPLESIZE);
+    if (op->info.join.leftTuple == NULL) {
+        op->info.join.leftTuple = initTupleOfSize(TUPLESIZE);
+    }
 
     if (isTupleEmpty(op->info.join.leftTuple)) {
         op->info.join.left->getTuple(op->info.join.left, op->info.join.leftTuple);
     }
 
     joinColIdx     = op->info.join.filter->info.filter.boolExprList[0];
-    joinColOffset  = op->info.join.left->resultDescription.pCols[joinColIdx];
+    joinColOffset  = op->info.join.filter->resultDescription.pCols[joinColIdx];
 
 
+    int tupleIdx;
     do {
         joinValue = (const char*) getTupleCol(op->info.join.leftTuple, joinColOffset);
 
         if (!isInHashmap(op->info.join.hashmap, joinValue)) {
+            resetCursor(op->info.join.hashmap, joinValue);
             op->info.join.left->getTuple(op->info.join.left, op->info.join.leftTuple);
             continue;
         }
 
-        rightTuple = getTupleByIndex(op->info.join.rightTuples, getValueFromHashmap(op->info.join.hashmap, joinValue));
+
+        tupleIdx = getValueFromHashmap(op->info.join.hashmap, joinValue);
+        if (tupleIdx < 0) continue;
+
+        rightTuple = getTupleByIndex(op->info.join.rightTuples, tupleIdx);
 
         // Create a new tuple by concating the tuples
         concatTuples(

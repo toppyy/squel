@@ -5,9 +5,10 @@
 #include <stdio.h>
 
 typedef struct {
-    char key[100];
-    size_t value;
+    char key[10000]; // TODO no magic;
+    size_t values[10000];
     size_t obs;
+    size_t cursor;
     struct MapNode* next;
 } MapNode;
 
@@ -18,11 +19,11 @@ typedef struct  {
 } Hashmap;
 
 
-
 Hashmap*    initHashmap(size_t table_size);
 void        insertToHashmap(Hashmap* map, const char* key, size_t value);
 size_t      isInHashmap(Hashmap* map, const char* value);
 void        freeHashmap(Hashmap* map);
-size_t getValueFromHashmap(Hashmap* map, const char* key);
+size_t      getValueFromHashmap(Hashmap* map, const char* key);
+void        resetCursor(Hashmap* map, const char* key);
 
 unsigned int hash(const char *key, size_t table_size);

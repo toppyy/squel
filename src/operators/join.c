@@ -63,7 +63,9 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
     //      For each tuple in right relation
     //          if join_predicates(left,right) return tuple(left,right)
 
-    op->info.join.leftTuple = initTupleOfSize(TUPLESIZE);
+    if (op->info.join.leftTuple == NULL) {
+        op->info.join.leftTuple = initTupleOfSize(TUPLESIZE);
+    }
 
     if (isTupleEmpty(op->info.join.leftTuple)) {
         op->info.join.left->getTuple(op->info.join.left, op->info.join.leftTuple);
