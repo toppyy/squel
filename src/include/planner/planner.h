@@ -8,6 +8,7 @@
 #include "../parser/parsetree.h"
 #include "../executor/tuple.h"
 #include "../executor/tuplebuffer.h"
+#include "../util/hashmap.h"
 
 
 typedef enum {
@@ -16,7 +17,8 @@ typedef enum {
     OP_PROJECT,
     OP_FILTER,
     OP_JOIN,
-    OP_AGGREGATE
+    OP_AGGREGATE,
+    OP_HASHJOIN
 } OperatorType;
 
 typedef enum ComparisonType {
@@ -100,6 +102,7 @@ typedef struct {
     struct Operator* left;
     struct Operator* right;
     struct Operator* filter;
+    Hashmap* hashmap;
     TupleBuffer* rightTuples;
     Tuple* leftTuple;
     size_t rightTupleIdx;

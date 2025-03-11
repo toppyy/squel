@@ -25,11 +25,14 @@ void assignGetTupleFunction(Operator *op) {
         case (OP_JOIN):
             op->getTuple = &joinGetTuple;
             break;
+        case (OP_HASHJOIN):
+            op->getTuple = &hashjoinGetTuple;
+            break;
         case (OP_AGGREGATE):
             op->getTuple = &aggregateGetTuple;
             break;
         default:
-            printf("Don't know how to handle op-type %d\n", op->type);
+            printf("EXECUTOR-error: Don't know how to handle op-type %d\n", op->type);
             exit(1);
     }
 }
@@ -47,7 +50,7 @@ void doAssignGetTupleFunction(Operator* p_op) {
         doAssignGetTupleFunction(p_op->child);
     }
 
-    if (p_op->type == OP_JOIN) {
+    if (p_op->type == OP_JOIN || p_op->type == OP_HASHJOIN) {
         doAssignGetTupleFunction(p_op->info.join.left);
         doAssignGetTupleFunction(p_op->info.join.right);
     }

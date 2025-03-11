@@ -5,6 +5,7 @@
 #include "../parser/parsetree.h"
 #include "../planner/planner.h"
 #include "../operators/join.h"
+#include "../operators/hashjoin.h"
 #include "../operators/filter.h"
 #include "../operators/scan.h"
 #include "../operators/scanTDB.h"

@@ -40,6 +40,28 @@ Operator* makeJoinFilterOps(
     return filterOps;
 }
 
+OperatorType deduceJoinType(Operator* filterOp) {
+    // Atm we can do a hash join
+    // if and only if:
+    //  - There's only one join condition
+    //  - The condition is an equality comparison
+
+    if (filterOp->info.filter.next) {
+        return OP_JOIN;
+    }
+
+    if (filterOp->info.filter.boolExprListSize < 3) {
+        return OP_JOIN;
+    }
+
+    if (filterOp->info.filter.boolExprList[1] != -1) {
+        return OP_JOIN;
+    }
+
+    return OP_HASHJOIN;
+
+}
+
 
 Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
     
@@ -54,7 +76,6 @@ Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
         Operator* opJoin = (Operator*) calloc(1, sizeof(Operator));
         opJoin->info.join.left     = left;
         opJoin->info.join.right    = right;
-        opJoin->type = OP_JOIN;
         opJoin->info.join.rightTupleCount = 0;
         opJoin->info.join.rightTupleIdx = 0;
         opJoin->info.join.rightTuplesCollected = false;
@@ -93,6 +114,10 @@ Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
         /* ON-clause */
         Operator* opFilter = makeJoinFilterOps(ON, opJoin, left->resultDescription, right->resultDescription);
         opJoin->info.join.filter = opFilter;
+
+
+        opJoin->type = deduceJoinType(opFilter);
+
 
         return opJoin;
 }

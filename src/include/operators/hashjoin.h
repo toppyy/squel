@@ -3,7 +3,8 @@
 #include "../executor/executor.h"
 #include "../executor/tuple.h"
 #include "../executor/tuplebuffer.h"
+#include "./join.h"
+#include "../util/hashmap.h"
 
 
-void joinGetTuple(Operator* op, Tuple* tpl);
-void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* left, ResultSet* right);
+void hashjoinGetTuple(Operator* op, Tuple* tpl);

@@ -15,8 +15,21 @@ setup_file() {
     [[ $"${lines[5]}" == "**************************" ]]
 }
 
-@test "EXPLAIN a query" {
+@test "EXPLAIN - hash join" {
     run ./build/squel "EXPLAIN SELECT col1,col3,int FROM test_small JOIN test_small2 ON col3=int"
+    [[ $"${lines[0]}" == "******* EXPLAIN **********" ]]
+    [[ $"${lines[1]}" == "OP_PROJECT" ]]
+    [[ $"${lines[2]}" == "OP_HASHJOIN" ]]
+    [[ $"${lines[3]}" == "OP_FILTER" ]]
+    [[ $"${lines[4]}" == "OP_SCANTDB" ]]
+    [[ $"${lines[5]}" == "OP_SCANTDB" ]]
+    [[ $"${lines[6]}" == "**************************" ]]
+}
+
+
+
+@test "EXPLAIN - join with nested loop join" {
+    run ./build/squel "EXPLAIN SELECT col1,col3,int FROM test_small JOIN test_small2 ON col3>int"
     [[ $"${lines[0]}" == "******* EXPLAIN **********" ]]
     [[ $"${lines[1]}" == "OP_PROJECT" ]]
     [[ $"${lines[2]}" == "OP_JOIN" ]]

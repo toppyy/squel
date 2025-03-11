@@ -21,8 +21,11 @@ void printOp(Operator* op) {
         case OP_AGGREGATE:
             printf("OP_AGGREGATE");
             break;
+        case OP_HASHJOIN:
+            printf("OP_HASHJOIN");
+            break;
         default:
-            printf("Unknown operation type");
+            printf("EXPLAIN-error: Unknown operation type");
             break;
     }
 
@@ -39,7 +42,7 @@ void explainOp(Operator* op) {
         explainOp(op->info.filter.next);
     }
 
-    if (op->type == OP_JOIN) {
+    if (op->type == OP_JOIN || op->type == OP_HASHJOIN) {
         explainOp(op->info.join.filter);
         explainOp(op->info.join.left);
         explainOp(op->info.join.right);
