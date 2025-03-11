@@ -3,6 +3,10 @@
 Hashmap* initHashmap(size_t table_size) {
     Hashmap* map = malloc(sizeof(Hashmap));
     map->data = calloc(table_size, sizeof(MapNode));
+    if (map->data == NULL) {
+        printf("Error: unable to reserve %ld bytes\n", (sizeof(MapNode) * table_size) / 1024);
+        exit(1);
+    }
     map->table_size = table_size;
     return map;
 }
@@ -14,7 +18,7 @@ void insertToHashmap(Hashmap* map, const char* key, size_t value) {
     }
     map->data[idx].values[map->data[idx].obs] = value;
     map->data[idx].obs++;
-    if (map->data[idx].obs >= 100) {
+    if (map->data[idx].obs >= 10000) {
         printf("OUT OF BOUNDS\n"); // TODO
     }
     // TODO handle collisions

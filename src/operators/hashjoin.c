@@ -13,10 +13,9 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
 
     int joinColIdx     = op->info.join.filter->info.filter.boolExprList[2];
     int joinColOffset  = op->info.join.filter->resultDescription.pCols[joinColIdx];
-    // int joinColOffset  = op->info.join.right->resultDescription.pCols[joinColIdx];
     
     if (!op->info.join.hashmap) {
-        op->info.join.hashmap = initHashmap(1000); // TODO magic
+        op->info.join.hashmap = initHashmap(300000); // TODO magic
         op->info.join.rightTuples = initTupleBuffer(JOINBUFFSIZE, TUPLESIZE);
     }
 

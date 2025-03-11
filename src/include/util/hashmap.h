@@ -5,8 +5,8 @@
 #include <stdio.h>
 
 typedef struct {
-    char key[10000]; // TODO no magic;
-    size_t values[10000];
+    char key[100]; // TODO no magic;
+    size_t values[1000];
     size_t obs;
     size_t cursor;
     struct MapNode* next;
