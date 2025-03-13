@@ -17,10 +17,12 @@ void insertToHashmap(Hashmap* map, const char* key, size_t value) {
         memcpy(map->data[idx].key, key, strlen(key));
     }
     map->data[idx].values[map->data[idx].obs] = value;
-    map->data[idx].obs++;
+    
     if (map->data[idx].obs >= 10000) {
-        printf("OUT OF BOUNDS\n"); // TODO
+        // printf("OUT OF BOUNDS\n"); // TODOs
+        return;
     }
+    map->data[idx].obs++;
     // TODO handle collisions
 }
 

@@ -19,13 +19,16 @@ void resizeTupleBuffer(TupleBuffer* buff) {
     buff->capacity *= 2;
 
     Tuple* tmpTpl   = realloc(buff->tuples, buff->capacity * sizeof(Tuple));
+
     if (tmpTpl == NULL) {
         printf("ERROR: Could resize tuplebuffer from %ld to %ld\n", buff->capacity, buff->capacity * 2);
         exit(1);
     }
 
     buff->tuples    = tmpTpl;
+
     void* tmpData = realloc(buff->data, buff->capacity * buff->tupledatasize);
+    
     if (tmpData == NULL) {
         printf("ERROR: Could resize tuplebuffer data from %ld to %ld\n", buff->capacity * buff->tupledatasize, buff->capacity * buff->tupledatasize * 2);
         exit(1);
