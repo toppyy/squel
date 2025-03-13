@@ -15,12 +15,12 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
     int joinColOffset  = op->info.join.filter->resultDescription.pCols[joinColIdx];
     
     if (!op->info.join.hashmap) {
-        op->info.join.hashmap = initHashmap(300000); // TODO magic
+        op->info.join.hashmap = initHashmap(30000); // TODO magic
         op->info.join.rightTuples = initTupleBuffer(JOINBUFFSIZE, TUPLESIZE);
     }
 
 
-    Tuple* rightTuple = initTupleOfSize(TUPLESIZE);
+    Tuple* rightTuple;
     const char* joinValue;
 
     // This is only entered first time the operator is called
@@ -43,11 +43,7 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
     }
 
 
-
-    // Nested join loop
-    // For each tuple if left relation
-    //      For each tuple in right relation
-    //          if join_predicates(left,right) return tuple(left,right)
+    // Join
 
     if (op->info.join.leftTuple == NULL) {
         op->info.join.leftTuple = initTupleOfSize(TUPLESIZE);
@@ -93,6 +89,8 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
     // Join complete, we can free the buffer and the tuples associated
     freeTupleBuffer(op->info.join.rightTuples);
     freeTuple(op->info.join.leftTuple);
+    
+    freeHashmap(op->info.join.hashmap);
     markTupleAsEmpty(tpl);
     
 }

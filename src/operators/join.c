@@ -11,10 +11,9 @@ void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* 
         exit(1);
     }
 
-    void* address = calloc(1, left->size + right->size);
-    memcpy(address, leftTpl->data, left->size);
-    memcpy(address + left->size, rightTpl->data, right->size);
-    returnTpl->data = address;
+
+    memcpy(returnTpl->data, leftTpl->data, left->size);
+    memcpy(returnTpl->data + left->size, rightTpl->data, right->size);
 }
 
 void joinGetTuple(Operator* op, Tuple* tpl) {

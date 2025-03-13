@@ -13,17 +13,38 @@ Hashmap* initHashmap(size_t table_size) {
 
 void insertToHashmap(Hashmap* map, const char* key, size_t value) {
     unsigned int idx = hash(key, map->table_size);
-    if (map->data[idx].obs == 0) {
-        memcpy(map->data[idx].key, key, strlen(key));
+
+    MapNode* node = &map->data[idx];
+    _tryInsert(map, key, value, node);
+}
+
+
+
+void _tryInsert(Hashmap* map __attribute__((unused)), const char* key, size_t value, MapNode* node) {
+
+    if (node->obs == 0) {
+
+        memcpy(node->key, key, strlen(key));
+
+    } else {
+
+        // if (strcmp(key, node->key) == 0) {
+        //     printf("Collision\n");
+        //     if (!node->next) {
+        //         node->next = calloc(1, sizeof(MapNode));
+        //     }
+
+        //     _tryInsert(map, key, value, node);
+        //     return;
+        // }
     }
-    map->data[idx].values[map->data[idx].obs] = value;
+    node->values[node->obs] = value;
     
-    if (map->data[idx].obs >= 10000) {
+    if (node->obs >= 10000) {
         // printf("OUT OF BOUNDS\n"); // TODOs
         return;
     }
-    map->data[idx].obs++;
-    // TODO handle collisions
+    node->obs++;
 }
 
 size_t isInHashmap(Hashmap* map, const char* key) {

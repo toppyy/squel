@@ -25,5 +25,6 @@ size_t      isInHashmap(Hashmap* map, const char* value);
 void        freeHashmap(Hashmap* map);
 size_t      getValueFromHashmap(Hashmap* map, const char* key);
 void        resetCursor(Hashmap* map, const char* key);
+void        _tryInsert(Hashmap* map, const char* key, size_t value, MapNode* node);
 
 unsigned int hash(const char *key, size_t table_size);
