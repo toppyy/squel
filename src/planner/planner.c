@@ -11,7 +11,7 @@ void freeQueryplan(Operator *node) {
     }
 
 
-    if (node->type == OP_JOIN || node->type == OP_JOIN) {
+    if (node->type == OP_JOIN || node->type == OP_HASHJOIN) {
         freeQueryplan(node->info.join.left);
         freeQueryplan(node->info.join.right);
         freeQueryplan(node->info.join.filter);
