@@ -21,6 +21,8 @@ void insertToHashmap(Hashmap* map, const char* key, size_t value) {
 
 
 void _tryInsert(Hashmap* map __attribute__((unused)), const char* key, size_t value, MapNode* node) {
+    
+    if (strlen(key) == 0) return; // Where do these come from?
 
     if (node->obs == 0) {
 
@@ -28,15 +30,15 @@ void _tryInsert(Hashmap* map __attribute__((unused)), const char* key, size_t va
 
     } else {
 
-        // if (strcmp(key, node->key) == 0) {
-        //     printf("Collision\n");
-        //     if (!node->next) {
-        //         node->next = calloc(1, sizeof(MapNode));
-        //     }
+        if (strcmp(key, node->key) == 0) {
+            printf("Collision %s (%ld) vs %s (%ld)\n", key, strlen(key), node->key, strlen(key));
+            if (!node->next) {
+                node->next = calloc(1, sizeof(MapNode));
+            }
 
-        //     _tryInsert(map, key, value, node);
-        //     return;
-        // }
+            _tryInsert(map, key, value, node);
+            return;
+        }
     }
     node->values[node->obs] = value;
     
@@ -70,8 +72,26 @@ size_t getValueFromHashmap(Hashmap* map, const char* key) {
     return rtrn;
 }
 
+void freeHashMapNode(MapNode* node) {
+    if (!node) return;
+
+    if (node->next) {
+        freeHashMapNode(node->next);
+    }
+    free(node);
+}
+
 void freeHashmap(Hashmap* map) {
-    free(map->data); // TODO free any adjacent nodes after handling collitions
+    MapNode* node;
+    for (size_t i = 0; i < map->table_size; i++) {
+        node = &map->data[i];
+
+        if (node == 0) break;
+
+        freeHashMapNode(node->next); // Only adjacents need to be freed
+        
+    }
+    free(map->data);
     free(map);
 }
 

@@ -4,7 +4,9 @@
 #include <string.h>
 #include <stdio.h>
 
-typedef struct {
+
+
+typedef struct MapNode {
     char key[100]; // TODO no magic;
     size_t values[10000];
     size_t obs;
