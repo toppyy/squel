@@ -14,26 +14,15 @@ setup() {
 
 @test "EXPLAIN - hash join" {
     run ./build/squel "EXPLAIN SELECT col1,col3,int FROM test_small JOIN test_small2 ON col3=int"
-    [[ $"${lines[0]}" == "******* EXPLAIN **********" ]]
-    [[ $"${lines[1]}" == "OP_PROJECT" ]]
-    [[ $"${lines[2]}" == "OP_HASHJOIN" ]]
-    [[ $"${lines[3]}" == "OP_FILTER" ]]
-    [[ $"${lines[4]}" == "OP_SCANTDB" ]]
-    [[ $"${lines[5]}" == "OP_SCANTDB" ]]
-    [[ $"${lines[6]}" == "**************************" ]]
+    expected_output=$(printf "******* EXPLAIN **********\nOP_PROJECT\nOP_HASHJOIN\nOP_FILTER\nOP_SCANTDB\nOP_SCANTDB\n**************************\n")
+    assert_output "$expected_output"
+
 }
-
-
 
 @test "EXPLAIN - join with nested loop join" {
     run ./build/squel "EXPLAIN SELECT col1,col3,int FROM test_small JOIN test_small2 ON col3>int"
-    [[ $"${lines[0]}" == "******* EXPLAIN **********" ]]
-    [[ $"${lines[1]}" == "OP_PROJECT" ]]
-    [[ $"${lines[2]}" == "OP_JOIN" ]]
-    [[ $"${lines[3]}" == "OP_FILTER" ]]
-    [[ $"${lines[4]}" == "OP_SCANTDB" ]]
-    [[ $"${lines[5]}" == "OP_SCANTDB" ]]
-    [[ $"${lines[6]}" == "**************************" ]]
+    expected_output=$(printf "******* EXPLAIN **********\nOP_PROJECT\nOP_JOIN\nOP_FILTER\nOP_SCANTDB\nOP_SCANTDB\n**************************\n")
+    assert_output "$expected_output"
 }
 
 
