@@ -13,15 +13,15 @@ setup() {
 }
 
 @test "EXPLAIN - hash join" {
-    run ./build/squel "EXPLAIN SELECT col1,col3,int FROM test_small JOIN test_small2 ON col3=int"
-    expected_output=$(printf "******* EXPLAIN **********\nOP_PROJECT\nOP_HASHJOIN\nOP_FILTER\nOP_SCANTDB\nOP_SCANTDB\n**************************\n")
+    run ./build/squel "EXPLAIN SELECT col1,col3,int FROM './test/data/small.csv' JOIN './test/data/small2.csv' ON col3=int"
+    expected_output=$(printf "******* EXPLAIN **********\nOP_PROJECT\nOP_HASHJOIN\nOP_FILTER\nOP_SCAN\nOP_SCAN\n**************************\n")
     assert_output "$expected_output"
 
 }
 
 @test "EXPLAIN - join with nested loop join" {
-    run ./build/squel "EXPLAIN SELECT col1,col3,int FROM test_small JOIN test_small2 ON col3>int"
-    expected_output=$(printf "******* EXPLAIN **********\nOP_PROJECT\nOP_JOIN\nOP_FILTER\nOP_SCANTDB\nOP_SCANTDB\n**************************\n")
+    run ./build/squel "EXPLAIN SELECT col1,col3,int FROM './test/data/small.csv' JOIN './test/data/small2.csv' ON col3>int"
+    expected_output=$(printf "******* EXPLAIN **********\nOP_PROJECT\nOP_JOIN\nOP_FILTER\nOP_SCAN\nOP_SCAN\n**************************\n")
     assert_output "$expected_output"
 }
 
