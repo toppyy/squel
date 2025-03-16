@@ -31,12 +31,11 @@ void _tryInsert(Hashmap* map __attribute__((unused)), const char* key, size_t va
     } else {
 
         if (strcmp(key, node->key) != 0) {
-            printf("Collision %s (%ld) vs %s (%ld)\n", key, strlen(key), node->key, strlen(key));
             if (!node->next) {
                 node->next = calloc(1, sizeof(MapNode));
             }
 
-            _tryInsert(map, key, value, node);
+            _tryInsert(map, key, value, node->next);
             return;
         }
     }
@@ -49,10 +48,22 @@ void _tryInsert(Hashmap* map __attribute__((unused)), const char* key, size_t va
     node->obs++;
 }
 
+size_t _isInHashmap(Hashmap* map, MapNode* node, const char* key) {
+    if (strcmp(key, node->key) != 0) {
+        if (!node->next) {
+            return 0;
+        }
+        return _isInHashmap(map, node->next, key);
+    }
+    if (node->cursor == node->obs) return 0;
+    return node->obs > 0 ? 1 : 0;
+}
+
+
 size_t isInHashmap(Hashmap* map, const char* key) {
     unsigned int idx = hash(key, map->table_size);
-    if (map->data[idx].cursor == map->data[idx].obs) return 0;
-    return map->data[idx].obs > 0 ? 1 : 0;
+    MapNode* node = &map->data[idx];
+    return _isInHashmap(map, node, key);
 }
 
 
@@ -63,13 +74,24 @@ void resetCursor(Hashmap* map, const char* key) {
 
 size_t getValueFromHashmap(Hashmap* map, const char* key) {
     unsigned int idx = hash(key, map->table_size);
+    MapNode* node = &map->data[idx];
+    return _getValueFromHashmap(map, node, key);
+}
 
-    if (map->data[idx].cursor == map->data[idx].obs)  return -1;
+size_t _getValueFromHashmap(Hashmap* map, MapNode* node, const char* key) {
 
-    size_t rtrn = map->data[idx].values[map->data[idx].cursor++];
+    if (strcmp(key, node->key) != 0) {
+        if (!node->next) {
+            return 0;
+        }
 
-    
-    return rtrn;
+        return _getValueFromHashmap(map, node->next, key);
+    }
+
+    if (node->cursor == node->obs)  return -1;
+
+    return node->values[node->cursor++];
+
 }
 
 void freeHashMapNode(MapNode* node) {

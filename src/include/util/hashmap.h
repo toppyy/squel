@@ -24,8 +24,10 @@ typedef struct  {
 Hashmap*    initHashmap(size_t table_size);
 void        insertToHashmap(Hashmap* map, const char* key, size_t value);
 size_t      isInHashmap(Hashmap* map, const char* value);
+size_t      _isInHashmap(Hashmap* map, MapNode* node, const char* key);
 void        freeHashmap(Hashmap* map);
 size_t      getValueFromHashmap(Hashmap* map, const char* key);
+size_t      _getValueFromHashmap(Hashmap* map, MapNode* node, const char* key);
 void        resetCursor(Hashmap* map, const char* key);
 void        _tryInsert(Hashmap* map, const char* key, size_t value, MapNode* node);
 

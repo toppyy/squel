@@ -81,7 +81,6 @@ Options* initOptions() {
 }
 
 size_t getOption(Option opt) {
-    printf("Getting opt!\n");
     switch(opt) {
         case OPT_HTSIZE:
             return OPTIONS->htsize;
@@ -90,9 +89,6 @@ size_t getOption(Option opt) {
     printf("getOption: Tried to retrieve an unknown option\n");
     exit(1);
 }
-
-
-
 
 int main(int argc, char* argv[]) {
 
