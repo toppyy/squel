@@ -14,9 +14,10 @@
 #define JOINTUPLESIZE    1000
 #define SCANTUPLESIZE    2000
 
-// Query execution
+// Defaults for query execution
 #define JOINBUFFSIZE    100000
 #define TUPLESIZE       500    
+#define HTSIZE          3000
 
 // Define max size (in chars) of expressions and query
 #define MAXQUERYSIZE 1000

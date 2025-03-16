@@ -1,5 +1,5 @@
 #include "../include/operators/hashjoin.h"
-
+#include "../include/squel.h"
 
 
 void hashjoinGetTuple(Operator* op, Tuple* tpl) {
@@ -15,7 +15,7 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
     int joinColOffset  = op->info.join.filter->resultDescription.pCols[joinColIdx];
     
     if (!op->info.join.hashmap) {
-        op->info.join.hashmap = initHashmap(30000); // TODO magic
+        op->info.join.hashmap = initHashmap(getOption(OPT_HTSIZE));
         op->info.join.rightTuples = initTupleBuffer(JOINBUFFSIZE, TUPLESIZE);
     }
 

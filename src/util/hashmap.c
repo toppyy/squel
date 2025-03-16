@@ -30,7 +30,7 @@ void _tryInsert(Hashmap* map __attribute__((unused)), const char* key, size_t va
 
     } else {
 
-        if (strcmp(key, node->key) == 0) {
+        if (strcmp(key, node->key) != 0) {
             printf("Collision %s (%ld) vs %s (%ld)\n", key, strlen(key), node->key, strlen(key));
             if (!node->next) {
                 node->next = calloc(1, sizeof(MapNode));

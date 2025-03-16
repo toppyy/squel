@@ -2,11 +2,14 @@
 #include "./include/parser/parser.h"
 #include "./include/planner/planner.h"
 #include "./include/io/tdb.h"
+#include "./include/const.h"
+#include "./include/squel.h"
 
 #define METADATABUFFSIZE 10
 
-
+// Globals :/
 ResultSet* resultDescToPrint = NULL;
+Options* OPTIONS;
 
 void printTree(Node *node) {
 
@@ -49,8 +52,6 @@ void valueToChar(char* target, Tuple* tpl, size_t colOffset, Datatype type) {
 }
 
 
-
-
 void printTuple(Tuple* tpl) {
 
     if (resultDescToPrint == NULL) {
@@ -73,6 +74,26 @@ void printTuple(Tuple* tpl) {
 
 }
 
+Options* initOptions() {
+    OPTIONS = malloc(sizeof(Options));
+    OPTIONS->htsize = HTSIZE;
+    return OPTIONS;
+}
+
+size_t getOption(Option opt) {
+    printf("Getting opt!\n");
+    switch(opt) {
+        case OPT_HTSIZE:
+            return OPTIONS->htsize;
+    }
+
+    printf("getOption: Tried to retrieve an unknown option\n");
+    exit(1);
+}
+
+
+
+
 int main(int argc, char* argv[]) {
 
     if (argc == 1) {
@@ -80,16 +101,42 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    if (strlen(argv[1]) >= MAXQUERYSIZE) {
+    Options* opts = initOptions();
+
+    size_t query_arg = 1;
+
+    // Loop through the arguments
+    for (int i = 1; i < argc; i++) {
+       
+        if (strcmp(argv[i], "--help") == 0) {
+            printf("Help: See README.md.\n");
+            return 0;
+        } 
+        else if (strcmp(argv[i], "--htsize") == 0) {
+            i++;
+            char*  endptr;
+            size_t htsize = strtoull(argv[i], &endptr, 10);
+
+            if (endptr == argv[i]) {
+                printf("--htsize expects an integer\n");
+                exit(1);
+            }
+
+            opts->htsize = htsize;
+
+            query_arg += 2;
+        }
+    }
+
+
+    if (strlen(argv[query_arg]) >= MAXQUERYSIZE) {
         printf("Error: Query length exceeds maximum.\n");
         exit(1);
     }
 
     /* Allocate memory for parse tree and parse the raw query */
     Node* parsetree = createParsetree();
-    parse(argv[1], parsetree);
-
-    // printTree(parsetree);
+    parse(argv[query_arg], parsetree);
 
     // It's either a SELECT or a STMT
     Operator* queryplan = NULL;
@@ -111,5 +158,7 @@ int main(int argc, char* argv[]) {
     if (queryplan != NULL) {
         freeQueryplan(queryplan);
     }
+
+    free(opts);
 
 }
