@@ -17,15 +17,14 @@ There are three subsystems:
 - **The planner** which is responsible for composing a query plan of the parse tree consisting of relational operators and binding identifiers to data
 - **The executor** which is responsible for executing the query described by the query plan. Execution means iterating over the operators.
 
-
 ## SQL-support
 
 The query engine has support for some basic SQL-features like:
-- Aggregation (COUNT,AVG,SUM)
-- Joins (atm only inner join between two tables)
+- Aggregation (COUNT,AVG,SUM,MIN,MAX)
+- Inner joins between two tables
 - Subqueries
 - Filtering (WHERE-clauses)
-- CREATE TABLE and INSERT INTO statements
+- EXPLAIN, CREATE TABLE and INSERT INTO statements
 
 This is about as complicated as it can get. 
 
@@ -44,17 +43,39 @@ This is about as complicated as it can get.
 
 See [./test/](./test/)  for further examples.
 
-## Memory management & storage
+
+## Query planning
+
+The query planner is relatively straight forward. It creates a query plan that comprises of the following operators (see [src/include/planner/planner.h](src/include/planner/planner.h)):
+
+    OP_SCANTDB
+    OP_SCAN
+    OP_PROJECT
+    OP_FILTER
+    OP_JOIN
+    OP_AGGREGATE
+    OP_HASHJOIN
+
+Two operators are noteworthy:
+    - `OP_SCANTDB` describes `.tdb` -table, whereas `OP_SCAN` is a scan on a plaintext file.
+    - `OP_HASHJOIN` describes a hash-join. Any join operation based only on a single equality comparison is turned into a hashjoin. `OP_JOIN` is a mere nested loop join.
+
+## Custom file format `.tbd`
 
 A table can be persisted in the custom `tdb`-file format. It consists of a header (describing the table: column types, names, etc.) and the actual data. The data is stored in a contiguous block where each record is of fixed size.
 
+A `.tbd` file consists of a header and the actual records. The layout is described in [src/include/io/tdb.h](src/include/io/tdb.h).
+
 During query execution, a tuple is represented in memory in the same format. A column can be extracted from the block using an offset and datatype information. Queries on plaintext files are converted to the same format (and thus are slower than queries on `.tdb`-files).
 
-Thanks to the iterator model, the system needs to maintain only a ~single tuple in memory at a time during execution. This means that querying a 1KB table consumes as much memory as querying 1GB table (assuming the same table definition). 
+See [test/test_tdb.bats](./test/test_tdb.bats) for an example of how to create and insert into a tdb-table.
 
-An exception to this is joins (and other blocking operators). Atm the inner table of the join is stored in memory in it's entirety. So one must be careful when crafting the query (choose the smaller table as the inner table).
+## Memory management & storage
 
-See [test/test_tdb.bats](./test/test_tdb.bats) for an example of how to create and insert into a tdb-table and [src/include/io/tdb.h](src/include/io/tdb.h) for a brief description of the file layout.
+Thanks to the iterator model, the system needs to maintain only a single tuple in memory at a time during execution. This means that querying a 1KB table consumes as much memory as querying 1GB table (assuming the same table definition). 
+
+An exception to this is joins and other blocking operators. Currently the inner table of the join is stored in memory in it's entirety. So one must be careful when crafting the query (choose the smaller table as the inner table).
+
 
 ## Building
 
