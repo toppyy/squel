@@ -57,8 +57,8 @@ The query planner is relatively straight forward. It creates a query plan that c
     OP_HASHJOIN
 
 Two operators are noteworthy:
-    - `OP_SCANTDB` describes `.tdb` -table, whereas `OP_SCAN` is a scan on a plaintext file.
-    - `OP_HASHJOIN` describes a hash-join. Any join operation based only on a single equality comparison is turned into a hashjoin. `OP_JOIN` is a mere nested loop join.
+- `OP_SCANTDB` describes `.tdb` -table, whereas `OP_SCAN` is a scan on a plaintext file.
+- `OP_HASHJOIN` describes a hash-join. Any join operation based only on a single equality comparison is turned into a hashjoin. `OP_JOIN` is a mere nested loop join.
 
 ## Custom file format `.tbd`
 
@@ -70,9 +70,13 @@ During query execution, a tuple is represented in memory in the same format. A c
 
 See [test/test_tdb.bats](./test/test_tdb.bats) for an example of how to create and insert into a tdb-table.
 
-## Memory management & storage
+## Memory management
 
 Thanks to the iterator model, the system needs to maintain only a single tuple in memory at a time during execution. This means that querying a 1KB table consumes as much memory as querying 1GB table (assuming the same table definition). 
+
+During query execution the operators call `getTuple()` on their child-operators. The parent passes a pointer to a tuple to the the child. The parent is responsible for managing the memory allocated for the tuple.
+
+Assume a simple query with PROJECT, FILTER and a SCAN operators. The executor allocates memory for a single tuple. A pointer to that memory is passed to PROJECT and forward to SCAN through FILTER. The scan populates the memory with data from disk, filter considers if the tuple is valid and project selects column of the data. At best, this requires only a single allocation by executor. Once the executor has printed the tuple (for example), it may reuse the allocated memory.
 
 An exception to this is joins and other blocking operators. Currently the inner table of the join is stored in memory in it's entirety. So one must be careful when crafting the query (choose the smaller table as the inner table).
 
