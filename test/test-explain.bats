@@ -1,18 +1,15 @@
+#!/usr/bin/env bash
 
-#!/usr/bin/env bats
-
-setup_file() {
+setup() {
+    load './test_helper/bats-support/load'
+    load './test_helper/bats-assert/load'
     run make 
 }
 
-@test "Simple subquery \w WHERE" {
+@test "EXPLAIN - subquery \w WHERE" {
     run ./build/squel "EXPLAIN SELECT col3 FROM (SELECT col3,col1 FROM './test/data/small.csv') WHERE col3>100"
-    [[ $"${lines[0]}" == "******* EXPLAIN **********" ]]
-    [[ $"${lines[1]}" == "OP_PROJECT" ]]
-    [[ $"${lines[2]}" == "OP_FILTER" ]]
-    [[ $"${lines[3]}" == "OP_PROJECT" ]]
-    [[ $"${lines[4]}" == "OP_SCAN" ]]
-    [[ $"${lines[5]}" == "**************************" ]]
+    expected_output=$(printf "******* EXPLAIN **********\nOP_PROJECT\nOP_FILTER\nOP_PROJECT\nOP_SCAN\n**************************")
+    assert_output "$expected_output"
 }
 
 @test "EXPLAIN - hash join" {
@@ -38,3 +35,5 @@ setup_file() {
     [[ $"${lines[5]}" == "OP_SCANTDB" ]]
     [[ $"${lines[6]}" == "**************************" ]]
 }
+
+
