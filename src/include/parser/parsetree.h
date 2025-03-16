@@ -32,6 +32,7 @@ enum nodeType {
     AND,
     STMTCREATE,
     STMTINSERT,
+    STMTEXPLAIN,
     TABLE,
     OR
 };

@@ -1,7 +1,7 @@
 #include "../include/executor/executor.h"
+#include "../include/executor/tuple.h"
 
 
-Bufferpool* buffpool;
 
 void assignGetTupleFunction(Operator *op) {
 
@@ -25,17 +25,17 @@ void assignGetTupleFunction(Operator *op) {
         case (OP_JOIN):
             op->getTuple = &joinGetTuple;
             break;
+        case (OP_HASHJOIN):
+            op->getTuple = &hashjoinGetTuple;
+            break;
         case (OP_AGGREGATE):
             op->getTuple = &aggregateGetTuple;
             break;
         default:
-            printf("Don't know how to handle op-type %d\n", op->type);
+            printf("EXECUTOR-error: Don't know how to handle op-type %d\n", op->type);
             exit(1);
     }
 }
-
-
-
 
 
 void doAssignGetTupleFunction(Operator* p_op) {
@@ -50,23 +50,19 @@ void doAssignGetTupleFunction(Operator* p_op) {
         doAssignGetTupleFunction(p_op->child);
     }
 
-    if (p_op->type == OP_JOIN) {
+    if (p_op->type == OP_JOIN || p_op->type == OP_HASHJOIN) {
         doAssignGetTupleFunction(p_op->info.join.left);
         doAssignGetTupleFunction(p_op->info.join.right);
     }
 }
 
 
-void execute(Operator* op, bool printColNames, void (*tupleHandler)(int pooloffset)) {
+void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl)) {
 
     if (op == NULL) {
         return;
     }
 
-    buffpool            = calloc(1, sizeof(Bufferpool));
-    buffpool->pool      = calloc(BUFFERPOOLSIZE, 1);
-    buffpool->capacity  = BUFFERPOOLSIZE;
-    buffpool->used      = 0;
  
     doAssignGetTupleFunction(op);
 
@@ -86,14 +82,15 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(int pooloffs
     }
 
     // Get tuples one by one
-    int offset;
+    Tuple* tpl = initTupleOfSize(TUPLESIZE);
     for (;;) {
-        offset = op->getTuple(op);
-        if (offset == -1) break;
+        op->getTuple(op, tpl);
+        if (isTupleEmpty(tpl)) break;
 
-        tupleHandler(offset);
+        tupleHandler(tpl);
+
     };
+    freeTuple(tpl);
 
-    free(buffpool->pool);
-    free(buffpool);
+
 }

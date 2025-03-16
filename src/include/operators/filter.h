@@ -1,7 +1,7 @@
 #pragma once
 #include <stdbool.h>
-#include "../bufferpool/bufferpool.h"
 #include "../planner/planner.h"
+#include "../executor/tuple.h"
 
-int filterGetTuple(Operator* op);
-bool evaluateTuplesAgainstFilterOps(int poolOffset1, int poolOffset2, Operator* op);
+void filterGetTuple(Operator* op, Tuple* tpl);
+bool evaluateTuplesAgainstFilterOps(Tuple* tpl1, Tuple* tpl2, Operator* op);

@@ -1,13 +1,13 @@
 #include "../include/operators/filter.h"
 
 
-bool evaluateTupleAgainstFilterOp(int poolOffset1, int poolOffset2, Operator* op) {
+bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
-    if (poolOffset1 == -1) {
+    if (tpl1 == NULL) {
         return false;
     }
 
-    if (poolOffset2 == -1) {
+    if (tpl2 == NULL) {
         return false;
     }
 
@@ -44,18 +44,18 @@ bool evaluateTupleAgainstFilterOp(int poolOffset1, int poolOffset2, Operator* op
         switch (dtype1)   {
             case DTYPE_STR:
                 cmpRes = strcmp(
-                    (char*) getCol(poolOffset1,idx1Offset),
-                    (char*) getCol(poolOffset2,idx2Offset)
+                    (char*) getTupleCol(tpl1,idx1Offset),
+                    (char*) getTupleCol(tpl2,idx2Offset)
                 );
                 break;
             case DTYPE_INT:
-                int number1 = *(int*) getCol(poolOffset1,idx1Offset);
-                int number2 = *(int*) getCol(poolOffset2,idx2Offset);
+                int number1 = *(int*) getTupleCol(tpl1,idx1Offset);
+                int number2 = *(int*) getTupleCol(tpl2,idx2Offset);
                 cmpRes = number1 - number2;
                 break;
             case DTYPE_LONG:
-                long lnumber1 = *(long*) getCol(poolOffset1,idx1Offset);
-                long lnumber2 = *(long*) getCol(poolOffset2,idx2Offset);
+                long lnumber1 = *(long*) getTupleCol(tpl1,idx1Offset);
+                long lnumber2 = *(long*) getTupleCol(tpl2,idx2Offset);
                 cmpRes = lnumber1 - lnumber2;
                 break;
             default:
@@ -87,14 +87,14 @@ bool evaluateTupleAgainstFilterOp(int poolOffset1, int poolOffset2, Operator* op
         Datatype constDatatype  = dtype2;
         size_t colOffset   = idx1Offset;
         size_t constIdx = 2;
-        int poolOffset = poolOffset1;
+        Tuple* tpl = tpl1;
         
         if (compType == CMP_CONST_COL) {
             // Guess was wrong, fix it
             constDatatype   = dtype1;
             constIdx        = 0;
             colOffset       = idx2Offset;
-            poolOffset      = poolOffset2;
+            tpl             = tpl2;
         }
         // Now we have to only deal with 4 combinations of all the eight possible
         // 'cause datatypes must match
@@ -105,10 +105,10 @@ bool evaluateTupleAgainstFilterOp(int poolOffset1, int poolOffset2, Operator* op
         //      DTYPE_INT vs. IDENT_COL + NUMBER
         switch (constDatatype) {
             case DTYPE_STR:
-                cmpRes = strcmp(op->info.filter.charConstants[constIdx], getCol(poolOffset,colOffset));
+                cmpRes = strcmp(op->info.filter.charConstants[constIdx], getTupleCol(tpl,colOffset));
                 break;
             case DTYPE_LONG:
-                long colNumber = *(long*) getCol(poolOffset,colOffset);
+                long colNumber = *(long*) getTupleCol(tpl,colOffset);
                 long constNumber = (long) op->info.filter.numConstants[constIdx];
                 // Order matters here
                 if (constIdx == 0) {
@@ -145,7 +145,7 @@ bool evaluateTupleAgainstFilterOp(int poolOffset1, int poolOffset2, Operator* op
     return matches;
 }
 
-bool evaluateTuplesAgainstFilterOps(int poolOffset1, int poolOffset2, Operator* op) {
+bool evaluateTuplesAgainstFilterOps(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
     bool rtrnValue = true,
          result = true;
@@ -155,7 +155,7 @@ bool evaluateTuplesAgainstFilterOps(int poolOffset1, int poolOffset2, Operator* 
 
     while (p_op != NULL) {
         
-        result = evaluateTupleAgainstFilterOp(poolOffset1, poolOffset2, p_op);
+        result = evaluateTupleAgainstFilterOp(tpl1, tpl2, p_op);
 
         switch (boolOp) {
             case AND:
@@ -176,7 +176,7 @@ bool evaluateTuplesAgainstFilterOps(int poolOffset1, int poolOffset2, Operator* 
     return rtrnValue;
 }
 
-int filterGetTuple(Operator* op) {
+void filterGetTuple(Operator* op, Tuple* tpl) {
 
     if (op == NULL) {
         printf("FILTER_OP: Passed a NULL-pointer to filterGetTuple\n");
@@ -197,21 +197,17 @@ int filterGetTuple(Operator* op) {
         exit(1);
     }
 
-
-    int poolOffset = 0;
-
     while (true) {
         /* Get new tuples until found something that passes the filter */
 
-        poolOffset = op->child->getTuple(op->child);
+        op->child->getTuple(op->child, tpl);
 
-        if (poolOffset == -1) {
-            return -1;
+        if (isTupleEmpty(tpl)) {
+            break;
         }
 
-        if (evaluateTuplesAgainstFilterOps(poolOffset, poolOffset, op)) break;
+        if (evaluateTuplesAgainstFilterOps(tpl, tpl, op)) break;
 
 
     }
-    return poolOffset;
 }

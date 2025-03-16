@@ -6,6 +6,9 @@
 #include "../io/tdb.h"
 #include "../parser/utils.h"
 #include "../parser/parsetree.h"
+#include "../executor/tuple.h"
+#include "../executor/tuplebuffer.h"
+#include "../util/hashmap.h"
 
 
 typedef enum {
@@ -14,7 +17,8 @@ typedef enum {
     OP_PROJECT,
     OP_FILTER,
     OP_JOIN,
-    OP_AGGREGATE
+    OP_AGGREGATE,
+    OP_HASHJOIN
 } OperatorType;
 
 typedef enum ComparisonType {
@@ -98,11 +102,11 @@ typedef struct {
     struct Operator* left;
     struct Operator* right;
     struct Operator* filter;
-    int lastTupleOffset;
-    int filterTupleOffset;
-    int rightTuples[JOINPTRBUFFER];
-    int rightTupleIdx;
-    int rightTupleCount;
+    Hashmap* hashmap;
+    TupleBuffer* rightTuples;
+    Tuple* leftTuple;
+    size_t rightTupleIdx;
+    size_t rightTupleCount;
     bool rightTuplesCollected;
 } JoinInfo;
 
@@ -127,7 +131,7 @@ typedef struct Operator {
     ResultSet resultDescription;
     int iteratorTupleOffset;
     struct Operator* child;
-    int (*getTuple) (struct Operator* op);
+    void (*getTuple) (struct Operator* op, Tuple* tpl);
 } Operator;
 
 void freeQueryplan(Operator *node);

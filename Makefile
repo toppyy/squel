@@ -22,7 +22,7 @@ $(ODIR)/%.o: $(SRC)%.c
 	$(CC) -g -c $< -o $@  $(CFLAGS)
 
 dirs:
-	mkdir -p data build/parser build/planner/operators build/binder build/io build/executor build/executor/statements build/bufferpool build/operators
+	mkdir -p data build/parser build/planner/operators build/binder build/io build/executor build/executor/statements build/operators build/util/hashmap
 
 clean:
 	rm -f ./build/squel $(OBJ)

@@ -1,103 +1,31 @@
 #include "../include/operators/aggregate.h"
 
-long doCount(Operator* opToIterate) {
-    int offset = opToIterate->getTuple(opToIterate);
-    int result = 0;
-    while (offset >= 0) {
-        offset = opToIterate->getTuple(opToIterate);
-        result++;
-    };
-    
-    return result;
+long count(long result, long num __attribute__((unused))) {
+    return result + 1;
 }
 
-long doAverage(Operator* opToIterate, size_t colOffset) {
-
-
-    int offset = 0;
-    long sum = 0;
-    long count = 0;
-
-    for (;;) {
-        offset = opToIterate->getTuple(opToIterate);
-        if (offset == -1) {
-            break;
-        }
-        sum += *(long*) getCol(offset,colOffset);
-        count++;
-    };
-    long result = 0.0; 
-    if (count > 0) {
-        result = sum / (double) count;
-    }
-    return result;
+long max(long result, long num) {
+    return num > result ? num : result;
 }
 
-long doSum(Operator* opToIterate, size_t colOffset) {
-
-
-    int offset = 0;
-    long long result = 0;
-
-    for (;;) {
-        offset = opToIterate->getTuple(opToIterate);
-        if (offset == -1) {
-            break;
-        }
-        result += *(long*) getCol(offset,colOffset);
-
-    };
-
-    return result;
+long sum(long result, long num) {
+    return num + result;
 }
 
-long doMax(Operator* opToIterate, size_t colOffset) {
-
-
-    int offset = 0;
-    long result = 0, tmp = 0;
-
-    for (;;) {
-        offset = opToIterate->getTuple(opToIterate);
-        if (offset == -1) {
-            break;
-        }
-        tmp = *(long*) getCol(offset,colOffset);
-        result = tmp > result ? tmp : result;
-
-    };
-
-    return result;
-}
-
-long doMin(Operator* opToIterate, size_t colOffset) {
-
-
-    int offset = 0;
-    long result = __LONG_MAX__, tmp = 0;
-
-    for (;;) {
-        offset = opToIterate->getTuple(opToIterate);
-        if (offset == -1) {
-            break;
-        }
-        tmp = *(long*) getCol(offset,colOffset);
-        result = tmp < result ? tmp : result;
-
-    };
-
-    return result;
+long min(long result, long num) {
+    return num < result ? num : result;
 }
 
 
 
-int aggregateGetTuple(Operator* op) {
+void aggregateGetTuple(Operator* op, Tuple* tpl) {
     
     checkPtrNotNull(op->child, "OP_AGGREGATE has no child.");
     checkPtrNotNull(op->child->getTuple, "Child of OP_AGGREGATE has no getTuple-method.");
 
     if (op->info.aggregate.aggregationDone) {
-        return -1;
+        markTupleAsEmpty(tpl);
+        return;
     }
 
     // TODO:
@@ -107,35 +35,64 @@ int aggregateGetTuple(Operator* op) {
     // }
 
 
-    // Build new tuple to store result
+    size_t colOffset = op->child->resultDescription.pCols[op->info.aggregate.colToAggregate];
 
-    long result = 0;
+
+    long (*agg_fun)(long result, long num);
+    long result = 0, tmp = 0;
+
 
     switch(op->info.aggregate.aggtype) {
         case COUNT:
-            result = doCount(op->child);
+            agg_fun = count;
             break;
         case SUM:
-            result = doSum(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
+            agg_fun = sum;
             break;
         case AVG:
-            result = doAverage(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
+            agg_fun = sum; // See below why
             break;
         case MAX:
-            result = doMax(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
+            agg_fun = max;
             break;
         case MIN:
-            result = doMin(op->child, op->child->resultDescription.pCols[op->info.aggregate.colToAggregate]);
+            agg_fun = min;
+            result = __LONG_MAX__;
             break;
         default:
             printf("Aggregation type (%d) not implemented\n", op->info.aggregate.aggtype);
             exit(1);
     }
 
+
+    size_t observations = 0;
+    
+    Tuple* tmpTpl = initTupleOfSize(TUPLESIZE);
+
+    for (;;) {
+        
+        op->child->getTuple(op->child, tmpTpl);
+        if (isTupleEmpty(tmpTpl)) {
+            break;
+        }
+        tmp = *(long*) (tmpTpl->data + colOffset);
+        result = agg_fun(result, tmp);
+        observations++;
+    };
+
+    freeTuple(tmpTpl);
+
+
+    if (op->info.aggregate.aggtype == AVG) {
+        result = result / observations;
+    }
+
+
     op->resultDescription.columnCount = 1;
     op->resultDescription.pCols[0] = 0;
     op->info.aggregate.aggregationDone = true;
-    
 
-    return addToBufferPool(&result, sizeof(result));
+    
+    *(long*)(tpl->data) = result; 
+
 }

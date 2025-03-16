@@ -30,6 +30,11 @@ setup_file() {
     [[ $"${lines[5]}" == "" ]]
 }
 
-
+@test "Hashjoin with small hashtable" {
+    run ./build/squel --htsize 10 "SELECT COUNT(u.unemployed) FROM './test/data/lt_unemployed.csv' AS lt JOIN './test/data/unemployed.csv' AS u ON u.time=lt.time"
+    [[ $"${lines[0]}" == "unemployed" ]]
+    [[ $"${lines[1]}" == "213" ]]
+    [[ $"${lines[2]}" == "" ]]
+}
 
 

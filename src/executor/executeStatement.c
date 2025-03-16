@@ -16,6 +16,9 @@ void executeStatement(Node* node) {
         case STMTINSERT:
             executeInsert(node);
             break;
+        case STMTEXPLAIN:
+            executeExplain(node);
+            break;
         default:
             printf("Don't know how execute statement of type %d\n", node->type);
             exit(1);

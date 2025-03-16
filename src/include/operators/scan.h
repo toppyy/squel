@@ -1,6 +1,6 @@
 #pragma once
-#include "../bufferpool/bufferpool.h"
 #include "../planner/planner.h"
 #include "../executor/executor.h"
+#include "../executor/tuple.h"
 
-int scanGetTuple(Operator* op);
+void scanGetTuple(Operator* op, Tuple* tpl);

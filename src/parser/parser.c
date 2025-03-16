@@ -442,6 +442,13 @@ void insert() {
 }
 
 
+void explain() {
+    keyword("EXPLAIN", STMTEXPLAIN);
+    skipWhite();
+    query();
+}
+
+
 size_t parse(char* input, Node* p_root) {
 
     root = p_root;
@@ -450,6 +457,12 @@ size_t parse(char* input, Node* p_root) {
     strcpy(rawSql,input);
     qsize = strlen(rawSql);
     getNextChar();
+
+
+    if (peekWordMatches("EXPLAIN")) {
+        explain();
+        return nodeCount;
+    }
 
     if (peekWordMatches("CREATE")) {
         create();

@@ -1,6 +1,6 @@
 #include "../include/operators/scan.h"
 
-int scanGetTuple(Operator* op) {
+void scanGetTuple(Operator* op, Tuple* tpl) {
 
     checkPtrNotNull(op, "NULL pointer passed to scanGetTuple");
 
@@ -24,7 +24,8 @@ int scanGetTuple(Operator* op) {
      if (line == NULL) {
         free(lineBuffer);
         fclose(op->info.scan.tablefile);
-        return -1;
+        markTupleAsEmpty(tpl);
+        return;
     }
 
 
@@ -44,7 +45,7 @@ int scanGetTuple(Operator* op) {
 
     size_t tplSize = 0;
 
-    void* diskBuffer = calloc(1, SCANTUPLESIZE);
+    void* diskBuffer = tpl->data;
     void* diskBufferCursor = diskBuffer;
     checkPtrNotNull(diskBuffer, "could not allocate buffer for scan");
 
@@ -117,14 +118,6 @@ int scanGetTuple(Operator* op) {
         i++;
     };
 
-    // Write to bufferpool
-    if (op->iteratorTupleOffset == -1) {
-        op->iteratorTupleOffset = addToBufferPool(diskBuffer, tplSize);
-    } else {
-        copyToBufferPool(op->iteratorTupleOffset, diskBuffer, tplSize);
-    }
-
-
     // // ---------------- Useful for debuggin. Leave it be for a while ------------------
     // tpldata = diskBuffer;
     // printf("tpldata at: ", diskBuffer);
@@ -147,8 +140,5 @@ int scanGetTuple(Operator* op) {
     op->resultDescription.size = tplSize;
 
     free(lineBuffer);
-    free(diskBuffer);
-
-    return op->iteratorTupleOffset;
 }
 
