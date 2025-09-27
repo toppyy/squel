@@ -7,6 +7,7 @@
 
 #define METADATABUFFSIZE 10
 
+
 // Globals :/
 ResultSet* resultDescToPrint = NULL;
 Options* OPTIONS;
@@ -77,6 +78,7 @@ void printTuple(Tuple* tpl) {
 Options* initOptions() {
     OPTIONS = malloc(sizeof(Options));
     OPTIONS->htsize = HTSIZE;
+    OPTIONS->enableHashjoin = 1;
     return OPTIONS;
 }
 
@@ -84,6 +86,8 @@ size_t getOption(Option opt) {
     switch(opt) {
         case OPT_HTSIZE:
             return OPTIONS->htsize;
+        case OPT_ENABLE_HJ:
+            return OPTIONS->enableHashjoin;
     }
 
     printf("getOption: Tried to retrieve an unknown option\n");
@@ -107,7 +111,8 @@ int main(int argc, char* argv[]) {
         if (strcmp(argv[i], "--help") == 0) {
             printf("Help: See README.md.\n");
             return 0;
-        } 
+        }
+
         else if (strcmp(argv[i], "--htsize") == 0) {
             i++;
             char*  endptr;
@@ -119,6 +124,21 @@ int main(int argc, char* argv[]) {
             }
 
             opts->htsize = htsize;
+
+            query_arg += 2;
+        }
+
+        else if (strcmp(argv[i], "--hashjoin") == 0) {
+            i++;
+            char*  endptr;
+            size_t enableHashjoin = strtoull(argv[i], &endptr, 10);
+
+            if (endptr == argv[i]) {
+                printf("--hashjoin expects an integer\n");
+                exit(1);
+            }
+
+            opts->enableHashjoin = enableHashjoin;
 
             query_arg += 2;
         }
