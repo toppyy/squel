@@ -64,6 +64,7 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
 
     if (op->info.join.leftTuple == NULL) {
         op->info.join.leftTuple = initTupleOfSize(TUPLESIZE);
+        op->info.join.left->getTuple(op->info.join.left, op->info.join.leftTuple);
     }
 
     if (isTupleEmpty(op->info.join.leftTuple)) {

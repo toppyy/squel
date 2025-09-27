@@ -1,4 +1,5 @@
 #include "../include/operators/hashjoin.h"
+#include "../include/operators/filter.h"
 #include "../include/squel.h"
 
 
@@ -21,7 +22,7 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
 
 
     Tuple* rightTuple;
-    const char* joinValue;
+    char* joinValue = NULL;
 
     // This is only entered first time the operator is called
     while (!op->info.join.rightTuplesCollected) {
@@ -35,7 +36,7 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
             continue; 
         } 
         // Get value of join column
-        joinValue = (const char*) getTupleCol(rightTuple, joinColOffset);
+        joinValue = (char*) getTupleCol(rightTuple, joinColOffset);
 
         insertToHashmap(op->info.join.hashmap, joinValue, op->info.join.rightTupleCount);
 
@@ -59,7 +60,7 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
 
     int tupleIdx;
     do {
-        joinValue = (const char*) getTupleCol(op->info.join.leftTuple, joinColOffset);
+        joinValue = (char*) getTupleCol(op->info.join.leftTuple, joinColOffset);
 
         if (!isInHashmap(op->info.join.hashmap, joinValue)) {
             resetCursor(op->info.join.hashmap, joinValue);
@@ -72,6 +73,11 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
         if (tupleIdx < 0) continue;
 
         rightTuple = getTupleByIndex(op->info.join.rightTuples, tupleIdx);
+        
+        // Check values actually match, not just by collision
+        if (!evaluateTuplesAgainstFilterOps(op->info.join.leftTuple, rightTuple, op->info.join.filter)) {
+            continue;
+        }
 
         // Create a new tuple by concating the tuples
         concatTuples(

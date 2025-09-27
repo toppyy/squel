@@ -56,6 +56,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
             case DTYPE_LONG:
                 long lnumber1 = *(long*) getTupleCol(tpl1,idx1Offset);
                 long lnumber2 = *(long*) getTupleCol(tpl2,idx2Offset);
+                // printf("LONG %ld from offset %d vs %ld from offset %d\n", lnumber1, idx1Offset, lnumber2, idx2Offset);
                 cmpRes = lnumber1 - lnumber2;
                 break;
             default:
