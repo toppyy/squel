@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     long records = atol(argv[2]);
 
 
-    int fd = open(path, O_RDWR | O_CREAT | O_TRUNC);
+    int fd = open(path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR); 
     if (fd == 0) {
         printf("Unable to open the file at path '%s'\n", path);
         exit(1);
