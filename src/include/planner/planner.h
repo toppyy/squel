@@ -9,7 +9,8 @@
 #include "../executor/tuple.h"
 #include "../executor/tuplebuffer.h"
 #include "../util/hashmap.h"
-#include "../squel.h"
+#include "../util/options.h"
+
 
 typedef enum {
     OP_SCANTDB,

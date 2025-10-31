@@ -1,18 +1,11 @@
 #pragma once
+#include "executor/executor.h"
+#include "parser/parser.h"
+#include "planner/planner.h"
+#include "io/tdb.h"
+#include "const.h"
+#include "util/options.h"
 
 
-typedef enum {
-    OPT_HTSIZE,
-    OPT_ENABLE_HJ
-} Option;
+void helloWorld();
 
-typedef struct Options {
-    size_t htsize;
-    size_t enableHashjoin; // 1 if hashjoin enabled (default), 0 if not
-} Options;
-
-extern Options* OPTIONS;
-
-Options* initOptions();
-
-size_t getOption(Option opt);

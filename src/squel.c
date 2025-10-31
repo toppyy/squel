@@ -1,8 +1,3 @@
-#include "./include/executor/executor.h"
-#include "./include/parser/parser.h"
-#include "./include/planner/planner.h"
-#include "./include/io/tdb.h"
-#include "./include/const.h"
 #include "./include/squel.h"
 
 #define METADATABUFFSIZE 10
@@ -75,24 +70,15 @@ void printTuple(Tuple* tpl) {
 
 }
 
-Options* initOptions() {
-    OPTIONS = malloc(sizeof(Options));
-    OPTIONS->htsize = HTSIZE;
-    OPTIONS->enableHashjoin = 1;
-    return OPTIONS;
-}
 
-size_t getOption(Option opt) {
-    switch(opt) {
-        case OPT_HTSIZE:
-            return OPTIONS->htsize;
-        case OPT_ENABLE_HJ:
-            return OPTIONS->enableHashjoin;
-    }
 
-    printf("getOption: Tried to retrieve an unknown option\n");
-    exit(1);
-}
+void helloWorld() {
+    printf("Hello world!\n");
+};
+
+
+
+
 
 int main(int argc, char* argv[]) {
 
