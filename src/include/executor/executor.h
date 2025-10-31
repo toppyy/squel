@@ -16,7 +16,7 @@
 extern char *buffercache;
 extern char *bufferscan;
 
-void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl));
+void execute(Operator* op, void (*tupleHandler)(Tuple* tpl));
 void executeStatement(Node* node);
 void executeCreateTable(Node* node);
 void executeInsert(Node* node);

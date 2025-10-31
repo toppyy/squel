@@ -62,7 +62,7 @@ void executeInsert(Node* node) {
     writeTdbMetadataToFD(f, tbl);
 
     /* Execute the query */
-    execute(queryplan, false, handleTupleInsert);
+    execute(queryplan, handleTupleInsert);
 
     /* Clean up */
     fclose(f);

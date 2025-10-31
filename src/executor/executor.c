@@ -57,7 +57,7 @@ void doAssignGetTupleFunction(Operator* p_op) {
 }
 
 
-void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl)) {
+void execute(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
 
     if (op == NULL) {
         return;
@@ -71,16 +71,6 @@ void execute(Operator* op, bool printColNames, void (*tupleHandler)(Tuple* tpl))
         exit(1);
     }
     
-    // Print column names
-    if (printColNames) {
-        printf("%s", op->resultDescription.columns[0].name);
-        for (size_t i = 1; i < op->resultDescription.columnCount; i++) {
-            printf("%c%s", DELIMITER, op->resultDescription.columns[i].name);
-        }
-        printf("\n");
-
-    }
-
     // Get tuples one by one
     Tuple* tpl = initTupleOfSize(TUPLESIZE);
     for (;;) {

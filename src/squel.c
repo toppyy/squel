@@ -3,28 +3,15 @@
 #define METADATABUFFSIZE 10
 
 
+
+void helloWorld() {
+    printf("Hello world!\n");
+};
+
 // Globals :/
 ResultSet* resultDescToPrint = NULL;
 Options* OPTIONS;
 
-void printTree(Node *node) {
-
-    if (node == NULL) {
-        return;
-    }
-
-    printf("Node (%ld) with type %d and content '%s' \n",node->identifier, node->type, node->content);
-
-    if (node->child != NULL) {
-        printf("Children: \n");
-        printTree(node->child);
-        printf("Children from '%s' \\w type %d done \n", node->content, node->type);
-    }
-
-    if (node->next != NULL) {
-        printTree(node->next);
-    }
-}
 
 void valueToChar(char* target, Tuple* tpl, size_t colOffset, Datatype type) {
     if (type == DTYPE_STR) {
@@ -70,14 +57,45 @@ void printTuple(Tuple* tpl) {
 
 }
 
+Operator* planSquelQuery(char* sqlStmt, Node** parseTreeOut) { //  Operator* queryPlanOut __attribute__((unused))
+
+    /* Allocate memory for parse tree and parse the raw query */
+    *parseTreeOut = createParsetree();
+    parse(sqlStmt, *parseTreeOut);
+
+    // It's either a SELECT or a STMT
+    if ((*parseTreeOut)->next->type != SELECT) {
+        return NULL;
+    }
 
 
-void helloWorld() {
-    printf("Hello world!\n");
-};
+    return planQuery((*parseTreeOut)->next);
+}
+
+void executeSquel(Node* parsetree, Operator* queryplan, void (*tupleHandler)(Tuple* tpl)) {
+
+    if (parsetree->next->type == SELECT) {
+        execute(queryplan, tupleHandler);
+        return;
+    }
+
+    executeStatement(parsetree->next);
+    
+}
 
 
+void printColnames(Operator* queryplan) {
 
+    if (queryplan == NULL) return;
+    if (queryplan->resultDescription.columnCount == 0) return;
+
+    printf("%s", queryplan->resultDescription.columns[0].name);
+    for (size_t i = 1; i < queryplan->resultDescription.columnCount; i++) {
+        printf("%c%s", DELIMITER, queryplan->resultDescription.columns[i].name);
+    }
+    printf("\n");
+
+}
 
 
 int main(int argc, char* argv[]) {
@@ -136,31 +154,26 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    /* Allocate memory for parse tree and parse the raw query */
-    Node* parsetree = createParsetree();
-    parse(argv[query_arg], parsetree);
+    Node* parsetree = NULL;
+    Operator* queryplan = planSquelQuery(argv[query_arg], &parsetree);
 
-    // It's either a SELECT or a STMT
-    Operator* queryplan = NULL;
-    if (parsetree->next->type == SELECT) {
-        /* Plan the query */
-        queryplan = planQuery(parsetree->next);
+    resultDescToPrint = &queryplan->resultDescription;
 
-        resultDescToPrint = &queryplan->resultDescription;
+    printColnames(queryplan);
+    executeSquel(parsetree, queryplan, printTuple);
 
-        /* Execute the query */
-        execute(queryplan, true, printTuple);
 
-    } else {
-        executeStatement(parsetree->next);
-    }
-
+    // executeSQL(argv[query_arg], true, printTuple);
+    
     /* Free all the memory used */
     freeTree(parsetree);
+
     if (queryplan != NULL) {
         freeQueryplan(queryplan);
     }
 
+    
     free(opts);
 
-}
+
+}   
