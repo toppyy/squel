@@ -20,3 +20,4 @@ void execute(Operator* op, void (*tupleHandler)(Tuple* tpl));
 void executeCreateTable(Operator* op);
 void executeInsert(Operator* op);
 void executeExplain(Operator* queryplan);
+void doAssignGetTupleFunction(Operator* p_op);

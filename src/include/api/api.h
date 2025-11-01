@@ -1,5 +1,6 @@
 #pragma once
 #include "../planner/planner.h"
+#include "../executor/executor.h"
 
 typedef enum ctype {
     CTYPE_CHAR,
