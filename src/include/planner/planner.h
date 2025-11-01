@@ -19,7 +19,10 @@ typedef enum {
     OP_FILTER,
     OP_JOIN,
     OP_AGGREGATE,
-    OP_HASHJOIN
+    OP_HASHJOIN,
+    OP_STMTCREATE,
+    OP_STMTINSERT,
+    OP_STMTEXPLAIN
 } OperatorType;
 
 typedef enum ComparisonType {
@@ -118,12 +121,23 @@ typedef struct {
 } AggInfo;
 
 
+typedef struct {
+    Node* columnList;
+    char objectName[CHARMAXSIZE];
+} CreateInfo;
+
+typedef struct {
+    char targetTableName[CHARMAXSIZE];
+} InsertInfo;
+
 typedef union {
-    ProjectInfo project;
-    ScanInfo    scan;
-    FilterInfo  filter;
-    JoinInfo    join;
-    AggInfo     aggregate;
+    ProjectInfo     project;
+    ScanInfo        scan;
+    FilterInfo      filter;
+    JoinInfo        join;
+    AggInfo         aggregate;
+    CreateInfo      create;
+    InsertInfo      insert;
 } OperatorInfo;
 
 typedef struct Operator {
@@ -149,3 +163,4 @@ Operator* makeAggregateOp(Node* node, Operator* child_op);
 Operator* makeJoinOp(Operator* left, Operator* right, Node* ON);
 
 Operator* planQuery(Node* astRoot) ;
+Operator* planSelect(Node* astRoot) ;

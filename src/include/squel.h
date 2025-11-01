@@ -6,6 +6,3 @@
 #include "const.h"
 #include "util/options.h"
 
-
-void helloWorld();
-

@@ -32,7 +32,7 @@ void assignGetTupleFunction(Operator *op) {
             op->getTuple = &aggregateGetTuple;
             break;
         default:
-            printf("EXECUTOR-error: Don't know how to handle op-type %d\n", op->type);
+            printf("EXECUTOR-error: Don't know how to assign getTuple for op-type %d\n", op->type);
             exit(1);
     }
 }
@@ -57,13 +57,10 @@ void doAssignGetTupleFunction(Operator* p_op) {
 }
 
 
-void execute(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
+void executeSelect(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
 
-    if (op == NULL) {
-        return;
-    }
+    checkPtrNotNull(op, "Internal error: NULL-ptr passed to execute");
 
- 
     doAssignGetTupleFunction(op);
 
     if (op->resultDescription.columnCount == 0) {
@@ -82,5 +79,24 @@ void execute(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
     };
     freeTuple(tpl);
 
+
+}
+
+
+void execute(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
+
+    switch(op->type) {
+        case OP_STMTCREATE:
+            executeCreateTable(op);
+            break;
+        case OP_STMTEXPLAIN:
+            executeExplain(op->child);
+            break;
+        case OP_STMTINSERT:
+            executeInsert(op);
+            break;
+        default:
+            executeSelect(op, tupleHandler);
+    }
 
 }

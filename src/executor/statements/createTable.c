@@ -48,22 +48,13 @@ TDB constructTDB(Node* node) {
 }
 
 
-void executeCreateTable(Node* node) {
+void executeCreateTable(Operator* op) {
+
+    checkPtrNotNull(op, "Execute-error: nulltpr passed to executeCreateTable\n");
 
 
-    /*
-        Expected tree for CREATE TABLE
-            CREATE -> TABLE -> ident -> column_list
-                                        -> ident
-                                            -> datatype
-                                        -> ...
-
-    */
-
-    struct TDB tbl = constructTDB(node->next->next->next);
-
-    strcpy(tbl.alias, node->next->next->content);
-
+    struct TDB tbl = constructTDB(op->info.create.columnList);
+    strcpy(tbl.alias, op->info.create.objectName);
 
     char filepath[CHARMAXSIZE];
     char* ptr_filepath = filepath;

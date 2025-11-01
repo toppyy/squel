@@ -278,6 +278,7 @@ void addAlias(Node* node) {
     }
 }
 
+
 void query() {
 
     // Use tmp to jump back to the top level after collecting children
@@ -442,10 +443,27 @@ void insert() {
 }
 
 
+
+void queryOrStmt() {
+
+    if (peekWordMatches("CREATE")) {
+        create();
+        return;
+    }
+
+    if (peekWordMatches("INSERT")) {
+        insert();
+        return;
+    }
+
+    query();
+}
+
+
 void explain() {
     keyword("EXPLAIN", STMTEXPLAIN);
     skipWhite();
-    query();
+    queryOrStmt();
 }
 
 

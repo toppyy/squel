@@ -114,9 +114,77 @@ Operator* buildSelect(Node* node, Operator* child) {
     return aggregation;
 }
 
+Operator* buildCreateTable(Node* node) {
+
+    Operator* op = (Operator*) calloc(1, sizeof(Operator));
+    op->type    = OP_STMTCREATE;
+
+    /*
+        Expected tree for CREATE TABLE
+            CREATE -> TABLE -> ident -> column_list
+                                        -> ident
+                                            -> datatype
+                                        -> ...
+
+    */
+
+    strcpy(op->info.create.objectName, node->next->next->content);
+    op->info.create.columnList = node->next->next->next;
+
+    return op;
+}
+
+Operator* buildExplain(Node* node) {
+
+    Operator* op = (Operator*) calloc(1, sizeof(Operator));
+    op->type    = OP_STMTEXPLAIN;
+
+    op->child = planQuery(node->next);
+
+    return op;
+
+}
+
+Operator* buildInsert(Node* node) {
+
+    /*
+        Expected tree for INSERT 
+        INSERT -> ident_tbl -> SELECT
+    */
+
+    Operator* op = (Operator*) calloc(1, sizeof(Operator));
+    op->type = OP_STMTINSERT;
+
+    strcpy(op->info.insert.targetTableName, node->next->content);
+
+    /* Plan the query */
+    op->child = planQuery(node->next->next);
+
+    return op;
+}
 
 
-Operator* planQuery(Node* nodeSELECT) {
+Operator* planQuery(Node* node) {
+
+    switch(node->type) {
+        case STMTCREATE:
+            return buildCreateTable(node);
+        case SELECT:
+            return planSelect(node);
+        case STMTINSERT:
+            return buildInsert(node);
+        case STMTEXPLAIN:
+            return buildExplain(node);
+        default:
+            printf("Internal error: don't know how to start planning from node with type of %d\n", node->type);
+            exit(1);
+            break;
+    }
+    return NULL;
+}
+
+
+Operator* planSelect(Node* nodeSELECT) {
 
     Operator* opProj;
     
@@ -124,7 +192,7 @@ Operator* planQuery(Node* nodeSELECT) {
     Operator* opFrom = NULL;
 
     if (FROM->child->type == SELECT) {
-        opFrom = planQuery(FROM->child);
+        opFrom = planSelect(FROM->child);
     } else {
         opFrom = buildFrom(FROM->child);
     }

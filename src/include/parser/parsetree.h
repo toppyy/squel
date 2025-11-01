@@ -12,6 +12,9 @@ typedef enum Datatype {
 
 
 enum nodeType {
+    STMTINSERT,
+    STMTCREATE,
+    STMTEXPLAIN,
     EXPR,
     IDENT_COL,
     IDENT_TBL,
@@ -30,9 +33,6 @@ enum nodeType {
     DATATYPE,
     COLUMNLIST,
     AND,
-    STMTCREATE,
-    STMTINSERT,
-    STMTEXPLAIN,
     TABLE,
     OR
 };

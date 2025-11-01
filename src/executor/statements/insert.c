@@ -17,31 +17,28 @@ void handleTupleInsert(Tuple* tpl) {
 }
 
 
+void executeInsert(Operator* insertOp) {
 
-
-void executeInsert(Node* node) {
-    /*
-        Expected tree for INSERT 
-        INSERT -> ident_tbl -> SELECT
-    */
+    checkPtrNotNull(insertOp, "Execute-error: nulltpr passed to executeInsert\n");
 
     char filepath[CHARMAXSIZE];
     char* ptr_filepath = filepath;
-    buildPathToTDBtable(ptr_filepath, node->next->content);
+    buildPathToTDBtable(ptr_filepath, insertOp->info.insert.targetTableName);
 
     struct TDB tbl = readTdbMetadata(ptr_filepath);
 
-    /* Plan the query */
-    Operator* queryplan = planQuery(node->next->next);
+    // /* Plan the query */
+    // Operator* queryplan = planQuery(node->next->next);
+
+    Operator* op = insertOp->child;
 
     /* Check target table matches result description of the query */
-    // printf("Tbl has %ld columns, query has %ld columns\n", tbl.colCount, queryplan->resultDescription.columnCount);
-    assert(queryplan->resultDescription.columnCount == tbl.colCount);
+    assert(op->resultDescription.columnCount == tbl.colCount);
 
     for (size_t i = 0; i < tbl.colCount; i++) {
-        if (queryplan->resultDescription.columns[i].type != tbl.datatypes[i]) {
+        if (op->resultDescription.columns[i].type != tbl.datatypes[i]) {
             printf("Target table and query columns do not match at index %ld\n", i);
-            printf("Target: %d, query: %d\n",tbl.datatypes[i], queryplan->resultDescription.columns[i].type);
+            printf("Target: %d, query: %d\n",tbl.datatypes[i], op->resultDescription.columns[i].type);
             exit(1);
         }
     }
@@ -62,10 +59,9 @@ void executeInsert(Node* node) {
     writeTdbMetadataToFD(f, tbl);
 
     /* Execute the query */
-    execute(queryplan, handleTupleInsert);
+    execute(op, handleTupleInsert);
 
     /* Clean up */
     fclose(f);
-    freeQueryplan(queryplan);
 }
 

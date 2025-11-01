@@ -24,6 +24,14 @@ void printOp(Operator* op) {
         case OP_HASHJOIN:
             printf("OP_HASHJOIN");
             break;
+        case OP_STMTCREATE:
+            printf("OP_STMTCREATE");
+            break;
+        case OP_STMTINSERT:
+            printf("OP_STMTINSERT");
+            break;
+        case OP_STMTEXPLAIN:
+            break;
         default:
             printf("EXPLAIN-error: Unknown operation type");
             break;
@@ -54,16 +62,13 @@ void explainOp(Operator* op) {
 }
 
 
-void executeExplain(Node* node) {
+void executeExplain(Operator* queryplan) {
+    checkPtrNotNull(queryplan, "Execute-error: nullptr passed to executeExplain\n");
     
-    /* Plan the query */
-    Operator* queryplan = planQuery(node->next);
-
     /* Print the query plan */
     printf("******* EXPLAIN **********\n");
     explainOp(queryplan);
     printf("**************************\n");
 
-    freeQueryplan(queryplan);
 }
 
