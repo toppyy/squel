@@ -48,6 +48,7 @@ typedef struct {
     char resultSetAlias[CHARMAXSIZE];
     Datatype type;
     size_t identifier;
+    size_t size;
 } ColumnMetadata;
 
 
@@ -123,7 +124,8 @@ typedef struct {
 
 
 typedef struct {
-    Node* columnList;
+    ColumnMetadata columns[ARRAYMAXSIZE];
+    size_t colCount;
     char objectName[CHARMAXSIZE];
 } CreateInfo;
 
@@ -152,6 +154,7 @@ typedef struct Operator {
 
 void freeQueryplan(Operator *node);
 void copyResultDescription(Operator* opFrom, Operator* opTo, size_t offset);
+Datatype mapParsedDatatypeToEnumDatatype(char* parsed);
 void checkPtrNotNull(void* node, char* msg);
 void catalogFile(const char* path, TableMetadata* p_tablemetadata, char delimiter);
 int findColIdxInResDesc(ResultSet* resultDesc, char* name, char* tblref);

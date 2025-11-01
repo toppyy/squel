@@ -1,47 +1,25 @@
 #include "../../include/executor/executor.h"
 
-Datatype mapParsedDatatypeToEnumDatatype(char* parsed) {
 
 
-    if (strcmp(parsed, "CHAR") == 0) return DTYPE_STR;
-    if (strcmp(parsed, "INT") == 0)  return DTYPE_LONG;
-    if (strcmp(parsed, "LONG") == 0) return DTYPE_LONG;
+TDB constructTDB(CreateInfo info) {
 
-
-    printf("Don't know how map nodetype %s to datatype\n", parsed);
-    exit(1);
-}
-
-
-TDB constructTDB(Node* node) {
-    checkPtrNotNull(node, "NULL-ptr to constructTDB\n");
-    if (node->type != COLUMNLIST) {
-        printf("Cannot create a TDB without a COLUMNLIST\n");
-        exit(1);
-    }
 
     struct TDB tbl;
-    Node* ptr_col = node->child;
 
-    size_t colIdx = 0;
-    while (ptr_col != NULL) {
-        checkPtrNotNull(ptr_col->child, "TDB needs datatype of column (NULL-ptr)\n");
-        Datatype dtype = mapParsedDatatypeToEnumDatatype(ptr_col->child->content);
+    for (size_t colIdx = 0; colIdx < info.colCount; colIdx++) {
 
-        strcpy(tbl.colNames[colIdx], ptr_col->content);
-        tbl.datatypes[colIdx] = dtype;
+        strcpy(tbl.colNames[colIdx], info.columns[colIdx].name);
+        tbl.datatypes[colIdx] = info.columns[colIdx].type;
         tbl.lengths[colIdx] = sizeof(long);
-        if (dtype == DTYPE_STR) {
-            checkPtrNotNull(ptr_col->child->child, "STRING needs length\n");
-            tbl.lengths[colIdx] = atoi(ptr_col->child->child->content);
+
+        if (tbl.datatypes[colIdx] == DTYPE_STR) {
+            tbl.lengths[colIdx] = info.columns[colIdx].size;
         }
 
-        ptr_col = ptr_col->next;
-        colIdx++;
     }
 
-    
-    tbl.colCount = colIdx;
+    tbl.colCount = info.colCount;
     tbl.records = 0;
 
     return tbl;
@@ -53,7 +31,7 @@ void executeCreateTable(Operator* op) {
     checkPtrNotNull(op, "Execute-error: nulltpr passed to executeCreateTable\n");
 
 
-    struct TDB tbl = constructTDB(op->info.create.columnList);
+    struct TDB tbl = constructTDB(op->info.create);
     strcpy(tbl.alias, op->info.create.objectName);
 
     char filepath[CHARMAXSIZE];

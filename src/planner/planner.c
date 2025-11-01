@@ -24,6 +24,18 @@ void freeQueryplan(Operator *node) {
     free(node);
 }
 
+
+Datatype mapParsedDatatypeToEnumDatatype(char* parsed) {
+
+    if (strcmp(parsed, "CHAR") == 0) return DTYPE_STR;
+    if (strcmp(parsed, "INT") == 0)  return DTYPE_LONG;
+    if (strcmp(parsed, "LONG") == 0) return DTYPE_LONG;
+
+    printf("Don't know how map nodetype %s to datatype\n", parsed);
+    exit(1);
+}
+
+
 void checkPtrNotNull(void* node, char* msg) {
     if (node == NULL) {
         printf("%s\n", msg);
@@ -129,7 +141,45 @@ Operator* buildCreateTable(Node* node) {
     */
 
     strcpy(op->info.create.objectName, node->next->next->content);
-    op->info.create.columnList = node->next->next->next;
+
+    
+
+    Node* ptr = node->next->next->next;
+
+    if (ptr->type != COLUMNLIST) {
+        printf("Expected a COLUMNLIST planning CREATE TABLE\n");
+    }
+
+    // Move to first column
+    ptr = ptr->child;
+
+    size_t colIndex = 0;
+
+    while (ptr != NULL) {
+
+        if (ptr->type != IDENT_COL) {
+            printf("Expected a IDENT_COL when planning CREATE TABLE\n");
+        }
+        
+        strcpy(op->info.create.columns[colIndex].name, ptr->content);
+
+        Datatype type = mapParsedDatatypeToEnumDatatype(ptr->child->content);
+        op->info.create.columns[colIndex].type = type;
+
+        // For CHAR(), get the length 
+        if (type == DTYPE_STR) {
+            if (ptr->child->child->type != NUMBER) {
+                printf("Expected a NUMBER when parsing CHAR-definition in CREATE TABLE\n");
+            }
+            op->info.create.columns[colIndex].size = atol(ptr->child->child->content);
+        }
+
+        colIndex++;
+
+        ptr = ptr->next;
+    }
+
+    op->info.create.colCount = colIndex;
 
     return op;
 }
@@ -225,5 +275,9 @@ Operator* planQuery(char* sqlStmt) {
     Node* ast = createParsetree();
     parse(sqlStmt, ast);
 
-    return planQueryAst((ast)->next);
+    Operator* queryplan = planQueryAst((ast)->next);
+
+    freeTree(ast);
+
+    return queryplan;
 }

@@ -390,8 +390,10 @@ void getDatatype() {
     ident(DATATYPE);
     skipWhite();
     if (isChar) {
+        expectChar('(');
         nextToChild = true;
         number();
+        expectChar(')');
     }
 }
 
