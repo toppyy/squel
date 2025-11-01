@@ -269,6 +269,7 @@ Operator* planQueryAst(Node* node) {
 
 
 
+
 Operator* planQuery(char* sqlStmt) {
 
     // Allocate memory for parse tree and parse the raw query

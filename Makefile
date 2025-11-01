@@ -8,6 +8,8 @@ __OBJ = $(wildcard -r src/*.c) $(wildcard -r src/**/*.c) $(wildcard -r src/**/**
 _OBJ = $(patsubst %.c, %.o, $(__OBJ))
 OBJ = $(patsubst src/%, $(ODIR)/%, $(_OBJ))
 
+LIBRARY = $(BUILDIR)/libsquel.so
+
 
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror
@@ -21,8 +23,15 @@ squel: $(OBJ)
 $(ODIR)/%.o: $(SRC)%.c
 	$(CC) -g -c $< -o $@  $(CFLAGS)
 
+lib: $(LIBRARY)
+
+# Rule to create the shared library
+$(LIBRARY): OBJ
+	@mkdir -p $(BUILDIR)
+	$(CC) $(LDFLAGS) -o $@ $^
+
 dirs:
-	mkdir -p data build/parser build/planner/operators build/binder build/io build/executor build/executor/statements build/operators build/util/hashmap
+	mkdir -p data build/parser build/planner/operators build/binder build/io build/executor build/executor/statements build/operators build/util/hashmap build/api
 
 clean:
 	rm -f ./build/squel $(OBJ)
