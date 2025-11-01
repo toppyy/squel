@@ -19,3 +19,5 @@ int isStatement(Operator* op);
 void prepareQuery(Operator* queryplan);
 
 void fetchTuple(Operator* op, Tuple* tpl);
+
+long getLongFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx);

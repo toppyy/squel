@@ -1,11 +1,9 @@
 #include "./include/squel.h"
 
-#define METADATABUFFSIZE 10
-
 
 // Globals :/
 ResultSet* resultDescToPrint = NULL;
-Options* OPTIONS;
+
 
 
 void valueToChar(char* target, Tuple* tpl, size_t colOffset, Datatype type) {

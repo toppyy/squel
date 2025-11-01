@@ -23,6 +23,12 @@ ctype getResultSetColumnType(Operator* queryplan, size_t colIdx)  {
     }
 }
 
+long getLongFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx) {
+
+    size_t colOffset = queryplan->resultDescription.pCols[colIdx];
+    return *(long*) (tpl->data + colOffset);
+}
+
 
 int isStatement(Operator* op) {
     switch(op->type) {
@@ -34,6 +40,9 @@ int isStatement(Operator* op) {
             return 0;
     }
 }
+
+
+
 
 void prepareQuery(Operator* queryplan) {
     doAssignGetTupleFunction(queryplan);

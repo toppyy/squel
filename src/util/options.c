@@ -1,5 +1,7 @@
 #include "../include/util/options.h"
 
+Options* OPTIONS;
+
 Options* initOptions() {
     OPTIONS = malloc(sizeof(Options));
     OPTIONS->htsize = HTSIZE;

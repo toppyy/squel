@@ -6,13 +6,13 @@ ODIR=build
 
 __OBJ = $(wildcard -r src/*.c) $(wildcard -r src/**/*.c) $(wildcard -r src/**/**/*.c)
 _OBJ = $(patsubst %.c, %.o, $(__OBJ))
-OBJ = $(patsubst src/%, $(ODIR)/%, $(_OBJ))
+OBJ	 = $(patsubst src/%, $(ODIR)/%, $(_OBJ))
 
 LIBRARY = $(BUILDIR)/libsquel.so
 
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fPIC
 
 # Define a target to compile all source files
 all: dirs squel
@@ -25,10 +25,12 @@ $(ODIR)/%.o: $(SRC)%.c
 
 lib: $(LIBRARY)
 
+OBJ_WITHOUT_MAIN := $(filter-out $(ODIR)/squel.o, $(OBJ))
+
 # Rule to create the shared library
-$(LIBRARY): OBJ
+$(LIBRARY): $(OBJ_WITHOUT_MAIN)
 	@mkdir -p $(BUILDIR)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -shared $(LDFLAGS) -o $@ $^
 
 dirs:
 	mkdir -p data build/parser build/planner/operators build/binder build/io build/executor build/executor/statements build/operators build/util/hashmap build/api
