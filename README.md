@@ -48,13 +48,16 @@ See [./test/](./test/)  for further examples.
 
 The query planner is relatively straight forward. It creates a query plan that comprises of the following operators (see [src/include/planner/planner.h](src/include/planner/planner.h)):
 
-    OP_SCANTDB
-    OP_SCAN
-    OP_PROJECT
-    OP_FILTER
-    OP_JOIN
-    OP_AGGREGATE
-    OP_HASHJOIN
+    OP_SCANTDB,
+    OP_SCAN,
+    OP_PROJECT,
+    OP_FILTER,
+    OP_JOIN,
+    OP_AGGREGATE,
+    OP_HASHJOIN,
+    OP_STMTCREATE,
+    OP_STMTINSERT,
+    OP_STMTEXPLAIN
 
 Two operators are noteworthy:
 - `OP_SCANTDB` describes `.tdb` -table, whereas `OP_SCAN` is a scan on a plaintext file.
