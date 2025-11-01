@@ -27,9 +27,6 @@ void executeInsert(Operator* insertOp) {
 
     struct TDB tbl = readTdbMetadata(ptr_filepath);
 
-    // /* Plan the query */
-    // Operator* queryplan = planQuery(node->next->next);
-
     Operator* op = insertOp->child;
 
     /* Check target table matches result description of the query */

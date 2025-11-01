@@ -52,18 +52,6 @@ void printTuple(Tuple* tpl) {
 
 }
 
-Operator* planSquelQuery(char* sqlStmt, Node** parseTreeOut) {
-
-    // Allocate memory for parse tree and parse the raw query
-    *parseTreeOut = createParsetree();
-    parse(sqlStmt, *parseTreeOut);
-
-    return planQuery((*parseTreeOut)->next);
-}
-
-void executeSquel(Operator* queryplan, void (*tupleHandler)(Tuple* tpl)) {
-    execute(queryplan, tupleHandler);    
-}
 
 
 void printColnames(Operator* queryplan) {
@@ -136,17 +124,15 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    Node* parsetree = NULL;
-    Operator* queryplan = planSquelQuery(argv[query_arg], &parsetree);
+    Operator* queryplan = planQuery(argv[query_arg]);
 
     resultDescToPrint = &queryplan->resultDescription;
 
     printColnames(queryplan);
-    executeSquel(queryplan, printTuple);
+    execute(queryplan, printTuple);
 
-    
     /* Free all the memory used */
-    freeTree(parsetree);
+    // freeTree(parsetree);
 
     if (queryplan != NULL) {
         freeQueryplan(queryplan);

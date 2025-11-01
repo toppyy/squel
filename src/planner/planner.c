@@ -139,7 +139,7 @@ Operator* buildExplain(Node* node) {
     Operator* op = (Operator*) calloc(1, sizeof(Operator));
     op->type    = OP_STMTEXPLAIN;
 
-    op->child = planQuery(node->next);
+    op->child = planQueryAst(node->next);
 
     return op;
 
@@ -158,30 +158,11 @@ Operator* buildInsert(Node* node) {
     strcpy(op->info.insert.targetTableName, node->next->content);
 
     /* Plan the query */
-    op->child = planQuery(node->next->next);
+    op->child = planQueryAst(node->next->next);
 
     return op;
 }
 
-
-Operator* planQuery(Node* node) {
-
-    switch(node->type) {
-        case STMTCREATE:
-            return buildCreateTable(node);
-        case SELECT:
-            return planSelect(node);
-        case STMTINSERT:
-            return buildInsert(node);
-        case STMTEXPLAIN:
-            return buildExplain(node);
-        default:
-            printf("Internal error: don't know how to start planning from node with type of %d\n", node->type);
-            exit(1);
-            break;
-    }
-    return NULL;
-}
 
 
 Operator* planSelect(Node* nodeSELECT) {
@@ -214,4 +195,35 @@ Operator* planSelect(Node* nodeSELECT) {
 
 
     return opProj;   
+}
+
+
+Operator* planQueryAst(Node* node) {
+
+    switch(node->type) {
+        case STMTCREATE:
+            return buildCreateTable(node);
+        case SELECT:
+            return planSelect(node);
+        case STMTINSERT:
+            return buildInsert(node);
+        case STMTEXPLAIN:
+            return buildExplain(node);
+        default:
+            printf("Internal error: don't know how to start planning from node with type of %d\n", node->type);
+            exit(1);
+            break;
+    }
+    return NULL;
+}
+
+
+
+Operator* planQuery(char* sqlStmt) {
+
+    // Allocate memory for parse tree and parse the raw query
+    Node* ast = createParsetree();
+    parse(sqlStmt, ast);
+
+    return planQueryAst((ast)->next);
 }

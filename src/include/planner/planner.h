@@ -6,6 +6,7 @@
 #include "../io/tdb.h"
 #include "../parser/utils.h"
 #include "../parser/parsetree.h"
+#include "../parser/parser.h"
 #include "../executor/tuple.h"
 #include "../executor/tuplebuffer.h"
 #include "../util/hashmap.h"
@@ -162,5 +163,6 @@ Operator* makeFilterOps(Node* where_node, Operator* child);
 Operator* makeAggregateOp(Node* node, Operator* child_op);
 Operator* makeJoinOp(Operator* left, Operator* right, Node* ON);
 
-Operator* planQuery(Node* astRoot) ;
-Operator* planSelect(Node* astRoot) ;
+Operator* planQueryAst(Node* astRoot);
+Operator* planQuery(char* sqlStmt);
+Operator* planSelect(Node* astRoot);
