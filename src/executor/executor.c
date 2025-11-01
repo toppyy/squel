@@ -82,18 +82,6 @@ void executeSelect(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
 
 }
 
-int isStatement(Operator* op) {
-    switch(op->type) {
-        case OP_STMTCREATE:
-        case OP_STMTEXPLAIN:
-        case OP_STMTINSERT:
-            return 1;
-        default:
-            return 0;
-    }
-}
-
-
 
 void execute(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
 
