@@ -1,9 +1,11 @@
 #!/usr/bin/env bats
 
 setup_file() {
+    rm -f data/test_small.tdb
+    rm -f data/test_small2.tdb
     run make 
-    run ./build/squel "CREATE TABLE test_small  AS (col1 CHAR 50, col2 CHAR 50, col3 INT)"
-    run ./build/squel "CREATE TABLE test_small2 AS (char CHAR 50, int INT)" 
+    run ./build/squel "CREATE TABLE test_small  AS (col1 CHAR(50), col2 CHAR(50), col3 INT)"
+    run ./build/squel "CREATE TABLE test_small2 AS (char CHAR(50), int INT)" 
     run ./build/squel "INSERT INTO test_small  SELECT col1,col2,col3 FROM './test/data/small.csv'"
     run ./build/squel "INSERT INTO test_small2 SELECT char,int FROM './test/data/small2.csv'"
 }
