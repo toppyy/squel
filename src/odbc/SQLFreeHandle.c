@@ -9,6 +9,8 @@ SQLRETURN SQLFreeHandle(
 {
     switch(HandleType) {
         case SQL_HANDLE_STMT:
+            freeQueryplan(((StatementHandle*) handle)->queryplan);
+            freeTuple(((StatementHandle*) handle)->tpl);
             free((StatementHandle*) handle);
             break;
         default:
