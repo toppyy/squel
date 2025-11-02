@@ -29,6 +29,19 @@ long getLongFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx) {
     return *(long*) (tpl->data + colOffset);
 }
 
+int getIntFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx) {
+
+    size_t colOffset = queryplan->resultDescription.pCols[colIdx];
+    return *(int*) (tpl->data + colOffset);
+}
+
+char* getCharFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx) {
+
+    size_t colOffset = queryplan->resultDescription.pCols[colIdx];
+    return (char*) (tpl->data + colOffset);
+}
+
+
 
 int isStatement(Operator* op) {
     switch(op->type) {

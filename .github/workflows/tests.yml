@@ -17,7 +17,7 @@ jobs:
         submodules: 'true'
     - name: make dirs
       run: make dirs
-    - name: make
-      run: make
+    - name: make squel
+      run: make squel
     - name: make tests
       run: make tests
