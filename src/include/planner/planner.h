@@ -165,6 +165,9 @@ Operator* makeScanTDBOp(Node* node);
 Operator* makeFilterOps(Node* where_node, Operator* child);
 Operator* makeAggregateOp(Node* node, Operator* child_op);
 Operator* makeJoinOp(Operator* left, Operator* right, Node* ON);
+Operator* makeCreateTable(Node* node);
+Operator* makeInsert(Node* node);
+Operator* makeExplain(Node* node);
 
 Operator* planQueryAst(Node* astRoot);
 Operator* planQuery(char* sqlStmt);
