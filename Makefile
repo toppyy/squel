@@ -11,11 +11,11 @@ C_SOURCE = $(wildcard -r src/*.c) $(wildcard -r src/**/*.c) $(wildcard -r src/**
 C_WITHOUT_ODBC = $(filter-out $(wildcard -r src/odbc/*.c), $(C_SOURCE))
 C_ODBC = $(filter $(wildcard -r src/odbc/*.c), $(C_SOURCE))
 
-_OBJ = $(patsubst %.c, %.o, $(C_WITHOUT_ODBC))
+_OBJ 		= $(patsubst %.c, %.o, $(C_WITHOUT_ODBC))
 OBJ	 		= $(patsubst src/%, $(ODIR)/%, $(_OBJ))
 
-_ODBC_OBJ = $(patsubst %.c, %.o, $(C_ODBC))
-ODBC_OBJ   = $(patsubst src/%, $(ODIR)/%, $(_ODBC_OBJ))
+_ODBC_OBJ 	= $(patsubst %.c, %.o, $(C_SOURCE))
+ODBC_OBJ   	= $(patsubst src/%, $(ODIR)/%, $(_ODBC_OBJ))
 
 LIBRARY = $(BUILDIR)/libsquel.so
 
@@ -48,7 +48,7 @@ OBJ_WITHOUT_MAIN := $(filter-out $(ODIR)/squel.o, $(OBJ))
 
 LIB_OBJ = $(OBJ_WITHOUT_MAIN) $(ODBC_OBJ)
 
-$(LIBRARY): $(OBJ_WITHOUT_MAIN)
+$(LIBRARY): $(LIB_OBJ)
 	@mkdir -p $(BUILDIR)
 	$(CC) -shared $(LDFLAGS) -o $@ $^
 
@@ -57,7 +57,8 @@ dirs:
 
 clean:
 	rm -f ./build/squel $(OBJ)
-	rm -f ./build/libsquel.so
+	rm -f ./build/libsquel.so $(ODBC_OBJ)
+	rm -f ./build/odbc_obj
 
 # Run tests
 tests:
@@ -75,3 +76,6 @@ perf-test-count:
 perf-test-join:
 	mkdir -p perf/results
 	. ./perf/measure_perf_join.sh  2> ./perf/results/join.csv && cat ./perf/results/join.csv
+
+isql_test:
+	isql -b squel user password  < test/odbc/odbc_testquery.sql

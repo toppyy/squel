@@ -11,11 +11,7 @@ RETCODE SQL_API SQLDriverConnect(
     SQLSMALLINT * pcbConnStrOut,
     SQLUSMALLINT fDriverCompletion __attribute__((unused))
 ) {
-
-    printf("connecting to '%s'\n", szConnStrIn);
-
-    memcpy(szConnStrOut,"connected to squel", 19);
-    (*pcbConnStrOut) = 19;
-
+    memcpy(szConnStrOut,"squel: connection succesful", 27);
+    (*pcbConnStrOut) = 27;
     return SQL_SUCCESS;
 }

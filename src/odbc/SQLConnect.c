@@ -14,8 +14,6 @@ RETCODE SQL_API SQLConnect(
         SQLSMALLINT NameLength3 __attribute__((unused))
 )
 {
-
-    printf("SQLConnect: Trying to connect to '%s'\n", ServerName);
-
+    printf("squel: connecting to '%s'\n", ServerName);
 	return SQL_SUCCESS;
 }

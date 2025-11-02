@@ -50,23 +50,5 @@ SQLRETURN SQLGetData( SQLHSTMT      stmtHandle,
 
     }
 
-
-    // switch(type) {
-    //     case CTYPE_CHAR:
-    //         strncpy(pTarget, getCharFromIndex(handle->queryplan, handle->tpl, nCol), nTargetLength);
-    //         *pnLengthOrIndicator = strlen(pTarget);
-    //         break;
-    //     case CTYPE_INT:
-    //         * ((int*) pTarget) = getIntFromIndex(handle->queryplan, handle->tpl, nCol);
-    //         *pnLengthOrIndicator = sizeof(int);
-    //         break;
-    //     case CTYPE_LONG:
-    //         * ((long*) pTarget) = 
-    //         *pnLengthOrIndicator = sizeof(long);
-    //         break;
-    //     default:
-    //         break;
-    // }
-
     return SQL_SUCCESS;
 }   
