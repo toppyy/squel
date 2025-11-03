@@ -2,12 +2,8 @@
 
 
 
-SQLRETURN  SQL_API SQLPrepare(
-    SQLHSTMT stmtHandle,
-    SQLCHAR* stmt,
-    SQLINTEGER TextLength __attribute__((unused))
-) {
-    
+RETCODE SQL_API _InitQuery(SQLHSTMT stmtHandle, SQLCHAR* stmt) {
+
     StatementHandle* handle = (StatementHandle*) stmtHandle;
 
     if (handle->queryplan != NULL) {
@@ -20,6 +16,8 @@ SQLRETURN  SQL_API SQLPrepare(
     prepareQuery(handle->queryplan);
 
     handle->tpl = initTupleOfSize(TUPLESIZE);
-
     return SQL_SUCCESS;
+
 }
+
+

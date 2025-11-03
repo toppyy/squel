@@ -5,6 +5,7 @@ SQLRETURN SQLRowCount(
     SQLHSTMT stmtHandle __attribute__((unused)),
     SQLLEN  *pnRowCount
 )  {
-    (*pnRowCount) = ((StatementHandle*) stmtHandle)->rowcount;
+    // Should return the number of affected rows
+    (*pnRowCount) = 0; 
     return SQL_SUCCESS;
 }

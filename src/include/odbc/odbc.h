@@ -8,6 +8,10 @@
 #include "../api/api.h"
 
 
+#define MAXCOLSOFTYPE 100
+
+
+
 typedef struct {
     SQLSMALLINT type;
 } Handle;
@@ -18,4 +22,12 @@ typedef struct {
     Operator*   queryplan;
     Tuple*      tpl;
     long        rowcount;
+    bool        bound;
+
+    unsigned char   *charBuff[MAXCOLSOFTYPE];
+    long            charBuffLength[MAXCOLSOFTYPE];
+    long            *longintBuff[MAXCOLSOFTYPE];
 } StatementHandle;
+
+RETCODE SQL_API _Fetch(SQLHSTMT stmthandle);
+SQLRETURN SQL_API _InitQuery(SQLHSTMT stmtHandle, SQLCHAR* stmt);

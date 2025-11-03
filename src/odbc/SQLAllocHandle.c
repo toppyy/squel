@@ -7,6 +7,7 @@ RETCODE SQL_API SQLAllocHandle(SQLSMALLINT HandleType, SQLHANDLE InputHandle __a
         case SQL_HANDLE_STMT:
             StatementHandle* stmthandle = calloc(1, sizeof(StatementHandle));
             stmthandle->calls = 1;
+            stmthandle->bound = false;
             stmthandle->type = HandleType;
             *OutputHandle = stmthandle;
             break;

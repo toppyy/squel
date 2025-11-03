@@ -11,6 +11,15 @@ Node *root          = NULL;
 Node *currentNode   = NULL;
 size_t nodeCount    = 0;
 
+void initGlobals() {
+
+    memset(rawSql,0,MAXQUERYSIZE);
+    qsize = 0;
+    cursor = 0;
+    nodeCount = 0;
+
+}
+
 
 
 void addNode(enum nodeType type, char* content) {
@@ -470,6 +479,8 @@ void explain() {
 
 
 size_t parse(char* input, Node* p_root) {
+
+    initGlobals();
 
     root = p_root;
     currentNode = p_root;
