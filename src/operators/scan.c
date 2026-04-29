@@ -7,18 +7,18 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
     // Read header and first line of data
     FILE* f = op->info.scan.tablefile;
     if (f == NULL) {
-        char* buff = malloc(LINEBUFF);
+        op->info.scan.buffer = malloc(LINEBUFF);
         f = fopen(op->info.scan.table.path, "r");
         // Read header and discard it (already used by catalogTable)
-        readLineToBuffer(f, buff, LINEBUFF);
+        readLineToBuffer(f, op->info.scan.buffer, LINEBUFF);
         op->info.scan.tablefile = f;
-        free(buff);
+        // free(buff);
     }
 
 
 
 
-    char* lineBuffer = malloc(LINEBUFF);
+    char* lineBuffer = op->info.scan.buffer;
     char* line = readLineToBuffer(f, lineBuffer, LINEBUFF);
 
      if (line == NULL) {
@@ -41,7 +41,7 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
     char* dlmtr = ptrData;
 
     // Table metadata
-    TableMetadata tbldef = op->info.scan.table;
+    TableMetadata* tbldef = &op->info.scan.table;
 
     size_t tplSize = 0;
 
@@ -51,7 +51,6 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
 
     // Find pointers to each column
     for (;;) {
-
 
 
         dlmtr = strchr(ptrData + cursor, DELIMITER);
@@ -70,7 +69,7 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
 
 
 
-        switch (tbldef.columns[i].type) {
+        switch (tbldef->columns[i].type) {
             case DTYPE_STR:
                 strLen = strlen(ptrData + cursor) + 1;
                 if (strLen > TDBMAXSTRINGSIZE) {
@@ -104,7 +103,7 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
                 break;
 
             default:
-                printf("Don't know how to represent type %d in TDB-format\n", tbldef.columns[i].type);
+                printf("Don't know how to represent type %d in TDB-format\n", tbldef->columns[i].type);
                 exit(1);
 
         }
@@ -139,6 +138,6 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
     op->info.scan.cursor += len;
     op->resultDescription.size = tplSize;
 
-    free(lineBuffer);
+    // free(lineBuffer);
 }
 
