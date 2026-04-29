@@ -21,7 +21,7 @@ LIBRARY = $(BUILDIR)/libsquel.so
 
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -fPIC
+CFLAGS = -Wall -Wextra -Werror -fPIC -O2  -Wno-unused-result
 #CFLAGS =  -fPIC
 
 # Define a target to compile all source files
@@ -31,7 +31,7 @@ squel: $(OBJ)
 	$(CC) $(CFLAGS) $(OBJ) -o $(ODIR)/$@
 
 $(ODIR)/%.o: $(SRC)%.c
-	$(CC) -g -c $< -o $@  $(CFLAGS)
+	$(CC) -c $< -o $@  $(CFLAGS)
 
 
 libsquel: odbc_obj lib
@@ -39,8 +39,8 @@ libsquel: odbc_obj lib
 odbc_obj: $(ODBC_OBJ)
 	$(CC) $(CFLAGS) $(ODBC_OBJ) -o $(ODIR)/$@
 
-$(ODIR)/%.o: $(SRC)%.c
-	$(CC) -g -c $< -o $@  $(CFLAGS)
+# $(ODIR)/%.o: $(SRC)%.c
+# 	$(CC) -g -c $< -o $@  $(CFLAGS)
 
 lib: $(LIBRARY) 
 
