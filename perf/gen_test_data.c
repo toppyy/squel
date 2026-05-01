@@ -33,7 +33,7 @@ void make_header(char *ptr_row, size_t bufsz, int count) {
     for (int i = 0; i < count && written < (int)bufsz; ++i) {
         int r = rand();
         int n = snprintf(ptr_row + written, bufsz - written,
-                         "%s%s%d", (i == 0 ? "" : ";"), "col", i);
+                         "%s%s%d", (i == 0 ? "" : ";"), "col", (i + 1));
 
         if (n < 0 || n >= (int)(bufsz - written)) break;
         written += n;
