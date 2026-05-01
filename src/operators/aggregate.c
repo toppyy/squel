@@ -79,6 +79,7 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
         
         if (!tpl->casted) {
             colNumber = castColumnToLong(tpl, colOffset, op->resultDescription.columns[op->info.aggregate.colToAggregate].size);
+            tpl->casted = 1;
 
         } else {
             colNumber = *(long*) getTupleCol(tpl,colOffset);
