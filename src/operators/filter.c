@@ -88,6 +88,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
         Datatype constDatatype  = dtype2;
         size_t colOffset   = idx1Offset;
         size_t constIdx = 2;
+        size_t i = idx1;
         Tuple* tpl = tpl1;
         
         if (compType == CMP_CONST_COL) {
@@ -96,6 +97,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
             constIdx        = 0;
             colOffset       = idx2Offset;
             tpl             = tpl2;
+            i               = idx2;
         }
         // Now we have to only deal with 4 combinations of all the eight possible
         // 'cause datatypes must match
@@ -109,8 +111,18 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
                 cmpRes = strcmp(op->info.filter.charConstants[constIdx], getTupleCol(tpl,colOffset));
                 break;
             case DTYPE_LONG:
-                long colNumber = *(long*) getTupleCol(tpl,colOffset);
-                long constNumber = (long) op->info.filter.numConstants[constIdx];
+
+                long colNumber;
+
+                if (!tpl->casted) {
+                    colNumber = castColumnToLong(tpl, colOffset, op->resultDescription.columns[i].size);
+
+                } else {
+                    colNumber = *(long*) getTupleCol(tpl,colOffset);
+                }
+
+                long constNumber    = (long) op->info.filter.numConstants[constIdx];
+
                 // Order matters here
                 if (constIdx == 0) {
                     cmpRes = constNumber - colNumber;
@@ -145,6 +157,9 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
     return matches;
 }
+
+
+
 
 bool evaluateTuplesAgainstFilterOps(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
@@ -208,7 +223,5 @@ void filterGetTuple(Operator* op, Tuple* tpl) {
         }
 
         if (evaluateTuplesAgainstFilterOps(tpl, tpl, op)) break;
-
-
     }
 }

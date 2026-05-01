@@ -56,17 +56,17 @@ typedef struct {
 typedef struct {
     char path[CHARMAXSIZE];
     char alias[CHARMAXSIZE];
-    ColumnMetadata columns[ARRAYMAXSIZE];
     size_t columnCount;
+    ColumnMetadata columns[ARRAYMAXSIZE];
 } TableMetadata;
 
 
 
 typedef struct {
     size_t columnCount;
-    ColumnMetadata columns[ARRAYMAXSIZE];
     size_t pCols[ARRAYMAXSIZE];
     size_t size;
+    ColumnMetadata columns[ARRAYMAXSIZE];
 } ResultSet;
 
 typedef struct {
@@ -101,7 +101,6 @@ typedef struct FilterInfo {
     struct Operator*    next;
     enum nodeType       operatorNext;
     ComparisonType      compType;
-    int (*filter) (void* expr1, void* expr2);
 } FilterInfo;
 
 typedef struct {

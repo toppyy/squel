@@ -7,6 +7,7 @@ ResultSet* resultDescToPrint = NULL;
 
 
 void valueToChar(char* target, Tuple* tpl, size_t colOffset, Datatype type) {
+    
     if (type == DTYPE_STR) {
         strcpy(target, tpl->data + colOffset);
         return;
@@ -38,8 +39,14 @@ void printTuple(Tuple* tpl) {
     char buff[CHARMAXSIZE];
 
     for (size_t i = 0; i < resultDescToPrint->columnCount; i++) {
-        memset(buff, 0, CHARMAXSIZE);        
-        valueToChar(buff, tpl ,resultDescToPrint->pCols[i], resultDescToPrint->columns[i].type);
+        memset(buff, 0, CHARMAXSIZE);
+
+        // Check if the data has been parsed from string to another type during execution
+        Datatype typeToPrint = DTYPE_STR;
+
+        if (tpl->casted) typeToPrint = resultDescToPrint->columns[i].type;
+
+        valueToChar(buff, tpl ,resultDescToPrint->pCols[i], typeToPrint);
 
         if (i == 0) printf("%s",buff);
         else printf(";%s",buff);
