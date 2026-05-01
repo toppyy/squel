@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <time.h>
 
-#define ROWMAX 50
+#define ROWMAX 200
 
 void make_row(char *ptr_row, size_t bufsz, int count) {
     
@@ -76,8 +76,6 @@ int main(int argc, char** argv) {
 
 
     for (long i = 0; i < records; i++) {
-        // memset(ptr_row,0,ROWMAX);
-        // sprintf(ptr_row, "\n%d;%d", (rand() / 2), rand());
         make_row(ptr_row, ROWMAX, columns);
         write(fd, ptr_row, strlen(row));
     }
