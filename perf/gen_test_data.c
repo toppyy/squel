@@ -28,7 +28,7 @@ void make_row(char *ptr_row, size_t bufsz, int count) {
 void make_header(char *ptr_row, size_t bufsz, int count) {
     
     int written = 0;
-    written = snprintf(ptr_row, bufsz, "\n");
+    written = snprintf(ptr_row, bufsz, "");
 
     for (int i = 0; i < count && written < (int)bufsz; ++i) {
         int r = rand();
