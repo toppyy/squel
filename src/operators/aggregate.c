@@ -78,11 +78,11 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
         }
         
         if (!tpl->casted) {
-            colNumber = castColumnToLong(tpl, colOffset, op->resultDescription.columns[op->info.aggregate.colToAggregate].size);
-            tpl->casted = 1;
+            colNumber = castColumnToLong(tmpTpl, colOffset, op->resultDescription.columns[op->info.aggregate.colToAggregate].size);
+            tmpTpl->casted = 1;
 
         } else {
-            colNumber = *(long*) getTupleCol(tpl,colOffset);
+            colNumber = *(long*) getTupleCol(tmpTpl,colOffset);
         }
 
         result = agg_fun(result, colNumber);
@@ -103,5 +103,6 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
 
     
     *(long*)(tpl->data) = result; 
+    tpl->casted = 1;
 
 }
