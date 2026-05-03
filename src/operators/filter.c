@@ -15,8 +15,6 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
     int idx1        = op->info.filter.boolExprList[0];
     int boolOp      = op->info.filter.boolExprList[1];
     int idx2        = op->info.filter.boolExprList[2];    
-    int idx1Offset  = op->resultDescription.pCols[idx1];
-    int idx2Offset  = op->resultDescription.pCols[idx2];
     ComparisonType compType = op->info.filter.compType;
 
 
@@ -43,22 +41,29 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
         switch (dtype1)   {
             case DTYPE_STR:
+                // printf("'%s' vs '%s'\n", (char*) getTupleColByIndex(tpl1,idx1),(char*) getTupleColByIndex(tpl2,idx2));
                 cmpRes = strcmp(
-                    (char*) getTupleCol(tpl1,idx1Offset),
-                    (char*) getTupleCol(tpl2,idx2Offset)
+                    (char*) getTupleColByIndex(tpl1,idx1),
+                    (char*) getTupleColByIndex(tpl2,idx2)
                 );
                 break;
+
             case DTYPE_INT:
-                int number1 = *(int*) getTupleCol(tpl1,idx1Offset);
-                int number2 = *(int*) getTupleCol(tpl2,idx2Offset);
+
+                int number1 = *(int*) getTupleColByIndex(tpl1,idx1);
+                int number2 = *(int*) getTupleColByIndex(tpl2,idx2);
                 cmpRes = number1 - number2;
                 break;
+
             case DTYPE_LONG:
-                long lnumber1 = *(long*) getTupleCol(tpl1,idx1Offset);
-                long lnumber2 = *(long*) getTupleCol(tpl2,idx2Offset);
-                // printf("LONG %ld from offset %d vs %ld from offset %d\n", lnumber1, idx1Offset, lnumber2, idx2Offset);
+
+                long lnumber1 = getTupleLongColByIndex(tpl1,idx1);
+                long lnumber2 = getTupleLongColByIndex(tpl2,idx2);
+
+                // printf("LONG %ld from offset %d vs %ld from offset %d\n", lnumber1, idx1, lnumber2, idx2);
                 cmpRes = lnumber1 - lnumber2;
                 break;
+            
             default:
                 printf("FILTER_OP: Don't know how to compare datatype %d\n", dtype1);
                 exit(1);
@@ -86,7 +91,6 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
         // and fix if it's not
         
         Datatype constDatatype  = dtype2;
-        size_t colOffset   = idx1Offset;
         size_t constIdx = 2;
         size_t i = idx1;
         Tuple* tpl = tpl1;
@@ -95,7 +99,6 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
             // Guess was wrong, fix it
             constDatatype   = dtype1;
             constIdx        = 0;
-            colOffset       = idx2Offset;
             tpl             = tpl2;
             i               = idx2;
         }
@@ -108,19 +111,11 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
         //      DTYPE_INT vs. IDENT_COL + NUMBER
         switch (constDatatype) {
             case DTYPE_STR:
-                cmpRes = strcmp(op->info.filter.charConstants[constIdx], getTupleCol(tpl,colOffset));
+                cmpRes = strcmp(op->info.filter.charConstants[constIdx], getTupleColByIndex(tpl,i));
                 break;
             case DTYPE_LONG:
 
-                long colNumber;
-
-                if (!tpl->casted) {
-                    colNumber = castColumnToLong(tpl, colOffset, op->resultDescription.columns[i].size);
-
-                } else {
-                    colNumber = *(long*) getTupleCol(tpl,colOffset);
-                }
-
+                long colNumber      = colNumber = getTupleLongColByIndex(tpl,i);
                 long constNumber    = (long) op->info.filter.numConstants[constIdx];
 
                 // Order matters here

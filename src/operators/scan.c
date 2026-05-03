@@ -2,8 +2,9 @@
 
 void scanGetTuple(Operator* op, Tuple* tpl) {
 
+    
     checkPtrNotNull(op, "NULL pointer passed to scanGetTuple");
-
+    
     // Read header and first line of data
     FILE* f = op->info.scan.tablefile;
     if (f == NULL) {
@@ -12,15 +13,17 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
         // Read header and discard it (already used by catalogTable)
         readLineToBuffer(f, op->info.scan.buffer, LINEBUFF);
         op->info.scan.tablefile = f;
-        // free(buff);
     }
-
-
-    char* lineBuffer = op->info.scan.buffer;
-    char* line = readLineToBuffer(f, lineBuffer, LINEBUFF);
-
-     if (line == NULL) {
-        free(lineBuffer);
+    
+    // As we reuse tuples throughout the volcano, it needs to be reset
+    resetTuple(tpl);
+    
+    // char* lineBuffer = op->info.scan.buffer;
+    char* line = readLineToBuffer(f, tpl->data, LINEBUFF);
+    
+    if (line == NULL) {
+        free(op->info.scan.buffer);
+        // free(lineBuffer);
         fclose(op->info.scan.tablefile);
         markTupleAsEmpty(tpl);
         return;
@@ -33,19 +36,21 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
             strLen  = 0,
             tplSize = 0;
 
-    char* dlmtr = lineBuffer;
+    char* dlmtr = tpl->data;
 
     // size_t longSize = sizeof(long);
     // size_t intSize  = sizeof(int);
 
-    void* diskBuffer = tpl->data;
-    void* diskBufferCursor = diskBuffer;
-    
+    // void* diskBuffer = tpl->data;
+    // void* diskBufferCursor = diskBuffer;
+
+    // tpl->data = (void*) lineBuffer;
+
     // TableMetadata* tbldef = &op->info.scan.table;
 
     for (;;) {
 
-        dlmtr = strchr(lineBuffer + cursor, DELIMITER);
+        dlmtr = strchr(tpl->data + cursor, DELIMITER);
 
         if (dlmtr != NULL)  {
             (*dlmtr) = '\0'; // Replace delimiter with NULL so each column is a NULL-terminated string
@@ -57,18 +62,18 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
 
         // switch (tbldef->columns[i].type) {
         //     case DTYPE_STR:
-        strLen = strlen(lineBuffer + cursor) + 1;
-        if (strLen > TDBMAXSTRINGSIZE) {
-            printf("String data is truncated due to column size\n");
-            strLen = TDBMAXSTRINGSIZE;
-        }
-        memcpy(diskBufferCursor, lineBuffer + cursor, TDBMAXSTRINGSIZE);
-        diskBufferCursor += strLen;
-        memset(diskBufferCursor, 0, TDBMAXSTRINGSIZE - strLen);
-        diskBufferCursor += TDBMAXSTRINGSIZE - strLen;
-        op->resultDescription.pCols[i] = tplSize;
-        tplSize += TDBMAXSTRINGSIZE;
-        tpl->casted = 0;
+        // int testi = dlmtr - ((char*) tpl->data + cursor) + 1;
+        strLen = strlen(tpl->data + cursor) + 1;
+        // printf("%ld '%s': strLen: %ld, strchr: %d\n", i, (char*) (tpl->data + cursor), strLen, testi); 
+        // if (strLen > TDBMAXSTRINGSIZE) {
+        //     printf("String data is truncated due to column size\n");
+        //     strLen = TDBMAXSTRINGSIZE;
+        // }
+        tpl->sizes[i] = strLen;
+        tpl->offsets[i] = tplSize;
+        tpl->casted[i] = 0;
+
+        tplSize += strLen;
 
         //         break;
 
@@ -99,7 +104,7 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
             break;
         }
 
-        cursor += dlmtr - (lineBuffer + cursor) + 1;
+        cursor += dlmtr - ((char*) tpl->data + cursor) + 1;
 
         i++;
     };
@@ -124,6 +129,7 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
 
     // op->info.scan.cursor += len;
     op->resultDescription.size = tplSize;
+    tpl->size = tplSize;
 
     // free(lineBuffer);
 }

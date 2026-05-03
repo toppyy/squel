@@ -19,19 +19,19 @@ RETCODE SQL_API _Fetch(SQLHSTMT stmthandle) {
 
             switch(type) {
                 case CTYPE_LONG:
-                    *handle->longintBuff[colIdx] = getLongFromIndex(handle->queryplan, handle->tpl, colIdx);
+                    *handle->longintBuff[colIdx] = getLongFromIndex(handle->tpl, colIdx);
                     break;
 
                 case CTYPE_CHAR:
                     if (handle->charBuff != NULL) {
-                        const char* data = getCharFromIndex(handle->queryplan, handle->tpl, colIdx);
+                        const char* data = getCharFromIndex(handle->tpl, colIdx);
                         memset(handle->charBuff[colIdx], 0, handle->charBuffLength[colIdx]);
                         memcpy(handle->charBuff[colIdx], data, strlen(data));
                     }
                     break;
 
                 case CTYPE_INT:
-                    *handle->longintBuff[colIdx] = getIntFromIndex(handle->queryplan, handle->tpl, colIdx);
+                    *handle->longintBuff[colIdx] = getIntFromIndex(handle->tpl, colIdx);
                     break;
 
                 default:

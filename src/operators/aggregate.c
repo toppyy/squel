@@ -35,7 +35,7 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
     // }
 
 
-    size_t colOffset = op->child->resultDescription.pCols[op->info.aggregate.colToAggregate];
+    size_t colOffset = op->child->resultDescription.colrefs[op->info.aggregate.colToAggregate];
 
 
     long (*agg_fun)(long result, long num);
@@ -70,23 +70,20 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
     Tuple* tmpTpl = initTupleOfSize(TUPLESIZE);
 
     for (;;) {
-        
-        op->child->getTuple(op->child, tmpTpl);
 
+        op->child->getTuple(op->child, tmpTpl);
+        
         if (isTupleEmpty(tmpTpl)) {
             break;
         }
-        
-        if (!tpl->casted) {
-            colNumber = castColumnToLong(tmpTpl, colOffset, op->resultDescription.columns[op->info.aggregate.colToAggregate].size);
-            tmpTpl->casted = 1;
 
-        } else {
-            colNumber = *(long*) getTupleCol(tmpTpl,colOffset);
+        observations++;
+
+        if (op->info.aggregate.aggtype != COUNT) {
+            colNumber = getTupleLongColByIndex(tmpTpl, colOffset);
         }
 
         result = agg_fun(result, colNumber);
-        observations++;
     };
 
     freeTuple(tmpTpl);
@@ -98,11 +95,15 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
 
 
     op->resultDescription.columnCount = 1;
-    op->resultDescription.pCols[0] = 0;
+    op->resultDescription.colrefs[0] = 0;
     op->info.aggregate.aggregationDone = true;
 
     
-    *(long*)(tpl->data) = result; 
-    tpl->casted = 1;
+    *(long*)(tpl->data) = result;
+    tpl->longs[0]   = result;
+    tpl->longCount  = 1;
+    tpl->casted[0]  = 1;
+    tpl->offsets[0] = 0;
+
 
 }

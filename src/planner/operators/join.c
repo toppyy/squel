@@ -14,29 +14,38 @@ Operator* makeJoinFilterOps(
     // However, when filtering we want to use the original pointers to columns
     // so we must restore them from result descriptors
 
-    size_t offset = 0;
  
     for (size_t i = 0; i < leftResult.columnCount; i++) {
-        filterOps->resultDescription.pCols[i] = leftResult.pCols[i];
-        offset++;
+        filterOps->resultDescription.colrefs[i] = leftResult.colrefs[i];
     }
     for (size_t i = 0; i < rightResult.columnCount; i++) {
-        filterOps->resultDescription.pCols[i + offset] = rightResult.pCols[i];
+        filterOps->resultDescription.colrefs[i + leftResult.columnCount] = rightResult.colrefs[i];
     }
-
-
+    
+    
     // Alter so that indexes point to offsets in left and right tables
     // Otherwise would have to create a new tuple that has both columns
 
     Operator* curOp = filterOps;
     while (curOp != NULL) {
+
         if ((size_t) curOp->info.filter.boolExprList[2] > leftResult.columnCount) {
             curOp->info.filter.boolExprList[2] -= leftResult.columnCount;
+        }
+        if ((size_t) curOp->info.filter.boolExprList[0] > leftResult.columnCount) {
+            curOp->info.filter.boolExprList[0] -= leftResult.columnCount;
         }
 
         curOp = curOp->info.filter.next;    
     }
+    
 
+    // printf(
+    //     "%d vs. %d (%d). Expected 1 vs 1\n"
+    //     ,filterOps->info.filter.boolExprList[0]
+    //     ,filterOps->info.filter.boolExprList[2]
+    //     ,filterOps->info.filter.boolExprList[1]
+    // );
     return filterOps;
 }
 
@@ -86,13 +95,14 @@ Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
     opJoin->info.join.rightTupleIdx = 0;
     opJoin->info.join.rightTuplesCollected = false;
     opJoin->iteratorTupleOffset = -1;
+    opJoin->resultDescription.id = 123;
 
 
-    copyResultDescription(opJoin->info.join.left, opJoin,     0);
+    copyResultDescription(opJoin->info.join.left , opJoin, 0);
     copyResultDescription(opJoin->info.join.right, opJoin, opJoin->resultDescription.columnCount);
 
     opJoin->resultDescription.columnCount = left->resultDescription.columnCount + right->resultDescription.columnCount;
-    opJoin->resultDescription.size        = left->resultDescription.size + right->resultDescription.size;
+    opJoin->resultDescription.size        = left->resultDescription.size        + right->resultDescription.size;
 
     // Copy data
     if (
@@ -102,20 +112,6 @@ Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
             exit(1);
     }
 
-
-    /* Copy column start positions */
-    size_t i = 0;
-    for (size_t j = 0; j < left->resultDescription.columnCount; j++) {
-            opJoin->resultDescription.pCols[i] = left->resultDescription.pCols[j];
-            i++;
-    }
-
-    size_t offset = left->resultDescription.size;
-
-    for (size_t j = 0; j < right->resultDescription.columnCount; j++) {
-            opJoin->resultDescription.pCols[i] = offset + right->resultDescription.pCols[j];
-            i++;
-    }
 
     /* ON-clause */
     Operator* opFilter = makeJoinFilterOps(ON, opJoin, left->resultDescription, right->resultDescription);

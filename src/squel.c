@@ -6,21 +6,22 @@ ResultSet* resultDescToPrint = NULL;
 
 
 
-void valueToChar(char* target, Tuple* tpl, size_t colOffset, Datatype type) {
+void tupleColValueToChar(char* target, Tuple* tpl, size_t colIdx, Datatype type) {
+
     
     if (type == DTYPE_STR) {
-        strcpy(target, tpl->data + colOffset);
+        strcpy(target, getTupleColByIndex(tpl, colIdx));
         return;
     }
     if (type == DTYPE_INT) {
         char tmp[CHARMAXSIZE];
-        sprintf(tmp, "%d", *(int*) (tpl->data + colOffset));
+        sprintf(tmp, "%d", *(int*) source);
         memcpy(target, tmp, strlen(tmp));
         return;
     }
     if (type == DTYPE_LONG) {
         char tmp[CHARMAXSIZE];
-        sprintf(tmp, "%ld", *(long*) (tpl->data + colOffset));
+        sprintf(tmp, "%ld", getTupleLongColByIndex(tpl, colIdx));
         memcpy(target, tmp, strlen(tmp));
         return;
     }
@@ -38,21 +39,43 @@ void printTuple(Tuple* tpl) {
 
     char buff[CHARMAXSIZE];
 
+
+    // printf("printing data: '");
+    // for (size_t i = 0; i < tpl->size; i++) {
+    //     char c = ((char*) tpl->data)[i];
+    //     if (c == '\0') c = '|';
+    //     printf("%c", c);
+    // }
+    // printf("'\n");
+
+
+    // printf("---\n");
+    // printf("queryplan->resultDescription.id: %ld\n", resultDescToPrint->id);
+    // for (size_t i = 0; i < resultDescToPrint->columnCount; i++) printf("col %ld: %d\n", i, resultDescToPrint->columns[i].type);
+    // printf("---\n");
+
     for (size_t i = 0; i < resultDescToPrint->columnCount; i++) {
         memset(buff, 0, CHARMAXSIZE);
 
-        // Check if the data has been parsed from string to another type during execution
         Datatype typeToPrint = DTYPE_STR;
 
-        if (tpl->casted) typeToPrint = resultDescToPrint->columns[i].type;
-
-        valueToChar(buff, tpl ,resultDescToPrint->pCols[i], typeToPrint);
+        size_t colIdx = resultDescToPrint->colrefs[i];
+        
+        if (tpl->casted[colIdx]) typeToPrint = resultDescToPrint->columns[i].type;
+        
+        // printf("colIdx %ld (casted: %c, type: %d): '", colIdx, tpl->casted[colIdx] ? 'T' : 'F', typeToPrint);
+        tupleColValueToChar(buff, tpl, colIdx, typeToPrint);
+        // printf("%s'. tpl->longCount: %ld\n", buff, tpl->longCount);
 
         if (i == 0) printf("%s",buff);
         else printf(";%s",buff);
-        
+
+
 
     }
+
+    // for (size_t i = 0; i < tpl->longCount; i++) printf("long %ld: %ld\n", i, tpl->longs[i]);
+
     printf("\n");
 
 }

@@ -63,8 +63,9 @@ typedef struct {
 
 
 typedef struct {
+    size_t id;
     size_t columnCount;
-    size_t pCols[ARRAYMAXSIZE];
+    size_t colrefs[ARRAYMAXSIZE];
     size_t size;
     ColumnMetadata columns[ARRAYMAXSIZE];
 } ResultSet;

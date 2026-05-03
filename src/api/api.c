@@ -23,22 +23,16 @@ ctype getResultSetColumnType(Operator* queryplan, size_t colIdx)  {
     }
 }
 
-long getLongFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx) {
-
-    size_t colOffset = queryplan->resultDescription.pCols[colIdx];
-    return *(long*) (tpl->data + colOffset);
+long getLongFromIndex(Tuple* tpl, size_t colIdx) {
+    return *(long*) (tpl->data + tpl->offsets[colIdx]);
 }
 
-int getIntFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx) {
-
-    size_t colOffset = queryplan->resultDescription.pCols[colIdx];
-    return *(int*) (tpl->data + colOffset);
+int getIntFromIndex(Tuple* tpl, size_t colIdx) {
+    return *(int*) (tpl->data + tpl->offsets[colIdx]);
 }
 
-char* getCharFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx) {
-
-    size_t colOffset = queryplan->resultDescription.pCols[colIdx];
-    return (char*) (tpl->data + colOffset);
+char* getCharFromIndex(Tuple* tpl, size_t colIdx) {
+    return (char*) (tpl->data + tpl->offsets[colIdx]);
 }
 
 

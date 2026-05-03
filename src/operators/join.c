@@ -11,9 +11,48 @@ void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* 
         exit(1);
     }
 
+    memcpy(returnTpl->data, leftTpl->data, leftTpl->size);
+    memcpy(returnTpl->data + left->size, rightTpl->data, rightTpl->size);
 
-    memcpy(returnTpl->data, leftTpl->data, left->size);
-    memcpy(returnTpl->data + left->size, rightTpl->data, right->size);
+
+
+    for (size_t i = 0; i < left->columnCount; i++) {
+        returnTpl->offsets[i]   = leftTpl->offsets[i];
+        returnTpl->sizes[i]     = leftTpl->sizes[i];
+        returnTpl->casted[i]    = leftTpl->casted[i];
+        returnTpl->longs[i]     = leftTpl->longs[i];
+    }
+
+    returnTpl->longCount = leftTpl->longCount;
+    
+    for (size_t i = 0; i < right->columnCount; i++) {
+        if (rightTpl->casted[i]) {
+            returnTpl->offsets[i + left->columnCount]   =  leftTpl->longCount + rightTpl->offsets[i];
+        } else {
+            returnTpl->offsets[i + left->columnCount]   =  leftTpl->size + rightTpl->offsets[i];
+        }
+        returnTpl->sizes[i + left->columnCount]     =  rightTpl->sizes[i];
+        returnTpl->casted[i + left->columnCount]    =  rightTpl->casted[i];
+        returnTpl->longs[i + leftTpl->longCount]    =  rightTpl->longs[i];
+
+        // if (rightTpl->casted[i]) printf("casted: %ld %ld\n", i + left->columnCount, i );
+    }
+
+    returnTpl->longCount = leftTpl->longCount + rightTpl->longCount;
+
+    returnTpl->size = leftTpl->size + rightTpl->size;
+
+    // printf("concat: '");
+    // for (size_t i = 0; i < returnTpl->size; i++) {
+    //     char c = ((char*) returnTpl->data)[i];
+    //     if (c == '\0') c = '|';
+    //     printf("%c", c);
+    // }
+    // printf("'\n");
+
+
+ 
+
 }
 
 void joinGetTuple(Operator* op, Tuple* tpl) {
@@ -51,7 +90,7 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
         if (isTupleEmpty(rightTuple)) {
             op->info.join.rightTuplesCollected = true;
             continue; 
-        } 
+        }
 
         op->info.join.rightTupleCount++;
     }

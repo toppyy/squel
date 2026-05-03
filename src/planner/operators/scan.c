@@ -38,7 +38,6 @@ Operator* makeScanOp(Node* node) {
     op->resultDescription.size  = 0;
     op->iteratorTupleOffset     = -1;
 
-    op->resultDescription.pCols[0] = 0;
 
     for (size_t i = 0; i < tbl.columnCount; i++) {
         op->resultDescription.columns[i].type = tbl.columns[i].type;
@@ -48,7 +47,6 @@ Operator* makeScanOp(Node* node) {
 
         op->resultDescription.size += TDBMAXSTRINGSIZE;
 
-        if (i > 0)  op->resultDescription.pCols[i] = op->resultDescription.pCols[i-1] + TDBMAXSTRINGSIZE;
     }
     op->resultDescription.columnCount = tbl.columnCount;
     
