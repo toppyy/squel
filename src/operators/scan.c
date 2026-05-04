@@ -4,6 +4,9 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
 
     
     checkPtrNotNull(op, "NULL pointer passed to scanGetTuple");
+
+
+    tpl->type = TPL_DELIMITED;
     
     // Read header and first line of data
     FILE* f = op->info.scan.tablefile;

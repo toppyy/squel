@@ -24,6 +24,10 @@ void* getTupleColByIndex(Tuple* tpl, size_t index) {
 
 long getTupleLongColByIndex(Tuple* tpl, size_t index) {
 
+    if (tpl->type == TPL_TDB) {
+        return *(long*) getTupleCol(tpl, tpl->offsets[index]);
+    }
+
     if (!tpl->casted[index]) {
         castColumnToLong(tpl, index);
     };

@@ -5,16 +5,24 @@
 
 #define MAXCOLS 100
 
+typedef enum Tupletype {
+    TPL_TDB,
+    TPL_DELIMITED
+} Tupletype;
+
+
 typedef struct  {
     void* data;
     size_t size;
+    char   tdbOffsets;
     char   casted[MAXCOLS];
     size_t offsets[MAXCOLS];
     size_t sizes[MAXCOLS];
 
-    /* Data */
     size_t  longCount;
     long longs[MAXCOLS];
+
+    Tupletype type;
 
 } Tuple;
 

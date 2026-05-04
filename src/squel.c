@@ -40,13 +40,13 @@ void printTuple(Tuple* tpl) {
     char buff[CHARMAXSIZE];
 
 
-    // printf("printing data: '");
-    // for (size_t i = 0; i < tpl->size; i++) {
-    //     char c = ((char*) tpl->data)[i];
-    //     if (c == '\0') c = '|';
-    //     printf("%c", c);
-    // }
-    // printf("'\n");
+    printf("printing data: '");
+    for (size_t i = 0; i < tpl->size; i++) {
+        char c = ((char*) tpl->data)[i];
+        if (c == '\0') c = '|';
+        printf("%c", c);
+    }
+    printf("'\n");
 
 
     // printf("---\n");
