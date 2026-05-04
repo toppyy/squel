@@ -38,5 +38,4 @@ size_t isTupleEmpty(Tuple* tpl);
 
 void markTupleAsEmpty(Tuple* tpl);
 
-
-long castColumnToLong(Tuple* tpl, size_t colOffset);
+void castColumnToLong(Tuple* tpl, size_t colOffset);
