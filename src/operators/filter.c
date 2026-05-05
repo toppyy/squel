@@ -117,6 +117,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
                 long colNumber      = colNumber = getTupleLongColByIndex(tpl,i);
                 long constNumber    = (long) op->info.filter.numConstants[constIdx];
+                // printf("LONG %ld from offset %ld vs constant %ld\n", colNumber, i, constNumber);
 
                 // Order matters here
                 if (constIdx == 0) {
@@ -124,7 +125,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
                 } else {
                     cmpRes = colNumber - constNumber;
                 }
-                break;        
+                break;
             default:
                 printf("FILTER_OP: Don't know how to handle datatype %d\n", constDatatype);
                 exit(1);

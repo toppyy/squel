@@ -11,6 +11,8 @@ void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* 
         exit(1);
     }
 
+    returnTpl->type = leftTpl->type; // TODO: what if these differ between left and right?
+
     memcpy(returnTpl->data, leftTpl->data, leftTpl->size);
     memcpy(returnTpl->data + left->size, rightTpl->data, rightTpl->size);
 
@@ -26,20 +28,23 @@ void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* 
     returnTpl->longCount = leftTpl->longCount;
     
     for (size_t i = 0; i < right->columnCount; i++) {
-        if (rightTpl->casted[i]) {
+
+        if (
+            // For delimited tables, the offsets refer to offsets into the longs-array
+            // if the value has been casted
+            (rightTpl->casted[i]) & (returnTpl->type == TPL_DELIMITED)
+        ) {
             returnTpl->offsets[i + left->columnCount]   =  leftTpl->longCount + rightTpl->offsets[i];
         } else {
             returnTpl->offsets[i + left->columnCount]   =  leftTpl->size + rightTpl->offsets[i];
         }
+
         returnTpl->sizes[i + left->columnCount]     =  rightTpl->sizes[i];
         returnTpl->casted[i + left->columnCount]    =  rightTpl->casted[i];
         returnTpl->longs[i + leftTpl->longCount]    =  rightTpl->longs[i];
-
-        // if (rightTpl->casted[i]) printf("casted: %ld %ld\n", i + left->columnCount, i );
     }
 
     returnTpl->longCount = leftTpl->longCount + rightTpl->longCount;
-
     returnTpl->size = leftTpl->size + rightTpl->size;
 
     // printf("concat: '");

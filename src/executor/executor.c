@@ -57,7 +57,7 @@ void doAssignGetTupleFunction(Operator* p_op) {
 }
 
 
-void executeSelect(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
+void executeSelect(Operator* op, void (*tupleHandler)(Operator* op, Tuple* tpl)) {
 
     checkPtrNotNull(op, "Internal error: NULL-ptr passed to execute");
 
@@ -74,7 +74,7 @@ void executeSelect(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
         op->getTuple(op, tpl);
         if (isTupleEmpty(tpl)) break;
 
-        tupleHandler(tpl);
+        tupleHandler(op, tpl);
 
     };
     freeTuple(tpl);
@@ -83,7 +83,7 @@ void executeSelect(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
 }
 
 
-void execute(Operator* op, void (*tupleHandler)(Tuple* tpl)) {
+void execute(Operator* op, void (*tupleHandler)(Operator* op, Tuple* tpl)) {
 
     switch(op->type) {
         case OP_STMTCREATE:

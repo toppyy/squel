@@ -29,43 +29,49 @@ void tupleColValueToChar(char* target, Tuple* tpl, size_t colIdx, Datatype type)
     exit(1);
 }
 
+#include <stdint.h>
+void dump_bytes(const void *buf, size_t len) {
+    const uint8_t *b = (const uint8_t*) buf;
+    for (size_t i = 0; i < len; ++i) {
+        if (i % 16 == 0) printf("%08zx: ", i);
+        printf("%02x ", b[i]);
+        if ((i % 16) == 15 || i == len - 1) printf("\n");
+}}
 
-void printTuple(Tuple* tpl) {
 
-    if (resultDescToPrint == NULL) {
+void printTuple(Operator* op, Tuple* tpl) {
+
+    if (op == NULL) {
         printf("No result set to print?\n");
         exit(1);
     }
 
     char buff[CHARMAXSIZE];
 
+    // dump_bytes(tpl->data, tpl->size);
 
-    printf("printing data: '");
-    for (size_t i = 0; i < tpl->size; i++) {
-        char c = ((char*) tpl->data)[i];
-        if (c == '\0') c = '|';
-        printf("%c", c);
-    }
-    printf("'\n");
-
+    // for (size_t i = 0; i < tpl->size;i++) printf("%c", ((char*) (tpl->data))[i]  );
+    // printf("\n");
 
     // printf("---\n");
     // printf("queryplan->resultDescription.id: %ld\n", resultDescToPrint->id);
     // for (size_t i = 0; i < resultDescToPrint->columnCount; i++) printf("col %ld: %d\n", i, resultDescToPrint->columns[i].type);
     // printf("---\n");
 
-    for (size_t i = 0; i < resultDescToPrint->columnCount; i++) {
+    for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
         memset(buff, 0, CHARMAXSIZE);
 
         Datatype typeToPrint = DTYPE_STR;
 
-        size_t colIdx = resultDescToPrint->colrefs[i];
+        size_t colIdx = op->resultDescription.colrefs[i];
         
-        if (tpl->casted[colIdx]) typeToPrint = resultDescToPrint->columns[i].type;
+        if (tpl->casted[colIdx]) typeToPrint = op->resultDescription.columns[i].type;
         
         // printf("colIdx %ld (casted: %c, type: %d): '", colIdx, tpl->casted[colIdx] ? 'T' : 'F', typeToPrint);
+
         tupleColValueToChar(buff, tpl, colIdx, typeToPrint);
-        // printf("%s'. tpl->longCount: %ld\n", buff, tpl->longCount);
+
+        // printf("%s'\n", buff);
 
         if (i == 0) printf("%s",buff);
         else printf(";%s",buff);

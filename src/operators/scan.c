@@ -2,7 +2,6 @@
 
 void scanGetTuple(Operator* op, Tuple* tpl) {
 
-    
     checkPtrNotNull(op, "NULL pointer passed to scanGetTuple");
 
 

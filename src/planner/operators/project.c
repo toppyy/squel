@@ -57,6 +57,7 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
         op->info.project.colRefs[i] = j;
         op->resultDescription.colrefs[i] = j;
         op->resultDescription.columns[i].type = child_op->resultDescription.columns[j].type;
+
         // printf("Project: place %d (j) index at index %d (i) with type %d\n", j, i, op->resultDescription.columns[i].type);
         i++;
         node = node->next;

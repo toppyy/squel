@@ -16,7 +16,7 @@
 extern char *buffercache;
 extern char *bufferscan;
 
-void execute(Operator* op, void (*tupleHandler)(Tuple* tpl));
+void execute(Operator* op, void (*tupleHandler)(Operator* op, Tuple* tpl));
 void executeCreateTable(Operator* op);
 void executeInsert(Operator* op);
 void executeExplain(Operator* queryplan);

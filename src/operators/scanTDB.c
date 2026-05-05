@@ -38,12 +38,12 @@ void scanTDBGetTuple(Operator* op, Tuple* tpl) {
     if (tpl->tdbOffsets == 0) {
         size_t size = 0;
         for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
-            tpl->offsets[i] = op->info.scan.columnOffsets[i];
-            size += tpl->offsets[i];
+            tpl->offsets[i] = size;
+            tpl->casted[i] = 1;
+            tpl->sizes[i] = op->resultDescription.columns[i].size;
+            size += op->resultDescription.columns[i].size;
         }
         tpl->size = size;
-        printf("Set TDB-size to %ld\n", size);
-
         tpl->tdbOffsets = 1;
     }
 
