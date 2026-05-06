@@ -15,6 +15,7 @@ Operator* makeStarProjection(Operator* op, Operator* child_op) {
     }
 
     op->resultDescription.columnCount = child_op->resultDescription.columnCount;
+    op->resultDescription.columnOrderCount = op->resultDescription.columnCount;
 
     
     return op;
@@ -75,7 +76,7 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
 
     };
 
-    op->resultDescription.columnCount = order;
+    op->resultDescription.columnOrderCount = order;
 
     
 

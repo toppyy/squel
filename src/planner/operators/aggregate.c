@@ -32,7 +32,7 @@ Operator* makeAggregateOp(Node* node, Operator* child_op) {
     op->child   = NULL;
 
     op->info.aggregate.aggregationDone = false;
-
+    op->resultDescription.columnOrderCount = 1;
 
     /* GROUP BY not implement, so columns not included in a function call are ignored */
     
@@ -44,6 +44,7 @@ Operator* makeAggregateOp(Node* node, Operator* child_op) {
             // NOTE: Indexed to 0. Multiple aggregations not supported ATM
             op->resultDescription.columns[0].type = DTYPE_LONG;
             op->resultDescription.columns[0].active = 1;
+            op->resultDescription.columnOrder[0] = 0;
             if (node->child != NULL) {
                 strcpy(op->resultDescription.columns[0].name, node->child->content);
             }

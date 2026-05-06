@@ -61,7 +61,7 @@ void printTuple(Operator* op, Tuple* tpl) {
     char firstPrinted = 0;
 
     // for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
-    for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
+    for (size_t i = 0; i < op->resultDescription.columnOrderCount; i++) {
         
         size_t colIdx = op->resultDescription.columnOrder[i];
 
@@ -102,7 +102,7 @@ void printColnames(Operator* queryplan) {
 
     char firstPrinted = 0;
 
-    for (size_t i = 0; i < queryplan->resultDescription.columnCount; i++) {
+    for (size_t i = 0; i < queryplan->resultDescription.columnOrderCount; i++) {
         
         size_t colIdx = queryplan->resultDescription.columnOrder[i];
 

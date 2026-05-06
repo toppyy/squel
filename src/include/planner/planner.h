@@ -70,6 +70,7 @@ typedef struct {
     size_t size;
     // This will hold indexes to columns[] for projections
     size_t columnOrder[ARRAYMAXSIZE];
+    size_t columnOrderCount;
     ColumnMetadata columns[ARRAYMAXSIZE];
 } ResultSet;
 
