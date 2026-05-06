@@ -91,7 +91,6 @@ typedef struct {
     size_t cursor;
     struct TDB tbldef;
     size_t recordSize;
-    size_t columnOffsets[ARRAYMAXSIZE];
 } ScanInfo;
 
 
