@@ -36,12 +36,15 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
             3. 1 is column, 1 is constant (CMP_CONST_COL | CMP_COL_CONST)
     */
 
+
+
+    long colNumber, constNumber;
+
     // 1. Both are columns
     if (compType == CMP_COL_COL)   {
 
         switch (dtype1)   {
             case DTYPE_STR:
-                // printf("'%s' vs '%s'\n", (char*) getTupleColByIndex(tpl1,idx1),(char*) getTupleColByIndex(tpl2,idx2));
                 cmpRes = strcmp(
                     (char*) getTupleColByIndex(tpl1,idx1),
                     (char*) getTupleColByIndex(tpl2,idx2)
@@ -85,53 +88,57 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
                 exit(1);
         }
     }
-    // 3. One is a constant, one is a column
-    else {
-        // Guess 1st is a column and 2nd is constant
-        // and fix if it's not
+    // 3. Left is a column, right is a const
+    else if (compType == CMP_CONST_COL) {
         
-        Datatype constDatatype  = dtype2;
         size_t constIdx = 2;
         size_t i = idx1;
         Tuple* tpl = tpl1;
         
-        if (compType == CMP_CONST_COL) {
-            // Guess was wrong, fix it
-            constDatatype   = dtype1;
-            constIdx        = 0;
-            tpl             = tpl2;
-            i               = idx2;
-        }
-        // Now we have to only deal with 4 combinations of all the eight possible
-        // 'cause datatypes must match
-        // That is:
-        //      IDENT_COL + STRING vs. DTYPE_STR
-        //      IDENT_COL + NUMBER vs. DTYPE_INT
-        //      DTYPE_STR vs. IDENT_COL + STRING
-        //      DTYPE_INT vs. IDENT_COL + NUMBER
-        switch (constDatatype) {
+        switch (dtype2) {
             case DTYPE_STR:
                 cmpRes = strcmp(op->info.filter.charConstants[constIdx], getTupleColByIndex(tpl,i));
                 break;
             case DTYPE_LONG:
-
-                long colNumber      = getTupleLongColByIndex(tpl,i);
-                long constNumber    = (long) op->info.filter.numConstants[constIdx];
-                // printf("LONG %ld from offset %ld vs constant %ld\n", colNumber, i, constNumber);
-
-                // Order matters here
-                if (constIdx == 0) {
-                    cmpRes = constNumber - colNumber;
-                } else {
-                    cmpRes = colNumber - constNumber;
-                }
+            
+                colNumber      = getTupleLongColByIndex(tpl,i);
+                constNumber    = (long) op->info.filter.numConstants[constIdx];
+                cmpRes = colNumber - constNumber;
                 break;
+
             default:
-                printf("FILTER_OP: Don't know how to handle datatype %d\n", constDatatype);
+                printf("FILTER_OP: Don't know how to handle datatype %d\n", dtype2);
                 exit(1);
         }
     }
     
+    else if (compType == CMP_CONST_COL) {
+
+        size_t constIdx = 2;
+        size_t i = idx1;
+        Tuple* tpl = tpl1;
+        
+        switch (dtype1) {
+            case DTYPE_STR:
+                cmpRes = strcmp(op->info.filter.charConstants[constIdx], getTupleColByIndex(tpl,i));
+                break;
+            case DTYPE_LONG:
+            
+                colNumber      = getTupleLongColByIndex(tpl,i);
+                constNumber    = (long) op->info.filter.numConstants[constIdx];
+
+                cmpRes = colNumber - constNumber;
+                break;
+
+            default:
+                printf("FILTER_OP: Don't know how to handle datatype %d\n", dtype1);
+                exit(1);
+        }
+
+        cmpRes = constNumber - colNumber;
+    }
+
+
     bool matches = false;
     switch(boolOp) {
         case -1:
