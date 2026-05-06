@@ -73,10 +73,6 @@ typedef struct {
     ColumnMetadata columns[ARRAYMAXSIZE];
 } ResultSet;
 
-typedef struct {
-    char    columnsToProject[ARRAYMAXSIZE][CHARMAXSIZE];
-    int     colCount;
-} ProjectInfo;
 
 typedef struct {
     TableMetadata table;
@@ -135,7 +131,6 @@ typedef struct {
 } InsertInfo;
 
 typedef union {
-    ProjectInfo     project;
     ScanInfo        scan;
     FilterInfo      filter;
     JoinInfo        join;

@@ -8,8 +8,6 @@ Operator* makeStarProjection(Operator* op, Operator* child_op) {
         op->resultDescription.columns[i].type = child_op->resultDescription.columns[i].type;
         op->resultDescription.columnOrder[i] = i;
         strcpy(op->resultDescription.columns[i].name, child_op->resultDescription.columns[i].name); 
-        strcpy(op->info.project.columnsToProject[i], child_op->resultDescription.columns[i].name);
-        op->info.project.colCount++;
     }
 
     op->resultDescription.columnCount = child_op->resultDescription.columnCount;
@@ -53,8 +51,6 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
     size_t order = 0;
 
     for (;;) {
-        
-        op->info.project.colCount++;
         
         // Find the index of the projected column in the result description
         // of the child
