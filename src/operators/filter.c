@@ -89,11 +89,12 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
         }
     }
     // 3. Left is a column, right is a const
-    else if (compType == CMP_CONST_COL) {
+    else if (compType == CMP_COL_CONST) {
         
         size_t constIdx = 2;
         size_t i = idx1;
         Tuple* tpl = tpl1;
+
         
         switch (dtype2) {
             case DTYPE_STR:
@@ -114,20 +115,23 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
     
     else if (compType == CMP_CONST_COL) {
 
-        size_t constIdx = 2;
-        size_t i = idx1;
-        Tuple* tpl = tpl1;
+        size_t constIdx = 0;
+        size_t i = idx2;
+        Tuple* tpl = tpl2;
+
         
         switch (dtype1) {
             case DTYPE_STR:
+
                 cmpRes = strcmp(op->info.filter.charConstants[constIdx], getTupleColByIndex(tpl,i));
+
                 break;
             case DTYPE_LONG:
             
                 colNumber      = getTupleLongColByIndex(tpl,i);
                 constNumber    = (long) op->info.filter.numConstants[constIdx];
 
-                cmpRes = colNumber - constNumber;
+                cmpRes = constNumber - colNumber;
                 break;
 
             default:
@@ -135,7 +139,6 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
                 exit(1);
         }
 
-        cmpRes = constNumber - colNumber;
     }
 
 
