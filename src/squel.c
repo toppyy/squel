@@ -58,14 +58,21 @@ void printTuple(Operator* op, Tuple* tpl) {
     // for (size_t i = 0; i < resultDescToPrint->columnCount; i++) printf("col %ld: %d\n", i, resultDescToPrint->columns[i].type);
     // printf("---\n");
 
+    char firstPrinted = 0;
+
+    // for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
     for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
+        
+        size_t colIdx = op->resultDescription.columnOrder[i];
+
+        if (!op->resultDescription.columns[colIdx].active) continue;
+
         memset(buff, 0, CHARMAXSIZE);
 
         Datatype typeToPrint = DTYPE_STR;
 
-        size_t colIdx = op->resultDescription.colrefs[i];
         
-        if (tpl->casted[colIdx]) typeToPrint = op->resultDescription.columns[i].type;
+        if (tpl->casted[colIdx]) typeToPrint = op->resultDescription.columns[colIdx].type;
         
         // printf("colIdx %ld (casted: %c, type: %d): '", colIdx, tpl->casted[colIdx] ? 'T' : 'F', typeToPrint);
 
@@ -73,10 +80,10 @@ void printTuple(Operator* op, Tuple* tpl) {
 
         // printf("%s'\n", buff);
 
-        if (i == 0) printf("%s",buff);
+        if (firstPrinted == 0) printf("%s",buff);
         else printf(";%s",buff);
 
-
+        firstPrinted = 1;
 
     }
 
@@ -93,10 +100,23 @@ void printColnames(Operator* queryplan) {
     if (queryplan == NULL) return;
     if (queryplan->resultDescription.columnCount == 0) return;
 
-    printf("%s", queryplan->resultDescription.columns[0].name);
-    for (size_t i = 1; i < queryplan->resultDescription.columnCount; i++) {
-        printf("%c%s", DELIMITER, queryplan->resultDescription.columns[i].name);
+    char firstPrinted = 0;
+
+    for (size_t i = 0; i < queryplan->resultDescription.columnCount; i++) {
+        
+        size_t colIdx = queryplan->resultDescription.columnOrder[i];
+
+        if (!queryplan->resultDescription.columns[colIdx].active) continue;
+
+        if (firstPrinted == 0)    
+           printf("%s", queryplan->resultDescription.columns[colIdx].name);
+
+        if (firstPrinted > 0)
+           printf("%c%s", DELIMITER, queryplan->resultDescription.columns[colIdx].name);
+        
+        firstPrinted = 1;
     }
+
     printf("\n");
 
 }

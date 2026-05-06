@@ -43,6 +43,7 @@ Operator* makeAggregateOp(Node* node, Operator* child_op) {
             op->info.aggregate.aggtype = mapFunctionNameToAggregation(node->content);
             // NOTE: Indexed to 0. Multiple aggregations not supported ATM
             op->resultDescription.columns[0].type = DTYPE_LONG;
+            op->resultDescription.columns[0].active = 1;
             if (node->child != NULL) {
                 strcpy(op->resultDescription.columns[0].name, node->child->content);
             }

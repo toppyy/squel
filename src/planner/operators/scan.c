@@ -40,6 +40,8 @@ Operator* makeScanOp(Node* node) {
 
 
     for (size_t i = 0; i < tbl.columnCount; i++) {
+        op->resultDescription.columns[i].active = 1;
+        op->resultDescription.columnOrder[i] = i;
         op->resultDescription.columns[i].type = tbl.columns[i].type;
         op->resultDescription.columns[i].identifier = tbl.columns[i].identifier;
         strcpy(op->resultDescription.columns[i].name, tbl.columns[i].name);

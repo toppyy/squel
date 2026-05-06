@@ -49,6 +49,7 @@ typedef struct {
     Datatype type;
     size_t identifier;
     size_t size;
+    bool   active;
 } ColumnMetadata;
 
 
@@ -67,6 +68,8 @@ typedef struct {
     size_t columnCount;
     size_t colrefs[ARRAYMAXSIZE];
     size_t size;
+    // This will hold indexes to columns[] for projections
+    size_t columnOrder[ARRAYMAXSIZE];
     ColumnMetadata columns[ARRAYMAXSIZE];
 } ResultSet;
 

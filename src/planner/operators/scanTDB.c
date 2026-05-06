@@ -42,6 +42,8 @@ Operator* makeScanTDBOp(Node* node) {
 
     op->info.scan.columnOffsets[0] = 0;
     for (size_t i = 0; i < tbldef.colCount; i++) {
+        op->resultDescription.columns[i].active = 1;
+        op->resultDescription.columnOrder[i] = i;
         op->resultDescription.columns[i].type = tbldef.datatypes[i];
         op->resultDescription.columns[i].size = tbldef.lengths[i];
         strcpy(op->resultDescription.columns[i].name, tbldef.colNames[i]);
