@@ -94,14 +94,13 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
         size_t constIdx = 2;
         size_t i = idx1;
         Tuple* tpl = tpl1;
-
         
         switch (dtype2) {
             case DTYPE_STR:
                 cmpRes = strcmp(op->info.filter.charConstants[constIdx], getTupleColByIndex(tpl,i));
                 break;
-            case DTYPE_LONG:
-            
+
+            case DTYPE_LONG:            
                 colNumber      = getTupleLongColByIndex(tpl,i);
                 constNumber    = (long) op->info.filter.numConstants[constIdx];
                 cmpRes = colNumber - constNumber;
@@ -122,15 +121,12 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
         
         switch (dtype1) {
             case DTYPE_STR:
-
                 cmpRes = strcmp(op->info.filter.charConstants[constIdx], getTupleColByIndex(tpl,i));
-
                 break;
+
             case DTYPE_LONG:
-            
                 colNumber      = getTupleLongColByIndex(tpl,i);
                 constNumber    = (long) op->info.filter.numConstants[constIdx];
-
                 cmpRes = constNumber - colNumber;
                 break;
 
