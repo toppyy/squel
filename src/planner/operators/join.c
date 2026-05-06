@@ -5,23 +5,10 @@ Operator* makeJoinFilterOps(
     Node* where_node,
     Operator* join_op,
     ResultSet leftResult,
-    ResultSet rightResult
+    ResultSet rightResult __attribute__((unused))
 ) {
     // Make regular filter ops (ie. where agains one table)
-    Operator* filterOps = makeFilterOps(where_node, join_op);
-
-    // makeFilterOps uses the result description of join_op
-    // However, when filtering we want to use the original pointers to columns
-    // so we must restore them from result descriptors
-
- 
-    for (size_t i = 0; i < leftResult.columnCount; i++) {
-        filterOps->resultDescription.colrefs[i] = leftResult.colrefs[i];
-    }
-    for (size_t i = 0; i < rightResult.columnCount; i++) {
-        filterOps->resultDescription.colrefs[i + leftResult.columnCount] = rightResult.colrefs[i];
-    }
-    
+    Operator* filterOps = makeFilterOps(where_node, join_op);    
     
     // Alter so that indexes point to offsets in left and right tables
     // Otherwise would have to create a new tuple that has both columns

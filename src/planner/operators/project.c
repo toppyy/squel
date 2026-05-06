@@ -4,8 +4,6 @@
 Operator* makeStarProjection(Operator* op, Operator* child_op) {
 
     for (size_t i = 0; i < child_op->resultDescription.columnCount; i++) {
-        op->info.project.colRefs[i] = i;
-        op->resultDescription.colrefs[i] = i;
         op->resultDescription.columns[i].active =  child_op->resultDescription.columns[i].active;
         op->resultDescription.columns[i].type = child_op->resultDescription.columns[i].type;
         op->resultDescription.columnOrder[i] = i;

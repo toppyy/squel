@@ -66,7 +66,6 @@ typedef struct {
 typedef struct {
     size_t id;
     size_t columnCount;
-    size_t colrefs[ARRAYMAXSIZE];
     size_t size;
     // This will hold indexes to columns[] for projections
     size_t columnOrder[ARRAYMAXSIZE];
@@ -76,7 +75,6 @@ typedef struct {
 
 typedef struct {
     char    columnsToProject[ARRAYMAXSIZE][CHARMAXSIZE];
-    int     colRefs[ARRAYMAXSIZE];
     int     colCount;
 } ProjectInfo;
 

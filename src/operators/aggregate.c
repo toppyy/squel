@@ -35,7 +35,7 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
     // }
 
 
-    size_t colOffset = op->child->resultDescription.colrefs[op->info.aggregate.colToAggregate];
+    size_t colOffset = op->info.aggregate.colToAggregate;
 
 
     long (*agg_fun)(long result, long num);
@@ -95,7 +95,6 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
 
 
     op->resultDescription.columnCount = 1;
-    op->resultDescription.colrefs[0] = 0;
     op->info.aggregate.aggregationDone = true;
 
     
