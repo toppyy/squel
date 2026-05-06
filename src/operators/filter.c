@@ -2,42 +2,32 @@
 
 
 bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
-
-    if (tpl1 == NULL) {
-        return false;
-    }
-
-    if (tpl2 == NULL) {
-        return false;
-    }
-
     
     int idx1        = op->info.filter.boolExprList[0];
     int boolOp      = op->info.filter.boolExprList[1];
     int idx2        = op->info.filter.boolExprList[2];    
+
     ComparisonType compType = op->info.filter.compType;
-
-
-    int cmpRes = 0;
-
     Datatype dtype1 = op->info.filter.exprDatatypes[0];
     Datatype dtype2 = op->info.filter.exprDatatypes[1];
-
+    
+    
     if (dtype1 != dtype2) {
         printf("FILTER_OP: Can't compare different datatypes\n");
         exit(1);
     }
 
-
+    
     /*
-        Three cases:
-            1. Both are columns (CMP_COL_COL)
+    Three cases:
+    1. Both are columns (CMP_COL_COL)
             2. Neither is a column (CMP_CONST_CONST)
             3. 1 is column, 1 is constant (CMP_CONST_COL | CMP_COL_CONST)
-    */
-
-
-
+            */
+            
+            
+            
+    int cmpRes = 0;
     long colNumber, constNumber;
 
     // 1. Both are columns
@@ -102,7 +92,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
             case DTYPE_LONG:            
                 colNumber      = getTupleLongColByIndex(tpl,i);
-                constNumber    = (long) op->info.filter.numConstants[constIdx];
+                constNumber    = op->info.filter.numConstants[constIdx];
                 cmpRes = colNumber - constNumber;
                 break;
 
@@ -126,7 +116,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
             case DTYPE_LONG:
                 colNumber      = getTupleLongColByIndex(tpl,i);
-                constNumber    = (long) op->info.filter.numConstants[constIdx];
+                constNumber    = op->info.filter.numConstants[constIdx];
                 cmpRes = constNumber - colNumber;
                 break;
 
@@ -138,26 +128,20 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
     }
 
 
-    bool matches = false;
     switch(boolOp) {
         case -1:
-            matches = cmpRes == 0;
-            break;
+            return cmpRes == 0;
         case -2:
-            matches = cmpRes != 0;
-            break;
+            return cmpRes != 0;
         case -3:
-            matches = cmpRes < 0;
-            break;
+            return cmpRes < 0;
         case -4:
-            matches = cmpRes > 0;
-            break;
+            return cmpRes > 0;
         default:    
             printf("FILTER_OP: Operator %d not implemented\n", boolOp);
             exit(1);
     }
 
-    return matches;
 }
 
 
@@ -197,6 +181,23 @@ bool evaluateTuplesAgainstFilterOps(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 void filterGetTuple(Operator* op, Tuple* tpl) {
 
     if (op == NULL) {
+        printf("FILTER_OP: Passed a NULL-pointer to filterGetTuple\n");
+        exit(1);
+    }
+
+    if (op->type != OP_FILTER) {
+        printf("FILTER_OP: Called filterGetTuple on an operator that is not OP_FILTER\n");
+    }
+
+    if (op->child == NULL) {
+        printf("FILTER_OP: OP_FILTER has no child\n");
+        exit(1);
+    }
+
+    if ( op->child->getTuple == NULL) {
+        printf("FILTER_OP: Child of OP_FILTER has no getTuple-method\n");
+        exit(1);
+    }if (op == NULL) {
         printf("FILTER_OP: Passed a NULL-pointer to filterGetTuple\n");
         exit(1);
     }
