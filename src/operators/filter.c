@@ -115,7 +115,7 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
                 break;
             case DTYPE_LONG:
 
-                long colNumber      = colNumber = getTupleLongColByIndex(tpl,i);
+                long colNumber      = getTupleLongColByIndex(tpl,i);
                 long constNumber    = (long) op->info.filter.numConstants[constIdx];
                 // printf("LONG %ld from offset %ld vs constant %ld\n", colNumber, i, constNumber);
 
