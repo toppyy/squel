@@ -45,9 +45,9 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
 
         if (dlmtr != NULL)  {
             (*dlmtr) = '\0'; // Replace delimiter with NULL so each column is a NULL-terminated string
-        }
-
-        strLen = strlen(tpl->data + cursor) + 1;
+        }      
+        
+        strLen = dlmtr == NULL ? strlen(tpl->data + cursor) + 1 : (size_t)  ((void*) dlmtr - (tpl->data + cursor)) + 1;
 
         tpl->sizes[i] = strLen;
         tpl->offsets[i] = tplSize;
@@ -59,8 +59,7 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
             break;
         }
 
-        cursor += dlmtr - ((char*) tpl->data + cursor) + 1;
-
+        cursor += strLen;
         i++;
     };
 

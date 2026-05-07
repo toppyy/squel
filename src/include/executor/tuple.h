@@ -12,18 +12,15 @@ typedef enum Tupletype {
 
 
 typedef struct  {
-    void* data;
-    size_t size;
-    char   tdbOffsets;
-    char   casted[MAXCOLS];
-    size_t offsets[MAXCOLS];
-    size_t sizes[MAXCOLS];
-
+    void*   data;
+    size_t  size;
     size_t  longCount;
-    long longs[MAXCOLS];
-
+    char    tdbOffsets;
+    char    casted[MAXCOLS];
+    size_t  offsets[MAXCOLS];
+    size_t  sizes[MAXCOLS];
+    long    longs[MAXCOLS];
     Tupletype type;
-
 } Tuple;
 
 

@@ -15,9 +15,7 @@ void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* 
 
     memcpy(returnTpl->data, leftTpl->data, leftTpl->size);
     memcpy(returnTpl->data + left->size, rightTpl->data, rightTpl->size);
-
-
-
+    
     for (size_t i = 0; i < left->columnCount; i++) {
         returnTpl->offsets[i]   = leftTpl->offsets[i];
         returnTpl->sizes[i]     = leftTpl->sizes[i];
@@ -28,7 +26,7 @@ void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* 
     returnTpl->longCount = leftTpl->longCount;
     
     for (size_t i = 0; i < right->columnCount; i++) {
-
+        
         if (
             // For delimited tables, the offsets refer to offsets into the longs-array
             // if the value has been casted
