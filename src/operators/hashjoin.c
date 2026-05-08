@@ -79,12 +79,11 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
         }
 
         // Create a new tuple by concating the tuples
-        concatTuples(
+        createJoinTuple(
             tpl,
             op->info.join.leftTuple,
             rightTuple,
-            &op->info.join.left->resultDescription,
-            &op->info.join.right->resultDescription
+            &op->info.join.left->resultDescription
         );
             
         return;

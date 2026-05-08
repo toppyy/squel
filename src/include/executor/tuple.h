@@ -7,13 +7,16 @@
 
 typedef enum Tupletype {
     TPL_TDB,
-    TPL_DELIMITED
+    TPL_DELIMITED,
+    TPL_JOIN
 } Tupletype;
 
+typedef struct Tuple Tuple;
 
-typedef struct  {
+typedef struct Tuple {
     void*   data;
     size_t  size;
+    size_t  leftColumnCount;
     size_t  longCount;
     char    tdbOffsets;
     char    casted[MAXCOLS];
@@ -21,6 +24,8 @@ typedef struct  {
     size_t  sizes[MAXCOLS];
     long    longs[MAXCOLS];
     Tupletype type;
+    Tuple* left;
+    Tuple* right;
 } Tuple;
 
 
@@ -36,6 +41,8 @@ long getTupleLongColByIndex(Tuple* tpl, size_t index);
 void* getTupleCol(Tuple* tpl, size_t colOffset);
 
 void resetTuple(Tuple* tpl);
+
+char isCasted(Tuple* tpl, size_t index) ;
 
 void freeTuple(Tuple* tpl);
 
