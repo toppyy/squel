@@ -1,8 +1,5 @@
 #include "../include/operators/aggregate.h"
 
-long count(long result, long num __attribute__((unused))) {
-    return result + 1;
-}
 
 long max(long result, long num) {
     return num > result ? num : result;
@@ -15,8 +12,6 @@ long sum(long result, long num) {
 long min(long result, long num) {
     return num < result ? num : result;
 }
-
-
 
 void aggregateGetTuple(Operator* op, Tuple* tpl) {
     
@@ -44,7 +39,10 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
 
     switch(op->info.aggregate.aggtype) {
         case COUNT:
-            agg_fun = count;
+            // We'll just count the observations in the loop
+            // but we need to satisfy the compiler so we'll
+            // assign some function, but it will never be called
+            agg_fun = sum;
             break;
         case SUM:
             agg_fun = sum;
@@ -79,10 +77,11 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
 
         observations++;
 
-        if (op->info.aggregate.aggtype != COUNT) {
-            colNumber = getTupleLongColByIndex(tmpTpl, colOffset);
+        if (op->info.aggregate.aggtype == COUNT) {
+            continue;
         }
 
+        colNumber = getTupleLongColByIndex(tmpTpl, colOffset);
         result = agg_fun(result, colNumber);
     };
 
@@ -91,6 +90,10 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
 
     if (op->info.aggregate.aggtype == AVG) {
         result = result / observations;
+    }
+
+    if (op->info.aggregate.aggtype == COUNT) {
+        result = observations;
     }
 
 
