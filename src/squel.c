@@ -1,11 +1,5 @@
 #include "./include/squel.h"
 
-
-// Globals :/
-ResultSet* resultDescToPrint = NULL;
-
-
-
 void tupleColValueToChar(char* target, Tuple* tpl, size_t colIdx, Datatype type) {
 
     
@@ -29,16 +23,6 @@ void tupleColValueToChar(char* target, Tuple* tpl, size_t colIdx, Datatype type)
     exit(1);
 }
 
-#include <stdint.h>
-void dump_bytes(const void *buf, size_t len) {
-    const uint8_t *b = (const uint8_t*) buf;
-    for (size_t i = 0; i < len; ++i) {
-        if (i % 16 == 0) printf("%08zx: ", i);
-        printf("%02x ", b[i]);
-        if ((i % 16) == 15 || i == len - 1) printf("\n");
-}}
-
-
 void printTuple(Operator* op, Tuple* tpl) {
 
     if (op == NULL) {
@@ -48,19 +32,9 @@ void printTuple(Operator* op, Tuple* tpl) {
 
     char buff[CHARMAXSIZE];
 
-    // dump_bytes(tpl->data, tpl->size);
-
-    // for (size_t i = 0; i < tpl->size;i++) printf("%c", ((char*) (tpl->data))[i]  );
-    // printf("\n");
-
-    // printf("---\n");
-    // printf("queryplan->resultDescription.id: %ld\n", resultDescToPrint->id);
-    // for (size_t i = 0; i < resultDescToPrint->columnCount; i++) printf("col %ld: %d\n", i, resultDescToPrint->columns[i].type);
-    // printf("---\n");
 
     char firstPrinted = 0;
 
-    // for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
     for (size_t i = 0; i < op->resultDescription.columnOrderCount; i++) {
         
         size_t colIdx = op->resultDescription.columnOrder[i];
@@ -70,15 +44,10 @@ void printTuple(Operator* op, Tuple* tpl) {
         memset(buff, 0, CHARMAXSIZE);
 
         Datatype typeToPrint = DTYPE_STR;
-
         
         if (tpl->casted[colIdx]) typeToPrint = op->resultDescription.columns[colIdx].type;
         
-        // printf("colIdx %ld (casted: %c, type: %d): '", colIdx, tpl->casted[colIdx] ? 'T' : 'F', typeToPrint);
-
         tupleColValueToChar(buff, tpl, colIdx, typeToPrint);
-
-        // printf("%s'\n", buff);
 
         if (firstPrinted == 0) printf("%s",buff);
         else printf(";%s",buff);
@@ -86,8 +55,6 @@ void printTuple(Operator* op, Tuple* tpl) {
         firstPrinted = 1;
 
     }
-
-    // for (size_t i = 0; i < tpl->longCount; i++) printf("long %ld: %ld\n", i, tpl->longs[i]);
 
     printf("\n");
 
@@ -179,8 +146,6 @@ int main(int argc, char* argv[]) {
     }
 
     Operator* queryplan = planQuery(argv[query_arg]);
-
-    resultDescToPrint = &queryplan->resultDescription;
 
     printColnames(queryplan);
     execute(queryplan, printTuple);

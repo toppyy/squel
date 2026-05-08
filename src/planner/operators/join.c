@@ -26,13 +26,6 @@ Operator* makeJoinFilterOps(
         curOp = curOp->info.filter.next;    
     }
     
-
-    // printf(
-    //     "%d vs. %d (%d). Expected 1 vs 1\n"
-    //     ,filterOps->info.filter.boolExprList[0]
-    //     ,filterOps->info.filter.boolExprList[2]
-    //     ,filterOps->info.filter.boolExprList[1]
-    // );
     return filterOps;
 }
 

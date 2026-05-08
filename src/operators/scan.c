@@ -20,7 +20,6 @@ void scanGetTuple(Operator* op, Tuple* tpl) {
     // As we reuse tuples throughout the volcano, it needs to be reset
     resetTuple(tpl);
     
-    // char* lineBuffer = op->info.scan.buffer;
     char* line = readLineToBuffer(f, tpl->data, LINEBUFF);
     
     if (line == NULL) {

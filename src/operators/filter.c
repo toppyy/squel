@@ -1,17 +1,15 @@
 #include "../include/operators/filter.h"
 
-
 bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
-    
+
     int idx1        = op->info.filter.boolExprList[0];
     int boolOp      = op->info.filter.boolExprList[1];
     int idx2        = op->info.filter.boolExprList[2];    
 
     ComparisonType compType = op->info.filter.compType;
     Datatype dtype1 = op->info.filter.exprDatatypes[0];
-    Datatype dtype2 = op->info.filter.exprDatatypes[1];
-    
-    
+    Datatype dtype2 = op->info.filter.exprDatatypes[1];    
+
     if (dtype1 != dtype2) {
         printf("FILTER_OP: Can't compare different datatypes\n");
         exit(1);
@@ -19,14 +17,13 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
     
     /*
-    Three cases:
-    1. Both are columns (CMP_COL_COL)
-            2. Neither is a column (CMP_CONST_CONST)
-            3. 1 is column, 1 is constant (CMP_CONST_COL | CMP_COL_CONST)
-            */
-            
-            
-            
+    Four cases:
+        1. Both are columns (CMP_COL_COL)
+        2. Neither is a column (CMP_CONST_CONST)
+        3. column vs. constant (CMP_COL_CONST)
+        4. column vs. constant (CMP_CONST_COL)
+    */
+
     int cmpRes = 0;
     long colNumber, constNumber;
 
@@ -52,8 +49,6 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
                 long lnumber1 = getTupleLongColByIndex(tpl1,idx1);
                 long lnumber2 = getTupleLongColByIndex(tpl2,idx2);
-
-                // printf("LONG %ld from offset %d vs %ld from offset %d\n", lnumber1, idx1, lnumber2, idx2);
                 cmpRes = lnumber1 - lnumber2;
                 break;
             
@@ -126,7 +121,6 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
         }
 
     }
-
 
     switch(boolOp) {
         case -1:

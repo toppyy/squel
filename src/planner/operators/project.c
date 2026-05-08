@@ -59,7 +59,6 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
         op->resultDescription.columns[j].active  = 1;
         op->resultDescription.columnOrder[order] = j;
 
-        // printf("Assigning column-data at index %ld to ordered place %ld\n", j, order);
         order++;
 
         node = node->next;

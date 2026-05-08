@@ -32,8 +32,6 @@ long getTupleLongColByIndex(Tuple* tpl, size_t index) {
         castColumnToLong(tpl, index);
     };
 
-    // printf("Accessing a tuple with argument index %ld. Index into longs is: %ld,  long is %ld \n", index, tpl->offsets[index], tpl->longs[tpl->offsets[index]]  );
-    
     return tpl->longs[ tpl->offsets[index] ];
 }
 
@@ -74,7 +72,5 @@ void castColumnToLong(Tuple* tpl, size_t colIdx) {
     tpl->offsets[colIdx] = tpl->longCount;
     tpl->longs[tpl->longCount++] = colNumber;    
     tpl->casted[colIdx] = 1;
-
-    // printf("Casting '%s' to long. colIdx: %ld, longCount: %ld. Long at is now %ld \n", (char*) ptrToColData, colIdx, tpl->longCount - 1, tpl->longs[tpl->offsets[colIdx]]);
 
 }

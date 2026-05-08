@@ -45,17 +45,6 @@ void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* 
     returnTpl->longCount = leftTpl->longCount + rightTpl->longCount;
     returnTpl->size = leftTpl->size + rightTpl->size;
 
-    // printf("concat: '");
-    // for (size_t i = 0; i < returnTpl->size; i++) {
-    //     char c = ((char*) returnTpl->data)[i];
-    //     if (c == '\0') c = '|';
-    //     printf("%c", c);
-    // }
-    // printf("'\n");
-
-
- 
-
 }
 
 void joinGetTuple(Operator* op, Tuple* tpl) {
