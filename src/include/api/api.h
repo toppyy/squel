@@ -20,9 +20,6 @@ void prepareQuery(Operator* queryplan);
 
 void fetchTuple(Operator* op, Tuple* tpl);
 
-
-int getIntFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx);
-
-long getLongFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx);
-
-char* getCharFromIndex(Operator* queryplan, Tuple* tpl, size_t colIdx);
+int getIntFromIndex(Tuple* tpl, size_t colIdx);
+long getLongFromIndex(Tuple* tpl, size_t colIdx);
+char* getCharFromIndex(Tuple* tpl, size_t colIdx);

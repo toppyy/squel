@@ -24,16 +24,16 @@ SQLRETURN SQLGetData( SQLHSTMT      stmtHandle,
 
             switch(type) {
                 case CTYPE_LONG:
-                    long lval = getLongFromIndex(handle->queryplan, handle->tpl, nCol);
+                    long lval = getLongFromIndex(handle->tpl, nCol);
                     sprintf(pTarget, "%ld", lval);
                     break;
 
                 case CTYPE_CHAR:
-                    strncpy(pTarget, getCharFromIndex(handle->queryplan, handle->tpl, nCol), nTargetLength);
+                    strncpy(pTarget, getCharFromIndex(handle->tpl, nCol), nTargetLength);
                     break;
 
                 case CTYPE_INT:
-                    int ival = getIntFromIndex(handle->queryplan, handle->tpl, nCol);
+                    int ival = getIntFromIndex(handle->tpl, nCol);
                     sprintf(pTarget, "%d", ival);
                     break;
             }
@@ -41,7 +41,7 @@ SQLRETURN SQLGetData( SQLHSTMT      stmtHandle,
             *pnLengthOrIndicator = strlen(pTarget);
             break;
         case SQL_C_LONG:
-            * ((long*) pTarget) = getLongFromIndex(handle->queryplan, handle->tpl, nCol);
+            * ((long*) pTarget) = getLongFromIndex(handle->tpl, nCol);
             *pnLengthOrIndicator = sizeof(long);
             break;
         default:

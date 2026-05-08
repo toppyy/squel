@@ -11,9 +11,40 @@ void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* 
         exit(1);
     }
 
+    returnTpl->type = leftTpl->type; // TODO: what if these differ between left and right?
 
-    memcpy(returnTpl->data, leftTpl->data, left->size);
-    memcpy(returnTpl->data + left->size, rightTpl->data, right->size);
+    memcpy(returnTpl->data, leftTpl->data, leftTpl->size);
+    memcpy(returnTpl->data + left->size, rightTpl->data, rightTpl->size);
+    
+    for (size_t i = 0; i < left->columnCount; i++) {
+        returnTpl->offsets[i]   = leftTpl->offsets[i];
+        returnTpl->sizes[i]     = leftTpl->sizes[i];
+        returnTpl->casted[i]    = leftTpl->casted[i];
+        returnTpl->longs[i]     = leftTpl->longs[i];
+    }
+
+    returnTpl->longCount = leftTpl->longCount;
+    
+    for (size_t i = 0; i < right->columnCount; i++) {
+        
+        if (
+            // For delimited tables, the offsets refer to offsets into the longs-array
+            // if the value has been casted
+            (rightTpl->casted[i]) & (returnTpl->type == TPL_DELIMITED)
+        ) {
+            returnTpl->offsets[i + left->columnCount]   =  leftTpl->longCount + rightTpl->offsets[i];
+        } else {
+            returnTpl->offsets[i + left->columnCount]   =  leftTpl->size + rightTpl->offsets[i];
+        }
+
+        returnTpl->sizes[i + left->columnCount]     =  rightTpl->sizes[i];
+        returnTpl->casted[i + left->columnCount]    =  rightTpl->casted[i];
+        returnTpl->longs[i + leftTpl->longCount]    =  rightTpl->longs[i];
+    }
+
+    returnTpl->longCount = leftTpl->longCount + rightTpl->longCount;
+    returnTpl->size = leftTpl->size + rightTpl->size;
+
 }
 
 void joinGetTuple(Operator* op, Tuple* tpl) {
@@ -51,7 +82,7 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
         if (isTupleEmpty(rightTuple)) {
             op->info.join.rightTuplesCollected = true;
             continue; 
-        } 
+        }
 
         op->info.join.rightTupleCount++;
     }

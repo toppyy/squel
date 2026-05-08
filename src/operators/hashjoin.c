@@ -13,7 +13,6 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
     }
 
     int joinColIdx     = op->info.join.filter->info.filter.boolExprList[2];
-    int joinColOffset  = op->info.join.filter->resultDescription.pCols[joinColIdx];
     
     if (!op->info.join.hashmap) {
         op->info.join.hashmap = initHashmap(getOption(OPT_HTSIZE));
@@ -36,7 +35,7 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
             continue; 
         } 
         // Get value of join column
-        joinValue = (char*) getTupleCol(rightTuple, joinColOffset);
+        joinValue = (char*) getTupleColByIndex(rightTuple, joinColIdx);
 
         insertToHashmap(op->info.join.hashmap, joinValue, op->info.join.rightTupleCount);
 
@@ -55,12 +54,11 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
     }
 
     joinColIdx     = op->info.join.filter->info.filter.boolExprList[0];
-    joinColOffset  = op->info.join.filter->resultDescription.pCols[joinColIdx];
-
 
     int tupleIdx;
+
     do {
-        joinValue = (char*) getTupleCol(op->info.join.leftTuple, joinColOffset);
+        joinValue = (char*) getTupleColByIndex(op->info.join.leftTuple, joinColIdx);
 
         if (!isInHashmap(op->info.join.hashmap, joinValue)) {
             resetCursor(op->info.join.hashmap, joinValue);
@@ -70,6 +68,7 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
 
 
         tupleIdx = getValueFromHashmap(op->info.join.hashmap, joinValue);
+
         if (tupleIdx < 0) continue;
 
         rightTuple = getTupleByIndex(op->info.join.rightTuples, tupleIdx);

@@ -38,14 +38,17 @@ Operator* makeScanOp(Node* node) {
     op->resultDescription.size  = 0;
     op->iteratorTupleOffset     = -1;
 
-    op->resultDescription.pCols[0] = 0;
-    for (size_t i = 0; i < tbl.columnCount; i++) {        
+
+    for (size_t i = 0; i < tbl.columnCount; i++) {
+        op->resultDescription.columns[i].active = 1;
+        op->resultDescription.columnOrder[i] = i;
         op->resultDescription.columns[i].type = tbl.columns[i].type;
         op->resultDescription.columns[i].identifier = tbl.columns[i].identifier;
         strcpy(op->resultDescription.columns[i].name, tbl.columns[i].name);
         strcpy(op->resultDescription.columns[i].resultSetAlias, node->alias);
-        op->resultDescription.size += datatypeToSize(tbl.columns[i].type);
-        if (i > 0)  op->resultDescription.pCols[i] = op->resultDescription.pCols[i-1] + datatypeToSize(tbl.columns[i-1].type);
+
+        op->resultDescription.size += TDBMAXSTRINGSIZE;
+
     }
     op->resultDescription.columnCount = tbl.columnCount;
     

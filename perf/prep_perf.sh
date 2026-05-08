@@ -1,15 +1,15 @@
 #!bin/bash
-gcc ./perf/gen_test_data.c -o build/perf.out
+gcc ./perf/gen_test_data.c -o build/perf.out -O2
 
 echo Generate test data
 
 for i in 10 100 1000 10000 100000 1000000 10000000
 do
    echo "Generating $i records"
-    (./build/perf.out ./data/numbers_$i.csv $i)
+    (./build/perf.out ./data/numbers_$i.csv $i 5)
     (chmod +r ./data/numbers_$i.csv)
     sleep 1
     echo " - Storing the records in a tdb-table"
-    ./build/squel "CREATE TABLE perftest_$i AS (col1 INT, col2 INT)" 
-    ./build/squel "INSERT INTO perftest_$i SELECT col1,col2 FROM './data/numbers_$i.csv'"    
+    ./build/squel "CREATE TABLE perftest_$i AS (col1 INT, col2 INT, col3 INT, col4 INT, col5 INT)" 
+    ./build/squel "INSERT INTO perftest_$i SELECT col1,col2,col3,col4,col5 FROM './data/numbers_$i.csv'"    
 done

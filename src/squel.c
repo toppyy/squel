@@ -1,25 +1,21 @@
 #include "./include/squel.h"
 
+void tupleColValueToChar(char* target, Tuple* tpl, size_t colIdx, Datatype type) {
 
-// Globals :/
-ResultSet* resultDescToPrint = NULL;
-
-
-
-void valueToChar(char* target, Tuple* tpl, size_t colOffset, Datatype type) {
+    
     if (type == DTYPE_STR) {
-        strcpy(target, tpl->data + colOffset);
+        strcpy(target, getTupleColByIndex(tpl, colIdx));
         return;
     }
     if (type == DTYPE_INT) {
         char tmp[CHARMAXSIZE];
-        sprintf(tmp, "%d", *(int*) (tpl->data + colOffset));
+        sprintf(tmp, "%d", *(int*) source);
         memcpy(target, tmp, strlen(tmp));
         return;
     }
     if (type == DTYPE_LONG) {
         char tmp[CHARMAXSIZE];
-        sprintf(tmp, "%ld", *(long*) (tpl->data + colOffset));
+        sprintf(tmp, "%ld", getTupleLongColByIndex(tpl, colIdx));
         memcpy(target, tmp, strlen(tmp));
         return;
     }
@@ -27,25 +23,39 @@ void valueToChar(char* target, Tuple* tpl, size_t colOffset, Datatype type) {
     exit(1);
 }
 
+void printTuple(Operator* op, Tuple* tpl) {
 
-void printTuple(Tuple* tpl) {
-
-    if (resultDescToPrint == NULL) {
+    if (op == NULL) {
         printf("No result set to print?\n");
         exit(1);
     }
 
     char buff[CHARMAXSIZE];
 
-    for (size_t i = 0; i < resultDescToPrint->columnCount; i++) {
-        memset(buff, 0, CHARMAXSIZE);        
-        valueToChar(buff, tpl ,resultDescToPrint->pCols[i], resultDescToPrint->columns[i].type);
 
-        if (i == 0) printf("%s",buff);
-        else printf(";%s",buff);
+    char firstPrinted = 0;
+
+    for (size_t i = 0; i < op->resultDescription.columnOrderCount; i++) {
         
+        size_t colIdx = op->resultDescription.columnOrder[i];
+
+        if (!op->resultDescription.columns[colIdx].active) continue;
+
+        memset(buff, 0, CHARMAXSIZE);
+
+        Datatype typeToPrint = DTYPE_STR;
+        
+        if (tpl->casted[colIdx]) typeToPrint = op->resultDescription.columns[colIdx].type;
+        
+        tupleColValueToChar(buff, tpl, colIdx, typeToPrint);
+
+        if (firstPrinted == 0) printf("%s",buff);
+        else printf(";%s",buff);
+
+        firstPrinted = 1;
 
     }
+
     printf("\n");
 
 }
@@ -57,10 +67,23 @@ void printColnames(Operator* queryplan) {
     if (queryplan == NULL) return;
     if (queryplan->resultDescription.columnCount == 0) return;
 
-    printf("%s", queryplan->resultDescription.columns[0].name);
-    for (size_t i = 1; i < queryplan->resultDescription.columnCount; i++) {
-        printf("%c%s", DELIMITER, queryplan->resultDescription.columns[i].name);
+    char firstPrinted = 0;
+
+    for (size_t i = 0; i < queryplan->resultDescription.columnOrderCount; i++) {
+        
+        size_t colIdx = queryplan->resultDescription.columnOrder[i];
+
+        if (!queryplan->resultDescription.columns[colIdx].active) continue;
+
+        if (firstPrinted == 0)    
+           printf("%s", queryplan->resultDescription.columns[colIdx].name);
+
+        if (firstPrinted > 0)
+           printf("%c%s", DELIMITER, queryplan->resultDescription.columns[colIdx].name);
+        
+        firstPrinted = 1;
     }
+
     printf("\n");
 
 }
@@ -123,8 +146,6 @@ int main(int argc, char* argv[]) {
     }
 
     Operator* queryplan = planQuery(argv[query_arg]);
-
-    resultDescToPrint = &queryplan->resultDescription;
 
     printColnames(queryplan);
     execute(queryplan, printTuple);

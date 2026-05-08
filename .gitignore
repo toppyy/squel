@@ -3,5 +3,5 @@ build/
 .vscode
 data/
 perf/data
-
+annotated.txt
 !test/data

@@ -49,6 +49,7 @@ typedef struct {
     Datatype type;
     size_t identifier;
     size_t size;
+    bool   active;
 } ColumnMetadata;
 
 
@@ -56,24 +57,22 @@ typedef struct {
 typedef struct {
     char path[CHARMAXSIZE];
     char alias[CHARMAXSIZE];
-    ColumnMetadata columns[ARRAYMAXSIZE];
     size_t columnCount;
+    ColumnMetadata columns[ARRAYMAXSIZE];
 } TableMetadata;
 
 
 
 typedef struct {
+    size_t id;
     size_t columnCount;
-    ColumnMetadata columns[ARRAYMAXSIZE];
-    size_t pCols[ARRAYMAXSIZE];
     size_t size;
+    // This will hold indexes to columns[] for projections
+    size_t columnOrder[ARRAYMAXSIZE];
+    size_t columnOrderCount;
+    ColumnMetadata columns[ARRAYMAXSIZE];
 } ResultSet;
 
-typedef struct {
-    char    columnsToProject[ARRAYMAXSIZE][CHARMAXSIZE];
-    int     colRefs[ARRAYMAXSIZE];
-    int     colCount;
-} ProjectInfo;
 
 typedef struct {
     TableMetadata table;
@@ -86,7 +85,6 @@ typedef struct {
     size_t cursor;
     struct TDB tbldef;
     size_t recordSize;
-    size_t columnOffsets[ARRAYMAXSIZE];
 } ScanInfo;
 
 
@@ -101,7 +99,6 @@ typedef struct FilterInfo {
     struct Operator*    next;
     enum nodeType       operatorNext;
     ComparisonType      compType;
-    int (*filter) (void* expr1, void* expr2);
 } FilterInfo;
 
 typedef struct {
@@ -134,7 +131,6 @@ typedef struct {
 } InsertInfo;
 
 typedef union {
-    ProjectInfo     project;
     ScanInfo        scan;
     FilterInfo      filter;
     JoinInfo        join;

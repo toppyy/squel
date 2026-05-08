@@ -2,17 +2,41 @@
 
 struct TDB* tbldef = NULL;
 size_t tupleSize = 0;
+void* insertBuffer = NULL;
 FILE* f = NULL;
 
 
-void handleTupleInsert(Tuple* tpl) {
+void handleTupleInsert(Operator* op __attribute__((unused)), Tuple* tpl __attribute__((unused))) {
 
     if (f == NULL) {
         printf("No file to insert to\n");
         exit(1);
     }
 
-    size_t bytesWritten = fwrite(tpl->data, tupleSize, 1, f);
+    memset(insertBuffer, 0, TDBRECORDMAXSIZE);
+
+    tupleSize = 0;
+    long num;
+
+    for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
+
+        if (op->resultDescription.columns[i].type == DTYPE_LONG) {
+            num = getTupleLongColByIndex(tpl, i);
+            memcpy((char*) insertBuffer + tupleSize, &num, sizeof num);
+            tupleSize += sizeof(num);
+            continue;
+        }
+        
+        if (op->resultDescription.columns[i].type == DTYPE_STR) {
+            memcpy(insertBuffer + tupleSize, tpl->data + tpl->offsets[i], TDBMAXSTRINGSIZE);
+            tupleSize += TDBMAXSTRINGSIZE;
+            continue;
+        }
+        
+        assert(0);
+    }
+
+    size_t bytesWritten = fwrite(insertBuffer, tupleSize, 1, f);
     assert(bytesWritten > 0);
 }
 
@@ -40,6 +64,13 @@ void executeInsert(Operator* insertOp) {
         }
     }
 
+    /*  Allocate memory for the insert buffer.
+        We need parse the strings into numeric types and need memory for that.
+    */
+
+    insertBuffer = malloc(TDBRECORDMAXSIZE);
+
+
     /* Prep for writing tuples to disk */
 
     tbldef = &tbl;
@@ -53,12 +84,14 @@ void executeInsert(Operator* insertOp) {
         printf("Unable to open the file at path '%s'\n", ptr_filepath);
         exit(1);
     }
+
     writeTdbMetadataToFD(f, tbl);
 
     /* Execute the query */
     execute(op, handleTupleInsert);
 
     /* Clean up */
+    free(insertBuffer);
     fclose(f);
 }
 

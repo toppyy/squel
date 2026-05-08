@@ -4,15 +4,14 @@
 Operator* makeStarProjection(Operator* op, Operator* child_op) {
 
     for (size_t i = 0; i < child_op->resultDescription.columnCount; i++) {
-        op->info.project.colRefs[i] = i;
-        op->resultDescription.pCols[i] = child_op->resultDescription.pCols[i];
+        op->resultDescription.columns[i].active =  child_op->resultDescription.columns[i].active;
         op->resultDescription.columns[i].type = child_op->resultDescription.columns[i].type;
+        op->resultDescription.columnOrder[i] = i;
         strcpy(op->resultDescription.columns[i].name, child_op->resultDescription.columns[i].name); 
-        strcpy(op->info.project.columnsToProject[i], child_op->resultDescription.columns[i].name);
-        op->info.project.colCount++;
     }
 
     op->resultDescription.columnCount = child_op->resultDescription.columnCount;
+    op->resultDescription.columnOrderCount = op->resultDescription.columnCount;
 
     
     return op;
@@ -31,38 +30,48 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
 
         TODO: how about SELECT *,col1 etc.?
     
-    */
+        */
+    makeStarProjection(op, child_op);
+
+    
     if (node->type == STAR) {
-        return makeStarProjection(op, child_op);
+        return op;
     }
+    
+    /* Deactivate all of the child columns. We'll mark them active if they are in the projection. */
+    for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
+        op->resultDescription.columns[i].active = 0;
+        op->resultDescription.columnOrder[i] = 0;
+    } 
+
 
     /*  We know the result set of the child of project op. So we can just which indexes match 
         the projected columns
     */
-
-    int i = 0;
+    size_t order = 0;
 
     for (;;) {
         
-        op->info.project.colCount++;
-        
-        strcpy(op->info.project.columnsToProject[i], node->content);
-        strcpy(op->resultDescription.columns[i].name, node->content);
-        
         // Find the index of the projected column in the result description
         // of the child
-        int j = findColIdxInResDesc(&child_op->resultDescription, node->content, node->tblref);
-        op->info.project.colRefs[i] = j;
-        op->resultDescription.columns[i].type = child_op->resultDescription.columns[j].type;
-        op->resultDescription.pCols[i] = child_op->resultDescription.pCols[j];
-        i++;
-        node = node->next;        
+        size_t j = findColIdxInResDesc(&child_op->resultDescription, node->content, node->tblref);
+
+        op->resultDescription.columns[j].active  = 1;
+        op->resultDescription.columnOrder[order] = j;
+
+        order++;
+
+        node = node->next;
+
         if (node == NULL) {
             break;
         }
+
     };
 
-    op->resultDescription.columnCount = op->info.project.colCount;
+    op->resultDescription.columnOrderCount = order;
+
+    
 
     return op;
 }
