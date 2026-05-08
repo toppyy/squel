@@ -84,6 +84,12 @@ perf-cachegrind:
 	rm cachegrind.out
 	head annotated.txt -n 40
 
+perf-cachegrind-join:
+	valgrind --cachegrind-out-file=cachegrind.out --tool=cachegrind build/squel "SELECT COUNT(col1) FROM './data/numbers_1000.csv' AS a JOIN './data/numbers_1000.csv' AS b ON b.col1>a.col2"
+	cg_annotate cachegrind.out > annotated.txt
+	rm cachegrind.out
+	head annotated.txt -n 40
+
 
 isql_test:
 	isql -b squel user password  < test/odbc/odbc_testquery.sql
