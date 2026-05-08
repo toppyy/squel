@@ -15,6 +15,13 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
     int joinColIdx     = op->info.join.filter->info.filter.boolExprList[2];
     
     if (!op->info.join.hashmap) {
+
+        // Setup the tuple holding join results
+        tpl->type    = TPL_JOIN;
+        tpl->leftColumnCount = op->info.join.left->resultDescription.columnCount;
+
+        // Init a buffer to hold the tuples from the right relation
+
         op->info.join.hashmap = initHashmap(getOption(OPT_HTSIZE));
         op->info.join.rightTuples = initTupleBuffer(JOINBUFFSIZE, TUPLESIZE);
     }
@@ -78,14 +85,8 @@ void hashjoinGetTuple(Operator* op, Tuple* tpl) {
             continue;
         }
 
-        // Create a new tuple by concating the tuples
-        createJoinTuple(
-            tpl,
-            op->info.join.leftTuple,
-            rightTuple,
-            &op->info.join.left->resultDescription
-        );
-            
+        tpl->left    = op->info.join.leftTuple;
+        tpl->right   = rightTuple;           
         return;
 
     } while (!isTupleEmpty(op->info.join.leftTuple));

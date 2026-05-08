@@ -38,7 +38,6 @@ void* getTupleColByIndex(Tuple* tpl, size_t p_index) {
 long getTupleLongColByIndex(Tuple* tpl, size_t index) {
 
     if (tpl->type == TPL_JOIN) {
-        
 
         if (index < tpl->leftColumnCount) {
             tpl = tpl->left;

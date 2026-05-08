@@ -5,4 +5,4 @@
 #include "../executor/tuplebuffer.h"
 
 void joinGetTuple(Operator* op, Tuple* tpl);
-void createJoinTuple(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* left);
+// void createJoinTuple(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* left);
