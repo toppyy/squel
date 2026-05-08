@@ -1,51 +1,17 @@
 #include "../include/operators/join.h"
 
 
-void concatTuples(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* left, ResultSet* right) {
+void createJoinTuple(Tuple* returnTpl, Tuple* leftTpl, Tuple* rightTpl, ResultSet* left) {
 
-    if (
-        left == NULL ||
-        right == NULL
-    ) {
-        printf("Passed a NULL pointer to concatTuples\n");
-        exit(1);
-    }
+    returnTpl->type    = TPL_JOIN;
+    returnTpl->left    = leftTpl;
+    returnTpl->right   = rightTpl;
 
-    returnTpl->type = leftTpl->type; // TODO: what if these differ between left and right?
-
-    memcpy(returnTpl->data, leftTpl->data, leftTpl->size);
-    memcpy(returnTpl->data + left->size, rightTpl->data, rightTpl->size);
-    
-    for (size_t i = 0; i < left->columnCount; i++) {
-        returnTpl->offsets[i]   = leftTpl->offsets[i];
-        returnTpl->sizes[i]     = leftTpl->sizes[i];
-        returnTpl->casted[i]    = leftTpl->casted[i];
-        returnTpl->longs[i]     = leftTpl->longs[i];
-    }
-
-    returnTpl->longCount = leftTpl->longCount;
-    
-    for (size_t i = 0; i < right->columnCount; i++) {
-        
-        if (
-            // For delimited tables, the offsets refer to offsets into the longs-array
-            // if the value has been casted
-            (rightTpl->casted[i]) & (returnTpl->type == TPL_DELIMITED)
-        ) {
-            returnTpl->offsets[i + left->columnCount]   =  leftTpl->longCount + rightTpl->offsets[i];
-        } else {
-            returnTpl->offsets[i + left->columnCount]   =  leftTpl->size + rightTpl->offsets[i];
-        }
-
-        returnTpl->sizes[i + left->columnCount]     =  rightTpl->sizes[i];
-        returnTpl->casted[i + left->columnCount]    =  rightTpl->casted[i];
-        returnTpl->longs[i + leftTpl->longCount]    =  rightTpl->longs[i];
-    }
-
-    returnTpl->longCount = leftTpl->longCount + rightTpl->longCount;
-    returnTpl->size = leftTpl->size + rightTpl->size;
+    returnTpl->leftColumnCount = left->columnCount;
 
 }
+
+
 
 void joinGetTuple(Operator* op, Tuple* tpl) {
     if (
@@ -118,12 +84,11 @@ void joinGetTuple(Operator* op, Tuple* tpl) {
 
         if (evaluateTuplesAgainstFilterOps(op->info.join.leftTuple, rightTuple, op->info.join.filter)) {
             // Create a new tuple by concating the tuples
-            concatTuples(
+            createJoinTuple(
                 tpl,
                 op->info.join.leftTuple,
                 rightTuple,
-                &op->info.join.left->resultDescription,
-                &op->info.join.right->resultDescription
+                &op->info.join.left->resultDescription
             );
             
             return;

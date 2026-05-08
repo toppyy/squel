@@ -17,12 +17,36 @@ Tuple* initTupleOfSize(size_t p_size) {
     return tpl;
 }
 
-void* getTupleColByIndex(Tuple* tpl, size_t index) {
+void* getTupleColByIndex(Tuple* tpl, size_t p_index) {
+
+
+    size_t index = p_index;
+    
+    if (tpl->type == TPL_JOIN) {
+
+        if (index < tpl->leftColumnCount) {
+            tpl = tpl->left;
+        } else {
+            index = index - tpl->leftColumnCount;
+            tpl = tpl->right;
+        }
+    }
     return tpl->data + tpl->offsets[index];
 }
 
 
 long getTupleLongColByIndex(Tuple* tpl, size_t index) {
+
+    if (tpl->type == TPL_JOIN) {
+        
+
+        if (index < tpl->leftColumnCount) {
+            tpl = tpl->left;
+        } else {
+            index -= tpl->leftColumnCount;
+            tpl = tpl->right;
+        }
+    }
 
     if (tpl->type == TPL_TDB) {
         return *(long*) getTupleCol(tpl, tpl->offsets[index]);
@@ -33,6 +57,22 @@ long getTupleLongColByIndex(Tuple* tpl, size_t index) {
     };
 
     return tpl->longs[ tpl->offsets[index] ];
+}
+
+char isCasted(Tuple* tpl, size_t index) {
+ 
+    if (tpl->type == TPL_JOIN) {
+
+        if (index < tpl->leftColumnCount) {
+            tpl = tpl->left;
+        } else {
+            index -= tpl->leftColumnCount;
+            tpl = tpl->right;
+        }
+    }
+
+    return tpl->casted[index];
+
 }
 
 

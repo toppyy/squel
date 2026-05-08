@@ -45,7 +45,7 @@ void printTuple(Operator* op, Tuple* tpl) {
 
         Datatype typeToPrint = DTYPE_STR;
         
-        if (tpl->casted[colIdx]) typeToPrint = op->resultDescription.columns[colIdx].type;
+        if (isCasted(tpl,colIdx)) typeToPrint = op->resultDescription.columns[colIdx].type;
         
         tupleColValueToChar(buff, tpl, colIdx, typeToPrint);
 
