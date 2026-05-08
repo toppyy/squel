@@ -22,6 +22,7 @@ LIBRARY = $(BUILDIR)/libsquel.so
 
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -fPIC -O2  -Wno-unused-result
+# CFLAGS = -Wall -Wextra -Werror -fPIC -g -O2 -Wno-unused-result
 #CFLAGS =  -fPIC
 
 # Define a target to compile all source files
@@ -76,6 +77,13 @@ perf-test-count:
 perf-test-join:
 	mkdir -p perf/results
 	. ./perf/measure_perf_join.sh  2> ./perf/results/join.csv && cat ./perf/results/join.csv
+
+perf-cachegrind:
+	valgrind --cachegrind-out-file=cachegrind.out --tool=cachegrind build/squel "SELECT COUNT(col1) FROM './data/numbers_1000000.csv' AS a WHERE a.col1 > 500000"
+	cg_annotate cachegrind.out > annotated.txt
+	rm cachegrind.out
+	head annotated.txt -n 40
+
 
 isql_test:
 	isql -b squel user password  < test/odbc/odbc_testquery.sql
