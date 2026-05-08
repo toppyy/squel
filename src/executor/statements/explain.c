@@ -44,9 +44,6 @@ void explainOp(Operator* op) {
     if (!op) return;
 
     printOp(op);
-    // printf(" ");
-    // for (size_t i = 0; i < op->resultDescription.columnCount; i++) printf("%s (%ld), ", op->resultDescription.columns[i].name, i);
-
     printf("\n");
 
     if (op->type == OP_FILTER) {

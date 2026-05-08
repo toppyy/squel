@@ -4,8 +4,7 @@
 Operator* makeJoinFilterOps(
     Node* where_node,
     Operator* join_op,
-    ResultSet leftResult,
-    ResultSet rightResult __attribute__((unused))
+    ResultSet leftResult
 ) {
     // Make regular filter ops (ie. where agains one table)
     Operator* filterOps = makeFilterOps(where_node, join_op);    
@@ -94,7 +93,7 @@ Operator* makeJoinOp(Operator* left, Operator* right, Node* ON) {
 
 
     /* ON-clause */
-    Operator* opFilter = makeJoinFilterOps(ON, opJoin, left->resultDescription, right->resultDescription);
+    Operator* opFilter = makeJoinFilterOps(ON, opJoin, left->resultDescription);
     opJoin->info.join.filter = opFilter;
 
 
