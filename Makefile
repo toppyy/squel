@@ -62,6 +62,7 @@ clean:
 	rm -f ./build/odbc_obj
 
 # Run tests
+.PHONY: test
 test:
 	./test/bats-core/bin/bats ./test
 
