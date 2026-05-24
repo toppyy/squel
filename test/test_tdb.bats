@@ -28,8 +28,8 @@ setup_file() {
     run ./build/squel "INSERT INTO test_where_tbl SELECT numcol,strcol FROM './test/data/tdb_testdata.csv'"
     run ./build/squel "SELECT * FROM test_where_tbl WHERE numcol>2"
     [[ $"${lines[0]}" == "numcol;strcol" ]]
-    [[ $"${lines[1]}" == "3;A" ]]
-    [[ $"${lines[2]}" == "4;FORMAT" ]]
+    [[ $"${lines[1]}" == "4;FORMAT" ]]
+    [[ $"${lines[2]}" == "3;A" ]]
     [[ $"${lines[3]}" == "" ]]
 }
 
@@ -38,9 +38,9 @@ setup_file() {
     run ./build/squel "INSERT INTO test_reorder_tbl SELECT numcol,strcol FROM './test/data/tdb_testdata.csv'"
     run ./build/squel "SELECT strcol,numcol FROM test_reorder_tbl"
     [[ $"${lines[0]}" == "strcol;numcol" ]]
-    [[ $"${lines[1]}" == "TDB;1" ]]
-    [[ $"${lines[2]}" == "IS;2" ]]
-    [[ $"${lines[3]}" == "A;3" ]]
-    [[ $"${lines[4]}" == "FORMAT;4" ]]
+    [[ $"${lines[1]}" == "FORMAT;4" ]]
+    [[ $"${lines[2]}" == "A;3" ]]
+    [[ $"${lines[3]}" == "IS;2" ]]
+    [[ $"${lines[4]}" == "TDB;1" ]]
     [[ $"${lines[5]}" == "" ]]
 }
