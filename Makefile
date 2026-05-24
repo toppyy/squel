@@ -62,7 +62,7 @@ clean:
 	rm -f ./build/odbc_obj
 
 # Run tests
-tests:
+test:
 	./test/bats-core/bin/bats ./test
 
 perf-prep:

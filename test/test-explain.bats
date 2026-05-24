@@ -23,6 +23,19 @@ setup() {
     run ./build/squel "EXPLAIN SELECT col1,col3,int FROM './test/data/small.csv' JOIN './test/data/small2.csv' ON col3>int"
     expected_output=$(printf "******* EXPLAIN **********\nOP_PROJECT\nOP_JOIN\nOP_FILTER\nOP_SCAN\nOP_SCAN\n**************************\n")
     assert_output "$expected_output"
+
+}
+
+@test "EXPLAIN - simple SELECT" {
+    run ./build/squel "EXPLAIN SELECT col1 FROM './test/data/small.csv'"
+    expected_output=$(printf "******* EXPLAIN **********\nOP_PROJECT\nOP_SCAN\n**************************\n")
+    assert_output "$expected_output"
+}
+
+@test "EXPLAIN - aggregation" {
+    run ./build/squel "EXPLAIN SELECT COUNT(unemployed) FROM './test/data/unemployment_all.csv'"
+    expected_output=$(printf "******* EXPLAIN **********\nOP_AGGREGATE\nOP_SCAN\n**************************\n")
+    assert_output "$expected_output"
 }
 
 

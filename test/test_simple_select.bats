@@ -43,3 +43,22 @@ setup_file() {
 
 
 }
+
+@test "Simple SELECT with different column order" {
+    run ./build/squel "SELECT col2,col3,col1 FROM './test/data/small.csv'"
+    [[ $"${lines[0]}" == "col2;col3;col1" ]]
+    [[ $"${lines[1]}" == "ABC;32;MAMA" ]]
+    [[ $"${lines[2]}" == "DEFG;999;UU" ]]
+}
+
+@test "Simple SELECT single column" {
+    run ./build/squel "SELECT col1 FROM './test/data/small.csv'"
+    [[ $"${lines[0]}" == "col1" ]]
+    [[ $"${lines[1]}" == "MAMA" ]]
+    [[ $"${lines[2]}" == "UU" ]]
+    [[ $"${lines[3]}" == "UU" ]]
+    [[ $"${lines[4]}" == "UU" ]]
+    [[ $"${lines[5]}" == "DEFG" ]]
+    [[ $"${lines[6]}" == "ABC" ]]
+    [[ $"${lines[7]}" == "" ]]
+}

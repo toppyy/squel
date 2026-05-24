@@ -39,3 +39,15 @@ setup_file() {
     [[ $"${lines[1]}" == "6867380" ]]
     [[ $"${lines[2]}" == "" ]]
 }
+
+@test "COUNT with WHERE" {
+    run ./build/squel "SELECT COUNT(unemployed) FROM './test/data/unemployment_all.csv' WHERE unemployed>60000"
+    [[ $"${lines[1]}" == "3" ]]
+    [[ $"${lines[2]}" == "" ]]
+}
+
+@test "SUM on small dataset" {
+    run ./build/squel "SELECT SUM(col3) FROM './test/data/small.csv'"
+    [[ $"${lines[1]}" == "1833" ]]
+    [[ $"${lines[2]}" == "" ]]
+}

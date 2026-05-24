@@ -19,5 +19,5 @@ jobs:
       run: make dirs
     - name: make squel
       run: make squel
-    - name: make tests
-      run: make tests
+    - name: make test
+      run: make test

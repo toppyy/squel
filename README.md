@@ -96,7 +96,7 @@ This should able you to run the following query:
 
 For running tests / cleaning up, you can do:
 
-    make tests
+    make test
     make clean
 
 

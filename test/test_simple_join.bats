@@ -37,4 +37,20 @@ setup_file() {
     [[ $"${lines[2]}" == "" ]]
 }
 
+@test "Simple JOIN with small3" {
+    run ./build/squel "SELECT col1,col3,int FROM './test/data/small.csv' JOIN './test/data/small3.csv' ON col3=int"
+    [[ $"${lines[0]}" == "col1;col3;int" ]]
+    [[ $"${lines[1]}" == "MAMA;32;32" ]]
+    [[ $"${lines[2]}" == "" ]]
+}
+
+@test "Simple JOIN with filter" {
+    run ./build/squel "SELECT col1,col3,int FROM './test/data/small.csv' JOIN './test/data/small2.csv' ON col3>int WHERE col1='UU'"
+    [[ $"${lines[0]}" == "col1;col3;int" ]]
+    [[ $"${lines[1]}" == "UU;999;32" ]]
+    [[ $"${lines[2]}" == "UU;100;32" ]]
+    [[ $"${lines[3]}" == "UU;300;32" ]]
+    [[ $"${lines[4]}" == "" ]]
+}
+
 

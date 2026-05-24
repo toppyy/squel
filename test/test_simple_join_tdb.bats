@@ -36,5 +36,25 @@ setup_file() {
     [[ $"${lines[5]}" == "" ]]
 }
 
+@test "SELECT with WHERE from TDB table" {
+    run ./build/squel "SELECT col1,col3 FROM test_small WHERE col3>300"
+    [[ $"${lines[0]}" == "col1;col3" ]]
+    [[ $"${lines[1]}" == "DEFG;400" ]]
+    [[ $"${lines[2]}" == "UU;999" ]]
+    [[ $"${lines[3]}" == "" ]]
+}
+
+@test "SELECT ordered columns from TDB" {
+    run ./build/squel "SELECT col2,col1 FROM test_small"
+    [[ $"${lines[0]}" == "col2;col1" ]]
+    [[ $"${lines[1]}" == "ZYX;ABC" ]]
+    [[ $"${lines[2]}" == "DEFG;DEFG" ]]
+    [[ $"${lines[3]}" == "CCCCDDD;UU" ]]
+    [[ $"${lines[4]}" == "UU;UU" ]]
+    [[ $"${lines[5]}" == "DEFG;UU" ]]
+    [[ $"${lines[6]}" == "ABC;MAMA" ]]
+    [[ $"${lines[7]}" == "" ]]
+}
+
 
 

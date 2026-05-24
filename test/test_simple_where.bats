@@ -78,3 +78,17 @@ setup_file() {
     [[ $"${lines[2]}" == "DATA" ]]
     [[ $"${lines[3]}" == "" ]]
 }
+
+@test "Simple WHERE \w two conditions (OR) on constants." {
+    run ./build/squel "SELECT col1,col2,col3 FROM './test/data/small.csv' WHERE col3=100 OR col3=400"
+    [[ $"${lines[1]}" == "UU;UU;100" ]]
+    [[ $"${lines[2]}" == "DEFG;DEFG;400" ]]
+    [[ $"${lines[3]}" == "" ]]
+}
+
+@test "Simple WHERE \w combined AND and OR." {
+    run ./build/squel "SELECT col1,col2,col3 FROM './test/data/small.csv' WHERE (col1='UU' OR col1='ABC') AND col3<300"
+    [[ $"${lines[1]}" == "UU;UU;100" ]]
+    [[ $"${lines[2]}" == "ABC;ZYX;2" ]]
+    [[ $"${lines[3]}" == "" ]]
+}
