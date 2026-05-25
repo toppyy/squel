@@ -62,6 +62,98 @@ void printTuple(Operator* op, Tuple* tpl) {
 
 
 
+void printNode(Node* node, size_t depth) {
+
+    for (size_t i = 0; i < depth; i++) printf("\t");
+
+    switch(node->type) {
+        case 0:
+	        printf("STMTINSERT\n");
+            break;
+        case 1:
+            printf("STMTCREATE\n");
+            break;
+        case 2:
+            printf("STMTEXPLAIN\n");
+            break;
+        case 3:
+            printf("EXPR\n");
+            break;
+        case 4:
+            printf("IDENT_COL\n");
+            break;
+        case 5:
+            printf("IDENT_TBL\n");
+            break;
+        case 6:
+            printf("FILEPATH\n");
+            break;
+        case 7:
+            printf("STRING\n");
+            break;
+        case 8:
+            printf("NUMBER\n");
+            break;
+        case 9:
+            printf("SELECT\n");
+            break;
+        case 10:
+            printf("IDENT_FUN\n");
+            break;
+        case 11:
+            printf("JOIN\n");
+            break;
+        case 12:
+            printf("STAR\n");
+            break;
+        case 13:
+            printf("FROM\n");
+            break;
+        case 14:
+            printf("WHERE\n");
+            break;
+        case 15:
+            printf("ON\n");
+            break;
+        case 16:
+            printf("ROOT\n");
+            break;
+        case 17:
+            printf("BOOLOP\n");
+            break;
+        case 18:
+            printf("DATATYPE\n");
+            break;
+        case 19:
+            printf("COLUMNLIST\n");
+            break;
+        case 20:
+            printf("AND\n");
+            break;
+        case 21:
+            printf("TABLE\n");
+            break;
+        case 22:
+            printf("OR\n");
+            break;
+        default:
+            printf("Unkown nodetype %d\n", node->type);
+    }
+
+    if (node->child != NULL) {
+        printNode(node->child, depth + 1);
+    }
+
+    if (node->next  != NULL) printNode(node->next, depth);
+}
+
+
+void printParseTree(Node* ast) {
+    printNode(ast, 0);
+}
+
+
+
 void printColnames(Operator* queryplan) {
 
     if (queryplan == NULL) return;
@@ -99,6 +191,8 @@ int main(int argc, char* argv[]) {
     Options* opts = initOptions();
 
     size_t query_arg = 1;
+    char onlyParse = 0; 
+
 
     // Loop through the arguments
     for (int i = 1; i < argc; i++) {
@@ -137,6 +231,12 @@ int main(int argc, char* argv[]) {
 
             query_arg += 2;
         }
+
+        else if (strcmp(argv[i], "--plan") == 0) {
+            i++;
+            onlyParse = 1;
+            query_arg += 1;
+        }
     }
 
 
@@ -144,15 +244,23 @@ int main(int argc, char* argv[]) {
         printf("Error: Query length exceeds maximum.\n");
         exit(1);
     }
+    
+    if (onlyParse) {
+        Node* ast = createParsetree();
+        parse(argv[query_arg], ast);
+        printParseTree(ast);
+        freeTree(ast);
+        free(opts);
+        return(1);
+    }
 
     Operator* queryplan = planQuery(argv[query_arg]);
+
 
     printColnames(queryplan);
     execute(queryplan, printTuple);
 
     /* Free all the memory used */
-    // freeTree(parsetree);
-
     if (queryplan != NULL) {
         freeQueryplan(queryplan);
     }
