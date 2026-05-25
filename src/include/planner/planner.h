@@ -97,7 +97,9 @@ typedef struct FilterInfo {
     int                 boolExprList[ARRAYMAXSIZE];
     size_t              boolExprListSize;
     struct Operator*    next;
+    struct Operator*    child;
     enum nodeType       operatorNext;
+    char                isParenthesisWrapper;
     ComparisonType      compType;
 } FilterInfo;
 

@@ -4,14 +4,15 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
 
     int idx1        = op->info.filter.boolExprList[0];
     int boolOp      = op->info.filter.boolExprList[1];
-    int idx2        = op->info.filter.boolExprList[2];    
+    int idx2        = op->info.filter.boolExprList[2];
 
     ComparisonType compType = op->info.filter.compType;
     Datatype dtype1 = op->info.filter.exprDatatypes[0];
     Datatype dtype2 = op->info.filter.exprDatatypes[1];    
 
     if (dtype1 != dtype2) {
-        printf("FILTER_OP: Can't compare different datatypes\n");
+        printf("FILTER_OP: Can't compare different datatypes. ");
+        printf("(%d != %d)\n", dtype1, dtype2);
         exit(1);
     }
 
@@ -150,9 +151,13 @@ bool evaluateTuplesAgainstFilterOps(Tuple* tpl1, Tuple* tpl2, Operator* op) {
     Operator* p_op = op;
 
     while (p_op != NULL) {
-        
-        result = evaluateTupleAgainstFilterOp(tpl1, tpl2, p_op);
 
+        if (p_op->info.filter.isParenthesisWrapper) {
+            result = evaluateTuplesAgainstFilterOps(tpl1, tpl2, p_op->info.filter.child);
+
+        } else {
+            result = evaluateTupleAgainstFilterOp(tpl1, tpl2, p_op);
+        }
         switch (boolOp) {
             case AND:
                 rtrnValue = result && rtrnValue;            
@@ -191,7 +196,9 @@ void filterGetTuple(Operator* op, Tuple* tpl) {
     if ( op->child->getTuple == NULL) {
         printf("FILTER_OP: Child of OP_FILTER has no getTuple-method\n");
         exit(1);
-    }if (op == NULL) {
+    }
+
+    if (op == NULL) {
         printf("FILTER_OP: Passed a NULL-pointer to filterGetTuple\n");
         exit(1);
     }

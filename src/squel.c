@@ -238,7 +238,7 @@ int main(int argc, char* argv[]) {
             query_arg += 2;
         }
 
-        else if (strcmp(argv[i], "--plan") == 0) {
+        else if (strcmp(argv[i], "--parse") == 0) {
             i++;
             onlyParse = 1;
             query_arg += 1;

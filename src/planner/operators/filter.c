@@ -187,13 +187,42 @@ Operator* makeFilterOp(Node* node, Operator* child) {
 }
 
 
-Operator* makeFilterOps(Node* where_node, Operator* child) {
+
+Operator* _makeFilterOps(Node* node, Operator* child) {
+
+    if (node->type == OPAREN) {
+
+        Operator* op = (Operator*) calloc(1, sizeof(Operator));
+        op->type = OP_FILTER;
+        op->child                   = NULL;
+        op->getTuple                = NULL;
+        op->info.filter.isParenthesisWrapper    = 1;
+        op->info.filter.boolExprListSize        = 0;
+        memcpy(&op->resultDescription, &child->resultDescription, sizeof(child->resultDescription));
+
+
+        if (node->child == NULL) {
+            printf("Parenthesis has no child!\n");
+            exit(1);
+        }
+
+        op->info.filter.child = _makeFilterOps(node->child, child);
+
+        if (node->next == NULL)         return op;
+        if (node->next->type == CPAREN) return op;
+        if (node->next->next == NULL)   return op;
+
+        op->info.filter.operatorNext = node->next->type;
+        op->info.filter.next = _makeFilterOps(node->next->next, child);
+
+        return op;
+    }
+
 
     /*  Returns a linked list of OP_FILTER operators.
         Each have a resultsDescription, but only the first's one is depended on.
     */
 
-    Node* node = where_node->child;
     Operator* op_filt = makeFilterOp(node, child);
     
     /* An boolean expr node is expected to have three linked nodes and inbetween 'AND' or 'OR'. So iterate +4 nodes until NULL-pointer */
@@ -219,4 +248,8 @@ Operator* makeFilterOps(Node* where_node, Operator* child) {
     }
 
     return op_filt;
+}
+
+Operator* makeFilterOps(Node* where_node, Operator* child) {
+    return _makeFilterOps(where_node->child, child);
 }
