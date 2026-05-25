@@ -34,7 +34,9 @@ enum nodeType {
     COLUMNLIST,
     AND,
     TABLE,
-    OR
+    OR,
+    OPAREN,
+    CPAREN
 };
 
 typedef struct Node {

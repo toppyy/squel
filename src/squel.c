@@ -136,6 +136,12 @@ void printNode(Node* node, size_t depth) {
         case 22:
             printf("OR\n");
             break;
+        case 23:
+            printf("OPAREN\n");
+            break;
+        case 24:
+            printf("CPAREN\n");
+            break;
         default:
             printf("Unkown nodetype %d\n", node->type);
     }

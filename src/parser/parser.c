@@ -21,6 +21,11 @@ void initGlobals() {
 }
 
 
+// Forward declarations
+char boolOp();
+void boolexprlist();
+
+
 
 void addNode(enum nodeType type, char* content) {
     
@@ -195,6 +200,25 @@ void constant() {
 }
 
 void expr() {
+
+    if (nextChar == '(') {
+        expectChar('(');
+        skipWhite();
+        addNode(OPAREN,"(");
+        Node* nodeOpen = currentNode;
+        nextToChild = true;
+        while (nextChar != ')') {
+            expr();
+            skipWhite();
+        }
+        expectChar(')');
+        skipWhite();
+        addNode(CPAREN,")");
+        currentNode = nodeOpen;
+        return;
+    }
+
+
     if (isLetter(nextChar)) {
         if (peekNextNonAlphanumeric() == '(') {
             ident(IDENT_FUN);
@@ -202,17 +226,24 @@ void expr() {
             expectChar('(');
             exprlist();
             expectChar(')');
-            return;
+            
+        } else {
+            ident(IDENT_COL);
         }
-        ident(IDENT_COL);
-        return;
-    }
-    if (nextChar == '*') {
+    } else if (nextChar == '*') {
         expectChar('*');
         addNode(STAR,"*");
-        return;
+    } else {
+        constant();
     }
-    constant();    
+
+    skipWhite();
+
+    if (boolOp()) {
+        // We now have expr + bool op so there must be an expr after this
+        boolexprlist();
+    }
+
 }
 
 void exprlist() {
@@ -226,9 +257,30 @@ void exprlist() {
     }
 
 }
-void boolExpr(bool expectOp);
-void boolOp() {
+
+void boolexprlist() {
+
     skipWhite();
+    expr();         
+    skipWhite();
+
+    if (peekWordMatches("AND")) {
+        keyword("AND", AND);
+        boolexprlist();
+        return;
+    }
+
+    else if (peekWordMatches("OR")) {
+        keyword("OR", OR);
+        boolexprlist();
+        return;
+    }
+
+}
+
+
+char boolOp() {
+    
     if (
         nextChar == '=' ||
         nextChar == '<' ||
@@ -237,47 +289,19 @@ void boolOp() {
         char op[2] = { nextChar, '\0' };
         getNextChar();
         addNode(BOOLOP,op);
-        boolExpr(false);
-        return;
+        return 1;
     }
     if (nextChar == '!') {
         getNextChar();
         expectChar('=');
         addNode(BOOLOP,"!=");
-        boolExpr(false);
-        return;
+        return 1;
     }
-    printf("Parser error: Expected a boolean operator. Got '%c'.\n", nextChar);
-    exit(1);
+
+    return 0;
 }
 
-void boolExpr(bool expectOp) {
-    skipWhite();
-    if (isLetter(nextChar)) {
-        ident(IDENT_COL);
-        if (expectOp) boolOp();
-        return;
-    }
-    expr();
-    if (expectOp) boolOp();
-    return;
-}
 
-void boolExprList() {
-    skipWhite();
-    boolExpr(true);
-    skipWhite();
-    if (peekWordMatches("AND")) {
-        keyword("AND",AND);
-        boolExprList();
-        return;
-    }
-    else if (peekWordMatches("OR")) {
-        keyword("OR",OR);
-        boolExprList();
-        return;
-    }
-}
 
 void addAlias(Node* node) {
     size_t i = 0;
@@ -335,7 +359,7 @@ void query() {
         keyword("WHERE", WHERE);
         nextToChild = true;
         skipWhite();
-        boolExprList();
+        boolexprlist();
         skipWhite();
     }
 }
@@ -355,7 +379,7 @@ void from() {
         skipWhite();
         keyword("ON", ON);
         nextToChild = true;
-        boolExprList();
+        boolexprlist();
         return;
     }
 }
