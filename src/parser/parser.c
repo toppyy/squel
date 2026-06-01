@@ -97,7 +97,7 @@ void keyword(char* kw, enum nodeType type) {
 }
 
 void skipWhite() {
-    while (isWhiteSpace(nextChar) & (cursor < qsize))
+    while (isWhiteSpace(nextChar) && (cursor < qsize))
         getNextChar();
 }
 
@@ -224,7 +224,7 @@ void expr() {
             ident(IDENT_FUN);
             nextToChild = true;
             expectChar('(');
-            exprlist();
+            exprlist(); // TODO: handle function calls with no arguments
             expectChar(')');
             
         } else {
