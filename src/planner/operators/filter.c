@@ -27,6 +27,12 @@ int mapBoolOpToInt(char* boolOp) {
     if (strcmp(boolOp, ">") == 0) {
         return -4;
     }
+    if (strcmp(boolOp, ">=") == 0) {
+        return -5;
+    }
+    if (strcmp(boolOp, "<=") == 0) {
+        return -6;
+    }
     printf("Don't know how to handle boolean operator %s\n", boolOp);
     exit(1);
 }
@@ -63,6 +69,8 @@ Node* mapBoolExpr(
             -2 equals '!='
             -3 equals '<'
             -4 equals '>'
+            -5 equals '>='
+            -6 equals '>='
         
         Positive integers are column indexes in the child result description.
 

@@ -286,11 +286,18 @@ char boolOp() {
         nextChar == '<' ||
         nextChar == '>'
     ) {
-        char op[2] = { nextChar, '\0' };
-        getNextChar();
+        char op[3] = { nextChar, '\0', '\0' };
+
+        char next = getNextChar();
+        if (next == '=') {
+            op[1] = next;
+            getNextChar();
+        }
+
         addNode(BOOLOP,op);
         return 1;
     }
+
     if (nextChar == '!') {
         getNextChar();
         expectChar('=');

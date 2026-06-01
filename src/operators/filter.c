@@ -132,6 +132,10 @@ bool evaluateTupleAgainstFilterOp(Tuple* tpl1, Tuple* tpl2, Operator* op) {
             return cmpRes < 0;
         case -4:
             return cmpRes > 0;
+        case -5:
+            return cmpRes >= 0;
+        case -6:
+            return cmpRes <= 0; 
         default:    
             printf("FILTER_OP: Operator %d not implemented\n", boolOp);
             exit(1);
