@@ -18,6 +18,7 @@ Operator* makeInsert(Node* node) {
     
     /* Init colstats */
     op->info.insert.colStats = (ColumnStatistics*) calloc(op->child->resultDescription.columnCount, sizeof(ColumnStatistics));
+    op->info.insert.colCount = op->child->resultDescription.columnCount;
 
     return op;
 }

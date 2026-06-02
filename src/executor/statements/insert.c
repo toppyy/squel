@@ -54,6 +54,7 @@ void executeInsert(Operator* insertOp) {
     Operator* op = insertOp->child;
 
     /* Check target table matches result description of the query */
+
     assert(op->resultDescription.columnOrderCount == tbl.colCount);
 
     // We need another crappy index as all of the columns in the operator
@@ -99,6 +100,10 @@ void executeInsert(Operator* insertOp) {
     execute(op, handleTupleInsert);
 
     /* Write footer */
+
+    for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
+        printf("Insert has column %ld\n",i );
+    }
 
     /* Clean up */
     free(insertBuffer);
