@@ -54,14 +54,22 @@ void executeInsert(Operator* insertOp) {
     Operator* op = insertOp->child;
 
     /* Check target table matches result description of the query */
-    assert(op->resultDescription.columnCount == tbl.colCount);
+    assert(op->resultDescription.columnOrderCount == tbl.colCount);
 
-    for (size_t i = 0; i < tbl.colCount; i++) {
-        if (op->resultDescription.columns[i].type != tbl.datatypes[i]) {
+    // We need another crappy index as all of the columns in the operator
+    // may not be active
+    size_t colIdx = 0;
+    
+    for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
+
+        if (!op->resultDescription.columns[i].active) continue;
+
+        if (op->resultDescription.columns[i].type != tbl.datatypes[colIdx]) {
             printf("Target table and query columns do not match at index %ld\n", i);
-            printf("Target: %d, query: %d\n",tbl.datatypes[i], op->resultDescription.columns[i].type);
+            printf("Target: %d, query: %d\n",tbl.datatypes[colIdx], op->resultDescription.columns[i].type);
             exit(1);
         }
+        colIdx++;
     }
 
     /*  Allocate memory for the insert buffer.
