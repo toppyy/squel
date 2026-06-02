@@ -14,11 +14,13 @@
 #define TDBMAXSTRINGSIZE 50
 #define JOINTUPLESIZE    1000
 #define SCANTUPLESIZE    2000
+#define TDB_ROWGROUP_SIZE 100
 
 // Defaults for query execution
 #define JOINBUFFSIZE    100000
 #define TUPLESIZE       500    
 #define HTSIZE          3000
+#define HASHJOIN        1   // 1 if hashjoin enabled (default), 0 if not
 
 // Define max size (in chars) of expressions and query
 #define MAXQUERYSIZE 1000
@@ -32,3 +34,5 @@
 // they exceed the limits
 #define ARRAYMAXSIZE 25
 #define CHARMAXSIZE 100
+
+
