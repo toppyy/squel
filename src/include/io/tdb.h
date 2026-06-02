@@ -22,7 +22,15 @@
             Four bytes for column datatype
             Byte for column datalength
         Records..        
+        Footer:
+            For each rowgroup:
+                For each column
+                    min and max (use 100 bytes for both despite of col datatype)
+        
+        u8 - number of rowgroups
 
+        size of rowgroup is: ((2 * 100) * column count)
+                
 */
 
 typedef struct TDB {

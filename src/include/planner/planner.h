@@ -128,8 +128,17 @@ typedef struct {
     char objectName[CHARMAXSIZE];
 } CreateInfo;
 
+
+typedef struct {
+    size_t colIndex;
+    char min[COLSTATS_MINMAX_SIZE];
+    char max[COLSTATS_MINMAX_SIZE];
+} ColumnStatistics;
+
 typedef struct {
     char targetTableName[CHARMAXSIZE];
+    size_t colCount;
+    ColumnStatistics* colStats;
 } InsertInfo;
 
 typedef union {

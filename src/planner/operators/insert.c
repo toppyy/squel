@@ -10,9 +10,14 @@ Operator* makeInsert(Node* node) {
     op->type = OP_STMTINSERT;
 
     strcpy(op->info.insert.targetTableName, node->next->content);
-
+    
+    
     /* Plan the query */
-    op->child = planQueryAst(node->next->next);
+    Node* select = node->next->next;
+    op->child = planQueryAst(select);
+    
+    /* Init colstats */
+    op->info.insert.colStats = (ColumnStatistics*) calloc(op->child->resultDescription.columnCount, sizeof(ColumnStatistics));
 
     return op;
 }

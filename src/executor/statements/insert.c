@@ -6,7 +6,7 @@ void* insertBuffer = NULL;
 FILE* f = NULL;
 
 
-void handleTupleInsert(Operator* op __attribute__((unused)), Tuple* tpl __attribute__((unused))) {
+void handleTupleInsert(Operator* op, Tuple* tpl) {
 
     if (f == NULL) {
         printf("No file to insert to\n");
@@ -97,6 +97,8 @@ void executeInsert(Operator* insertOp) {
 
     /* Execute the query */
     execute(op, handleTupleInsert);
+
+    /* Write footer */
 
     /* Clean up */
     free(insertBuffer);

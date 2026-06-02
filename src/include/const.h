@@ -15,6 +15,7 @@
 #define JOINTUPLESIZE    1000
 #define SCANTUPLESIZE    2000
 #define TDB_ROWGROUP_SIZE 100
+#define COLSTATS_MINMAX_SIZE 100
 
 // Defaults for query execution
 #define JOINBUFFSIZE    100000
