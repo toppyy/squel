@@ -64,6 +64,8 @@ TDB readTdbMetadaFromFD(FILE* f) {
     fread(&tbldef.records,  1, sizeof(tbldef.records),  f);
     fread(&tbldef.colCount, 1, sizeof(tbldef.colCount), f);
 
+    printf("tbldef.colCount: %ld\n", tbldef.colCount);
+
     tbldef.metadataSize = sizeof(tbldef.records) + sizeof(tbldef.colCount);
 
 

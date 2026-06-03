@@ -157,6 +157,8 @@ typedef struct Operator {
     int iteratorTupleOffset;
     struct Operator* child;
     void (*getTuple) (struct Operator* op, Tuple* tpl);
+    size_t rowGroups;
+    ColumnStatistics* colStats;
 } Operator;
 
 void freeQueryplan(Operator *node);

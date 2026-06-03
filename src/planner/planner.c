@@ -26,7 +26,15 @@ void freeQueryplan(Operator *node) {
             free(node->info.insert.colStats[i].min);
             free(node->info.insert.colStats[i].max);
         }
-        // free(node->info.insert.colStats);
+        free(node->info.insert.colStats);
+    }
+
+    if (node->type == OP_PROJECT) {
+        for (size_t i = 0; i < node->resultDescription.columnOrderCount; i++) {
+            free(node->colStats[i].min);
+            free(node->colStats[i].max);
+        }
+        free(node->colStats);
     }
 
     free(node);

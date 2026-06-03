@@ -5,6 +5,8 @@ size_t tupleSize = 0;
 void* insertBuffer = NULL;
 FILE* f = NULL;
 
+size_t rowCounter = 0;
+
 
 void handleTupleInsert(Operator* op, Tuple* tpl) {
 
@@ -19,10 +21,11 @@ void handleTupleInsert(Operator* op, Tuple* tpl) {
     size_t i = 0;
     long num;
 
+
     for (size_t idx = 0; idx < op->resultDescription.columnOrderCount; idx++) {
         
-        i = op->resultDescription.columnOrder[i];
-        if (!op->resultDescription.columns[i].active) continue;
+        if (!op->resultDescription.columns[idx].active) continue;
+        i = op->resultDescription.columnOrder[idx];
 
         if (op->resultDescription.columns[i].type == DTYPE_LONG) {
             num = getTupleLongColByIndex(tpl, i);
@@ -30,14 +33,9 @@ void handleTupleInsert(Operator* op, Tuple* tpl) {
             tupleSize += sizeof(num);
 
             // maintain stats
-
-            if (num < *((long*) op->info.insert.colStats[i].min)) {
-                // if (op->info.insert.colStats[i].min == NULL) {
-                //     printf("NULLptr\n");
-                //     exit(1);
-                // }
-                // *((long*) op->info.insert.colStats[i].min) = num;
-                memcpy(op->info.insert.colStats[i].min, &num, sizeof num); 
+            void* ptr = op->colStats[i].max + (sizeof(num) * op->rowGroups);
+            if (num > *((long*) ptr)) {
+                memcpy(ptr, &num, sizeof num); 
             }
 
             continue;
@@ -58,6 +56,16 @@ void handleTupleInsert(Operator* op, Tuple* tpl) {
     assert(bytesWritten > 0);
 }
 
+void handleTupleInsertStatistics(Operator* op, Tuple* tpl) {
+    rowCounter++;
+    if (rowCounter >= getOption(OPT_TDB_ROWGROUP_SIZE)) {
+        op->rowGroups++;
+        rowCounter = 0;
+        printf("rowGroups: %ld\n", op->rowGroups);
+    }
+    handleTupleInsert(op, tpl);
+}
+
 
 void executeInsert(Operator* insertOp) {
 
@@ -73,8 +81,8 @@ void executeInsert(Operator* insertOp) {
 
     /* Check target table matches result description of the query */
 
-    // printf("op->resultDescription.columnOrderCount: %ld, tbl.colCount: %ld\n", op->resultDescription.columnOrderCount, tbl.colCount);
-    assert(op->resultDescription.columnCount == tbl.colCount);
+    printf("op->resultDescription.columnOrderCount: %ld, tbl.colCount: %ld\n", op->resultDescription.columnOrderCount, tbl.colCount);
+    assert(op->resultDescription.columnOrderCount == tbl.colCount);
 
     // We need another crappy index as all of the columns in the operator
     // may not be active
@@ -115,12 +123,18 @@ void executeInsert(Operator* insertOp) {
     writeTdbMetadataToFD(f, tbl);
 
     /* Execute the query */
-    execute(op, handleTupleInsert);
+    execute(op, handleTupleInsertStatistics);
 
     /* Write footer */
-    // for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
-    //     printf("Insert has column %ld\n",i );
-    // }
+    printf("op->rowGroups: %ld\n", op->rowGroups);
+    for (size_t rg = 0; rg < op->rowGroups; rg++) {
+        for (size_t i = 0; i < op->resultDescription.columnOrderCount; i++) {
+
+            size_t colIdx = op->resultDescription.columnOrder[i];
+            if (!op->resultDescription.columns[colIdx].active) continue;
+            printf("Rowgroup %ld has column %ld with max value of %ld\n", rg, colIdx, *((long*) (op->colStats[colIdx].max + (rg * sizeof(long)))));
+        }
+    }
 
     /* Clean up */
     free(insertBuffer);
