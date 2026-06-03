@@ -97,7 +97,8 @@ void aggregateGetTuple(Operator* op, Tuple* tpl) {
     }
 
 
-    op->resultDescription.columnCount = 1;
+    op->resultDescription.columnCount       = 1;
+    op->resultDescription.columnOrderCount  = 1;
     op->info.aggregate.aggregationDone = true;
 
     

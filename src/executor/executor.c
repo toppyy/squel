@@ -63,7 +63,7 @@ void executeSelect(Operator* op, void (*tupleHandler)(Operator* op, Tuple* tpl))
 
     doAssignGetTupleFunction(op);
 
-    if (op->resultDescription.columnCount == 0) {
+    if (op->resultDescription.columnOrderCount == 0) {
         printf("No columns selected.");
         exit(1);
     }

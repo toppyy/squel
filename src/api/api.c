@@ -1,7 +1,7 @@
 #include "../include/api/api.h"
 
 size_t getResultSetColumnCount(Operator* queryplan) {
-    return queryplan->resultDescription.columnCount;
+    return queryplan->resultDescription.columnOrderCount;
 }
 
 const char* getResultSetColumnName(Operator* queryplan, size_t colIdx) {

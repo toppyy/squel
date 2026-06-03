@@ -51,6 +51,7 @@ Operator* makeScanOp(Node* node) {
 
     }
     op->resultDescription.columnCount = tbl.columnCount;
+    op->resultDescription.columnOrderCount = tbl.columnCount;
     
 
     return op;

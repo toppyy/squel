@@ -51,6 +51,7 @@ Operator* makeScanTDBOp(Node* node) {
 
     }
     op->resultDescription.columnCount = tbldef.colCount;
+    op->resultDescription.columnOrderCount = tbldef.colCount;
     op->resultDescription.size = op->info.scan.recordSize;
 
     op->info.scan.bufferSize    = op->info.scan.recordSize * TDBSCANBUFFRECORDS;
