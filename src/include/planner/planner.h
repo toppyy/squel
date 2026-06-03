@@ -131,8 +131,8 @@ typedef struct {
 
 typedef struct {
     size_t colIndex;
-    char min[COLSTATS_MINMAX_SIZE];
-    char max[COLSTATS_MINMAX_SIZE];
+    void* min;
+    void* max;
 } ColumnStatistics;
 
 typedef struct {

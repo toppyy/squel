@@ -16,14 +16,30 @@ void handleTupleInsert(Operator* op, Tuple* tpl) {
     memset(insertBuffer, 0, TDBRECORDMAXSIZE);
 
     tupleSize = 0;
+    size_t i = 0;
     long num;
 
-    for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
+    for (size_t idx = 0; idx < op->resultDescription.columnOrderCount; idx++) {
+        
+        i = op->resultDescription.columnOrder[i];
+        if (!op->resultDescription.columns[i].active) continue;
 
         if (op->resultDescription.columns[i].type == DTYPE_LONG) {
             num = getTupleLongColByIndex(tpl, i);
             memcpy((char*) insertBuffer + tupleSize, &num, sizeof num);
             tupleSize += sizeof(num);
+
+            // maintain stats
+
+            if (num < *((long*) op->info.insert.colStats[i].min)) {
+                // if (op->info.insert.colStats[i].min == NULL) {
+                //     printf("NULLptr\n");
+                //     exit(1);
+                // }
+                // *((long*) op->info.insert.colStats[i].min) = num;
+                memcpy(op->info.insert.colStats[i].min, &num, sizeof num); 
+            }
+
             continue;
         }
         
@@ -32,6 +48,8 @@ void handleTupleInsert(Operator* op, Tuple* tpl) {
             tupleSize += TDBMAXSTRINGSIZE;
             continue;
         }
+
+        
         
         assert(0);
     }
@@ -55,19 +73,19 @@ void executeInsert(Operator* insertOp) {
 
     /* Check target table matches result description of the query */
 
-    assert(op->resultDescription.columnOrderCount == tbl.colCount);
+    // printf("op->resultDescription.columnOrderCount: %ld, tbl.colCount: %ld\n", op->resultDescription.columnOrderCount, tbl.colCount);
+    assert(op->resultDescription.columnCount == tbl.colCount);
 
     // We need another crappy index as all of the columns in the operator
     // may not be active
-    size_t colIdx = 0;
     
-    for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
+    for (size_t i = 0; i < op->resultDescription.columnOrderCount; i++) {
+        size_t colIdx = op->resultDescription.columnOrder[i];
+        if (!op->resultDescription.columns[colIdx].active) continue;
 
-        if (!op->resultDescription.columns[i].active) continue;
-
-        if (op->resultDescription.columns[i].type != tbl.datatypes[colIdx]) {
+        if (op->resultDescription.columns[colIdx].type != tbl.datatypes[colIdx]) {
             printf("Target table and query columns do not match at index %ld\n", i);
-            printf("Target: %d, query: %d\n",tbl.datatypes[colIdx], op->resultDescription.columns[i].type);
+            printf("Target: %d, query: %d\n",tbl.datatypes[colIdx], op->resultDescription.columns[colIdx].type);
             exit(1);
         }
         colIdx++;
@@ -100,10 +118,9 @@ void executeInsert(Operator* insertOp) {
     execute(op, handleTupleInsert);
 
     /* Write footer */
-
-    for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
-        printf("Insert has column %ld\n",i );
-    }
+    // for (size_t i = 0; i < op->resultDescription.columnCount; i++) {
+    //     printf("Insert has column %ld\n",i );
+    // }
 
     /* Clean up */
     free(insertBuffer);

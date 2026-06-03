@@ -21,6 +21,14 @@ void freeQueryplan(Operator *node) {
         freeQueryplan(node->info.filter.next);
     }
 
+    if (node->type == OP_STMTINSERT) {
+        for (size_t i = 0; i < node->info.insert.colCount; i++) {
+            free(node->info.insert.colStats[i].min);
+            free(node->info.insert.colStats[i].max);
+        }
+        // free(node->info.insert.colStats);
+    }
+
     free(node);
 }
 
