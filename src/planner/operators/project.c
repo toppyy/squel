@@ -74,10 +74,14 @@ Operator* makeProjectOp(Node* node, Operator* child_op) {
         /* Init colstats */
     op->colStats = (ColumnStatistics*) calloc(op->resultDescription.columnOrderCount, sizeof(ColumnStatistics));
 
+    long max_long = LONG_MAX;
+    printf("Max long is %ld\n", max_long);
+
     for (size_t i = 0; i < op->resultDescription.columnOrderCount; i++) {
-        printf("Allocating to colidx %ld\n", i);
         op->colStats[i].min = calloc(COLSTATS_ROW_GROUPS, COLSTATS_MINMAX_SIZE);
         op->colStats[i].max = calloc(COLSTATS_ROW_GROUPS, COLSTATS_MINMAX_SIZE);
+
+        for (size_t z = 0; z < COLSTATS_ROW_GROUPS; z++)  memcpy(op->colStats[i].min + (z * sizeof(long)), &max_long, sizeof(max_long));
     }
 
     printf("Allocated column stats for %ld columns\n", op->info.insert.colCount);

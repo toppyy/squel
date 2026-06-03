@@ -1,6 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stdio.h>
+#include <limits.h>
 #include "../const.h"
 #include "../io/flatfile.h"
 #include "../io/tdb.h"

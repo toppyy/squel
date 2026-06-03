@@ -34,7 +34,14 @@ void handleTupleInsert(Operator* op, Tuple* tpl) {
 
             // maintain stats
             void* ptr = op->colStats[i].max + (sizeof(num) * op->rowGroups);
+
             if (num > *((long*) ptr)) {
+                memcpy(ptr, &num, sizeof num); 
+            }
+
+            ptr = op->colStats[i].min + (sizeof(num) * op->rowGroups);
+
+            if (num < *((long*) ptr)) {
                 memcpy(ptr, &num, sizeof num); 
             }
 
@@ -132,7 +139,12 @@ void executeInsert(Operator* insertOp) {
 
             size_t colIdx = op->resultDescription.columnOrder[i];
             if (!op->resultDescription.columns[colIdx].active) continue;
-            printf("Rowgroup %ld has column %ld with max value of %ld\n", rg, colIdx, *((long*) (op->colStats[colIdx].max + (rg * sizeof(long)))));
+            printf("Rowgroup %ld has column %ld with max %ld and min %ld\n",
+                    rg,
+                    colIdx,
+                    *((long*) (op->colStats[colIdx].max + (rg * sizeof(long)))),
+                    *((long*) (op->colStats[colIdx].min + (rg * sizeof(long))))
+            );
         }
     }
 
